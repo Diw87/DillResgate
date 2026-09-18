@@ -35,7 +35,9 @@ function Is-Authorized($Request) {
     if ($candidate.Length -ne $token.Length) { return $false }
     $a = [Text.Encoding]::UTF8.GetBytes($candidate)
     $b = [Text.Encoding]::UTF8.GetBytes($token)
-    return [Security.Cryptography.CryptographicOperations]::FixedTimeEquals($a,$b)
+    $diff = 0
+    for ($i=0; $i -lt $a.Length; $i++) { $diff = $diff -bor ($a[$i] -bxor $b[$i]) }
+    return ($diff -eq 0)
 }
 function Mime([string]$Path) {
     switch ([IO.Path]::GetExtension($Path).ToLowerInvariant()) {
