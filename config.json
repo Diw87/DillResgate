@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "autoReboot": true,
+  "rebootDelaySeconds": 90,
+  "maxAutomaticReboots": 1,
+  "minimumFreeGB": 2,
+  "enableMobilePanel": true,
+  "port": 8765,
+  "readOnlyCommandTimeoutSeconds": 3600,
+  "ollama": {
+    "enabled": false,
+    "url": "http://127.0.0.1:11434/api/chat",
+    "model": ""
+  }
+}
