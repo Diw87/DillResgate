@@ -1,0 +1,37 @@
+name: Validar Dill Resgate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validar PowerShell
+        shell: powershell
+        run: |
+          $errors = @()
+          Get-ChildItem -Recurse -Include *.ps1,*.psm1 | ForEach-Object {
+            $tokens = $null
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors.Count -gt 0) {
+              $parseErrors | ForEach-Object { Write-Error ($_.Message + " em " + $_.Extent.File + ":" + $_.Extent.StartLineNumber) }
+              $errors += $parseErrors
+            }
+          }
+          if ($errors.Count -gt 0) { exit 1 }
+      - name: Validar JavaScript
+        shell: pwsh
+        run: node --check web/app.js
+      - name: Verificar arquivos essenciais
+        shell: pwsh
+        run: |
+          $required = @('src/Start.ps1','src/Core.psm1','src/Worker.ps1','src/Server.ps1','web/index.html','web/style.css','web/app.js','config.json','01_INICIAR_AUTONOMO.cmd','02_SO_DIAGNOSTICO.cmd')
+          foreach ($f in $required) { if (-not (Test-Path $f)) { throw "Arquivo essencial ausente: $f" } }
