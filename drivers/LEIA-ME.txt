@@ -1,0 +1,1 @@
+Coloque nesta pasta apenas drivers oficiais em formato INF que você precise adicionar manualmente à imagem WinPE. O Dill Resgate não baixa nem instala drivers desconhecidos automaticamente.
