@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dill Resgate v0.2</title><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+<header><div class="logo">DR</div><div><h1>Dill Resgate <span>v0.2</span></h1><p>Diagnostica. Entende. Corrige.</p></div><div id="live" class="badge">CONECTANDO</div></header>
+<main>
+<section class="panel hero">
+<div class="eyebrow">CENTRAL DE ATENDIMENTO</div>
+<h2 id="step">Preparando atendimento...</h2>
+<p id="summary">Aguardando o motor de diagnóstico.</p>
+<div class="cards">
+<div class="card"><small>Resultado</small><strong id="outcome">—</strong></div>
+<div class="card"><small>Espaço livre</small><strong id="free">—</strong></div>
+<div class="card"><small>Modo</small><strong id="mode">—</strong></div>
+</div>
+<h3>Verificações</h3><div id="checks" class="checks"></div>
+</section>
+<aside class="panel">
+<div class="eyebrow">ATIVIDADE</div><h3>Ações executadas</h3><div id="actions" class="timeline"></div>
+<h3>Observações</h3><div id="notes" class="notes"></div>
+<div class="buttons"><button id="report">Ver relatório</button><button id="stop" class="secondary">Fechar painel</button></div>
+</aside>
+</main>
+<div id="modal" class="modal hidden"><div class="modalbox"><button id="close">×</button><pre id="reportText"></pre></div></div>
+<footer>O Dill Resgate executa reparos somente no computador local, com privilégios administrativos.</footer>
+</div><script src="app.js"></script>
+</body></html>
