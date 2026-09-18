@@ -1,0 +1,6 @@
+atendimentos/
+*.log
+*.tmp
+*.iso
+.DS_Store
+Thumbs.db
