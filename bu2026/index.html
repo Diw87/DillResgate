@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>B.U. 2026 — Olho d'Água das Cunhãs</title>
+<title>DW Tech • B.U. 2026 — Olho d'Água das Cunhãs</title>
 <style>
 :root{--bg:#eef3f8;--panel:#fff;--text:#172033;--muted:#667085;--line:#dfe5ec;--primary:#0b4f78;--primary2:#0878b7;--ok:#067647;--warn:#b54708;--danger:#b42318;--blueSoft:#eff8ff;--shadow:0 12px 34px rgba(16,24,40,.08);--radius:16px}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#e7f1f9,#f5f7fa 280px);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.top{max-width:1650px;margin:auto;padding:12px 18px;display:flex;gap:14px;align-items:center;justify-content:space-between}.brand{display:flex;gap:11px;align-items:center}.logo{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#073b5c,#0ea5e9);color:#fff;display:grid;place-items:center;font-weight:900}.brand h1{margin:0;font-size:19px}.brand small{color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap}button{border:0;border-radius:10px;padding:10px 13px;font-weight:800;cursor:pointer}.primary{background:var(--primary);color:#fff}.primary:hover{background:var(--primary2)}.soft{background:#fff;border:1px solid var(--line);color:var(--text)}.danger{background:#fee4e2;color:var(--danger)}
@@ -14,18 +14,356 @@ main{max-width:1650px;margin:auto;padding:20px 18px 40px}.hero{display:flex;just
 .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}.stat{background:#fff;border:1px solid var(--line);border-radius:13px;padding:13px;box-shadow:var(--shadow)}.stat span{display:block;font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase}.stat strong{display:block;font-size:23px;margin-top:6px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line);background:#fafbfc}.toolbar input,.toolbar select{max-width:250px}.table-wrap{overflow:auto;max-height:620px}table{width:100%;border-collapse:collapse;min-width:1150px}th,td{padding:10px 11px;border-bottom:1px solid var(--line);text-align:left;font-size:12px}th{position:sticky;top:0;background:#f8fafc;color:#667085;text-transform:uppercase;font-size:10px}.badge{display:inline-flex;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:800}.ok{background:#dcfae6;color:#067647}.warn{background:#fef0c7;color:#93370d}
 .results-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.result-panel{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}.result-panel h3{margin:0;padding:13px 14px;border-bottom:1px solid var(--line);font-size:14px}.rank-list{max-height:620px;overflow:auto}.rank-row{display:grid;grid-template-columns:50px 80px 1fr 110px;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}.rank-row .rpos,.rank-row .rnum{font-weight:900}.rank-row .rname{font-weight:750;font-size:12px}.rank-row .rparty{color:var(--muted)}.rank-row .rvotes{text-align:right;font-weight:900}.rank-row .rvotes span{display:block;color:#0284c7;font-size:11px}.candidate-browser{display:grid;grid-template-columns:210px 1fr;gap:12px}.candidate-list{border:1px solid var(--line);border-radius:12px;overflow:auto;max-height:650px}.candidate-item{display:grid;grid-template-columns:80px 1fr 105px;gap:8px;padding:9px 11px;border-bottom:1px solid var(--line);font-size:12px}.candidate-item b{font-size:13px}.candidate-item .st{font-size:10px;color:var(--muted)}.notice{margin-top:14px;padding:12px 14px;border-radius:11px;background:#fffaeb;border:1px solid #fedf89;color:#93370d;font-size:12px}.empty{padding:28px;text-align:center;color:var(--muted);font-size:12px}
 @media(max-width:1200px){.form-grid{grid-template-columns:repeat(2,1fr)}.span4{grid-column:span 2}.stats{grid-template-columns:repeat(3,1fr)}.results-grid{grid-template-columns:1fr}}@media(max-width:760px){main{padding:12px}.top{padding:10px 12px}.form-grid{grid-template-columns:1fr}.span2,.span4{grid-column:auto}.quick,.quick.legend{grid-template-columns:1fr}.summary-line{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.candidate-browser{grid-template-columns:1fr}.vote-row{grid-template-columns:64px 1fr 80px 44px}}
+
+/* =========================================================
+   DW TECH • IDENTIDADE VISUAL OFICIAL DO B.U. 2026
+   ========================================================= */
+:root{
+  --dw-orange:#ff650d;
+  --dw-orange-2:#ff7a18;
+  --dw-black:#0b0d0f;
+  --dw-black-2:#15191e;
+  --dw-black-3:#20262d;
+  --dw-silver:#eef1f4;
+  --dw-line:#d8dde3;
+  --dw-text:#171a1f;
+  --dw-muted:#68717c;
+  --primary:var(--dw-orange);
+  --primary2:var(--dw-orange-2);
+  --blueSoft:#fff2e9;
+  --shadow:0 12px 32px rgba(7,10,14,.09);
+  --radius:12px;
+}
+html{scroll-behavior:smooth}
+body{
+  background:#f4f6f8;
+  color:var(--dw-text);
+  font-family:Inter,"Segoe UI",Arial,sans-serif;
+}
+header.dw-header{
+  position:sticky;top:0;z-index:90;
+  background:linear-gradient(112deg,#080a0c 0%,#11151a 58%,#07090b 100%);
+  border-bottom:4px solid var(--dw-orange);
+  box-shadow:0 8px 28px rgba(0,0,0,.18);
+}
+.dw-top{
+  min-height:96px;
+  display:grid;
+  grid-template-columns:360px minmax(320px,1fr) 330px;
+  align-items:center;
+  gap:18px;
+  padding:10px 26px;
+  position:relative;
+  overflow:hidden;
+}
+.dw-top:after{
+  content:"";
+  position:absolute;
+  right:-70px;top:-95px;
+  width:360px;height:250px;
+  border:3px solid var(--dw-orange);
+  transform:skewX(-24deg);
+  opacity:.55;
+  pointer-events:none;
+}
+.dw-brand{display:flex;align-items:center;gap:14px;position:relative;z-index:2}
+.dw-symbol{width:56px;height:62px;position:relative;flex:0 0 auto}
+.dw-symbol i{position:absolute;width:16px;height:48px;background:var(--dw-orange);transform:skewY(-38deg);border-radius:2px}
+.dw-symbol i:first-child{left:8px;top:2px}
+.dw-symbol i:last-child{left:31px;top:14px}
+.dw-word strong{display:block;color:#fff;font-size:35px;line-height:1;font-weight:950;letter-spacing:-2px}
+.dw-word strong span{color:var(--dw-orange)}
+.dw-word small{display:block;color:#fff;opacity:.78;font-size:10px;letter-spacing:5px;margin-top:7px;white-space:nowrap}
+.dw-title{text-align:center;position:relative;z-index:2}
+.dw-title b{display:block;color:#f7f7f7;font-size:23px;letter-spacing:.3px}
+.dw-title b span{color:var(--dw-orange)}
+.dw-title small{display:block;color:#c2c8ce;margin-top:6px;letter-spacing:2.5px;font-size:10px;text-transform:uppercase}
+.dw-strap{position:relative;z-index:2;color:#d1d6db;text-align:right;font-size:10px;line-height:1.8;letter-spacing:2.5px;text-transform:uppercase;padding-right:12px}
+.dw-sidebar{
+  position:fixed;
+  left:0;top:100px;bottom:0;
+  width:220px;
+  z-index:60;
+  padding:22px 14px 18px;
+  background:linear-gradient(180deg,#171b20,#252c33 72%,#171b20);
+  border-right:1px solid #343b43;
+  display:flex;flex-direction:column;
+  box-shadow:8px 0 24px rgba(0,0,0,.06);
+}
+.side-link{
+  width:100%;
+  display:flex;align-items:center;gap:12px;
+  background:transparent;color:#f5f7f9;
+  border:1px solid transparent;
+  border-radius:8px;
+  padding:12px 13px;
+  margin:3px 0;
+  text-align:left;
+  font-size:13px;
+  font-weight:700;
+  transition:.18s ease;
+}
+.side-link:hover{background:#2c333b;border-color:#3a424c}
+.side-link.active{
+  background:linear-gradient(90deg,var(--dw-orange),#ff7c21);
+  color:#fff;
+  box-shadow:0 7px 20px rgba(255,101,13,.22);
+}
+.side-icon{width:23px;text-align:center;font-size:18px}
+.side-grow{flex:1}
+.side-signature{
+  margin-top:auto;
+  color:#aeb5bd;
+  border-top:1px solid #3a424b;
+  padding:18px 10px 4px;
+  font-size:9px;line-height:1.9;
+  letter-spacing:3px;
+  text-transform:uppercase;
+}
+.side-signature b{display:block;color:var(--dw-orange);font-size:14px;letter-spacing:0;margin-bottom:8px}
+main{
+  max-width:none;
+  margin:0 0 0 220px;
+  padding:24px 28px 38px;
+}
+.hero{
+  background:#fff;
+  border:1px solid var(--dw-line);
+  border-radius:12px;
+  padding:19px 21px;
+  box-shadow:var(--shadow);
+  margin-bottom:13px;
+  align-items:center;
+}
+.hero .eyebrow{
+  display:block;
+  color:#4a515a;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  margin-bottom:3px;
+}
+.hero h2{font-size:30px;line-height:1.05;margin:0;color:#111318;font-weight:950;letter-spacing:-.7px}
+.hero h2 span{color:var(--dw-orange)}
+.hero p{
+  margin-top:8px;
+  color:#717985;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:3px;
+  text-transform:uppercase;
+}
+.source{
+  color:#313840;
+  background:linear-gradient(135deg,#f7f8fa,#eef1f4);
+  border:1px solid var(--dw-line);
+  border-left:4px solid var(--dw-orange);
+  border-radius:10px;
+  min-width:310px;
+  padding:12px 14px;
+  font-size:11px;
+  box-shadow:none;
+}
+.tabs{
+  gap:7px;
+  margin-bottom:13px;
+  background:transparent;
+}
+.tab{
+  flex:1 1 160px;
+  padding:12px 16px;
+  border-radius:8px 8px 0 0;
+  background:linear-gradient(180deg,#f7f8fa,#e9edf1);
+  border:1px solid var(--dw-line);
+  border-bottom:2px solid #cfd5dc;
+  color:#23272d;
+  box-shadow:none;
+}
+.tab.active{
+  background:linear-gradient(180deg,#ff741d,var(--dw-orange));
+  border-color:var(--dw-orange);
+  color:#fff;
+  box-shadow:0 6px 18px rgba(255,101,13,.18);
+}
+.card,.result-panel,.stat{
+  border:1px solid var(--dw-line);
+  border-radius:11px;
+  background:#fff;
+  box-shadow:0 8px 24px rgba(19,27,36,.055);
+}
+.head{
+  border-bottom:1px solid #e1e5ea;
+  padding:13px 15px;
+  background:linear-gradient(180deg,#fff,#fbfcfd);
+}
+.head h3{
+  font-size:14px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.2px;
+  position:relative;
+  padding-left:15px;
+}
+.head h3:before{
+  content:"";
+  position:absolute;left:0;top:2px;bottom:2px;
+  width:4px;border-radius:4px;
+  background:var(--dw-orange);
+}
+.body{padding:16px}
+button{border-radius:7px}
+.primary{
+  background:linear-gradient(180deg,#ff741d,var(--dw-orange));
+  color:#fff;
+  box-shadow:0 5px 14px rgba(255,101,13,.18);
+}
+.primary:hover{background:#ff7b21;transform:translateY(-1px)}
+.soft{background:#f4f6f8;border:1px solid #d6dce2;color:#272c32}
+.soft:hover{border-color:#b9c1c9;background:#fff}
+label{color:#3b424a;font-size:11px}
+input,select{
+  border-radius:7px;
+  border:1px solid #ccd3da;
+  background:#fff;
+  color:#191d21;
+}
+input:focus,select:focus{
+  border-color:var(--dw-orange);
+  box-shadow:0 0 0 3px rgba(255,101,13,.12);
+}
+input[readonly]{background:#f1f3f5;color:#505861}
+.office-tabs{
+  background:#f2f4f6;
+  border:1px solid #dce1e6;
+  padding:6px;
+  border-radius:9px;
+}
+.office-tab{
+  flex:1 1 130px;
+  background:transparent;
+  border:0;
+  color:#30363d;
+  border-radius:6px;
+}
+.office-tab.active{
+  background:linear-gradient(180deg,#ff741d,var(--dw-orange));
+  color:#fff;border:0;
+  box-shadow:0 4px 12px rgba(255,101,13,.18);
+}
+.office-panel{border-radius:9px;border-color:#d9dfe5}
+.office-head{background:#f8f9fa;border-bottom:1px solid #dce1e6}
+.match{border-radius:7px;background:#f5f7f9}
+.vote-row{border-bottom:1px solid #e6e9ed}
+.vote-row .num{color:var(--dw-orange)}
+.summary-line{background:#f7f8fa;border-top:1px solid #dce1e6}
+.sum-box{border-radius:8px;background:#fff}
+.conference{border-radius:8px}
+.stats{gap:9px}
+.stat{
+  border-top:3px solid var(--dw-orange);
+  padding:12px 13px;
+}
+.stat span{color:#707986}
+.stat strong{color:#15191e}
+.toolbar{background:#f8f9fa}
+th{
+  background:#1c2127;
+  color:#fff;
+  letter-spacing:.4px;
+}
+tbody tr:nth-child(even){background:#fafbfc}
+tbody tr:hover{background:#fff4ec}
+.badge.ok{background:#e9f8ee;color:#16834f}
+.badge.warn{background:#fff0e6;color:#c74b00}
+.result-panel h3{
+  background:#1c2127;
+  color:#fff;
+  border-bottom:3px solid var(--dw-orange);
+}
+.rank-row .rpos,.rank-row .rnum{color:var(--dw-orange)}
+.rank-row .rvotes span{color:#d45200}
+.candidate-list{border-radius:9px}
+.candidate-item:nth-child(even){background:#fafbfc}
+.notice{
+  color:#7b3b12;
+  background:#fff4ec;
+  border:1px solid #ffc49d;
+  border-left:4px solid var(--dw-orange);
+  border-radius:8px;
+}
+.dw-footer{
+  margin-top:16px;
+  min-height:48px;
+  padding:10px 16px;
+  background:linear-gradient(90deg,#101317,#232930,#101317);
+  border-radius:9px;
+  border-left:7px solid var(--dw-orange);
+  color:#d8dde2;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:18px;
+  font-size:9px;
+  letter-spacing:2.8px;
+  text-transform:uppercase;
+}
+.dw-footer b{font-size:17px;letter-spacing:-.3px;color:#fff;text-transform:none}
+.dw-footer b span{color:var(--dw-orange)}
+.dw-footer .orange{color:var(--dw-orange)}
+@media(max-width:1180px){
+  .dw-top{grid-template-columns:300px 1fr}.dw-strap{display:none}
+  .dw-word strong{font-size:30px}
+}
+@media(max-width:900px){
+  header.dw-header{position:sticky}
+  .dw-top{min-height:78px;grid-template-columns:1fr auto;padding:9px 14px}
+  .dw-brand{gap:9px}.dw-symbol{width:39px;height:45px}.dw-symbol i{width:11px;height:35px}.dw-symbol i:last-child{left:23px;top:9px}
+  .dw-word strong{font-size:25px}.dw-word small{font-size:7px;letter-spacing:2.4px}
+  .dw-title{text-align:right}.dw-title b{font-size:15px}.dw-title small{display:none}
+  .dw-sidebar{display:none}
+  main{margin-left:0;padding:14px}
+  .hero{padding:15px}.hero h2{font-size:23px}
+  .hero p{letter-spacing:1.5px;line-height:1.5}
+  .source{min-width:0;width:100%}
+  .dw-footer{flex-direction:column;align-items:flex-start;letter-spacing:1.8px}
+}
+@media(max-width:560px){
+  .dw-title b span{display:block}.dw-top{grid-template-columns:1fr 1fr}
+  .tabs{display:grid;grid-template-columns:1fr 1fr}
+  .tab{border-radius:7px}
+}
+
 </style>
 </head>
 <body>
-<header><div class="top"><div class="brand"><div class="logo">B.U.</div><div><h1>B.U. 2026 — Maranhão</h1><small>Apuração independente por Boletim de Urna • Olho d'Água das Cunhãs</small></div></div><div class="actions"><button class="primary" onclick="openResultsWindow()">Resultados em Nova Janela</button><button class="soft" onclick="refreshCandidates(true)">Recarregar base TSE</button><button class="soft" onclick="exportCSV()">Exportar apuração</button><button class="soft" onclick="backupJSON()">Backup</button></div></div></header>
+<header class="dw-header"><div class="dw-top">
+  <div class="dw-brand">
+    <div class="dw-symbol" aria-hidden="true"><i></i><i></i></div>
+    <div class="dw-word"><strong>DW <span>Tech</span></strong><small>SOLUÇÕES EM TECNOLOGIA</small></div>
+  </div>
+  <div class="dw-title"><b>B.U. 2026 — <span>Boletim de Urna</span></b><small>Apuração inteligente • desenvolvido pela DW Tech</small></div>
+  <div class="dw-strap">hardware • performance<br>confiança • sempre com você</div>
+</div></header>
+<aside class="dw-sidebar">
+  <button class="side-link active" data-target="novo" onclick="showMain('novo',document.querySelectorAll('.tab')[0])"><span class="side-icon">⌂</span><span>Início / Novo B.U.</span></button>
+  <button class="side-link" data-target="apurados" onclick="showMain('apurados',document.querySelectorAll('.tab')[1])"><span class="side-icon">▥</span><span>B.U.s Apurados</span></button>
+  <button class="side-link" data-target="resultados" onclick="showMain('resultados',document.querySelectorAll('.tab')[2])"><span class="side-icon">▥</span><span>Resultados</span></button>
+  <button class="side-link" data-target="candidatos" onclick="showMain('candidatos',document.querySelectorAll('.tab')[3])"><span class="side-icon">●</span><span>Candidatos 2026</span></button>
+  <div class="side-grow"></div>
+  <button class="side-link" onclick="openResultsWindow()"><span class="side-icon">↗</span><span>Tela de Resultados</span></button>
+  <button class="side-link" onclick="refreshCandidates(true)"><span class="side-icon">↻</span><span>Recarregar TSE</span></button>
+  <button class="side-link" onclick="exportCSV()"><span class="side-icon">⇩</span><span>Exportar CSV</span></button>
+  <button class="side-link" onclick="backupJSON()"><span class="side-icon">◆</span><span>Backup</span></button>
+  <div class="side-signature"><b>DW Tech</b>tecnologia hoje.<br>mais conquistas amanhã.</div>
+</aside>
 <main>
-<div class="hero"><div><h2>Eleições Gerais 2026</h2><p>Deputado Federal → Deputado Estadual → Senador 1 → Senador 2 → Governador → Presidente.</p></div><div class="source" id="sourceStatus">Base de candidatos ainda não carregada.</div></div>
-<div class="tabs"><button class="tab active" onclick="showMain('novo',this)">Novo B.U.</button><button class="tab" onclick="showMain('apurados',this)">B.U.s Apurados</button><button class="tab" onclick="showMain('resultados',this)">Resultados</button><button class="tab" onclick="showMain('candidatos',this)">Candidatos 2026</button></div>
+<div class="hero"><div><span class="eyebrow">Bem-vindo ao sistema</span><h2>B.U. 2026 — <span>BOLETIM DE URNA</span></h2><p>Olho d'Água das Cunhãs — MA • apuração segura, rápida e transparente</p></div><div class="source" id="sourceStatus">Base de candidatos ainda não carregada.</div></div>
+<div class="tabs"><button class="tab active" onclick="showMain('novo',this)">▣ &nbsp;Novo B.U.</button><button class="tab" onclick="showMain('apurados',this)">▥ &nbsp;B.U.s Apurados</button><button class="tab" onclick="showMain('resultados',this)">▥ &nbsp;Resultados</button><button class="tab" onclick="showMain('candidatos',this)">● &nbsp;Candidatos 2026</button></div>
 <section id="novo" class="section active"><div class="card"><div class="head"><h3>Identificação da seção</h3><button class="soft" onclick="resetBU()">Limpar B.U.</button></div><div class="body"><form id="buForm"><input type="hidden" id="buId"><div class="form-grid"><div class="field"><label>Município</label><input id="municipio" value="Olho d'Água das Cunhãs" readonly></div><div class="field"><label>UF</label><input id="uf" value="MA" readonly></div><div class="field"><label>Zona eleitoral</label><input id="zona" value="87" readonly></div><div class="field"><label>Seção *</label><select id="secao" required onchange="fillSection()"><option value="">Selecione a seção</option></select></div><div class="field span2"><label>Local de votação</label><input id="local" readonly></div><div class="field span2"><label>Endereço</label><input id="enderecoLocal" readonly></div><div class="field"><label>ID / código da urna</label><input id="urna"></div><div class="field"><label>Data da eleição</label><input id="dataEleicao" type="date" value="2026-10-04"></div><div class="field"><label>Eleitores aptos *</label><input id="aptos" type="number" min="0" required oninput="refreshConference()"></div><div class="field"><label>Comparecimento *</label><input id="comparecimento" type="number" min="0" required oninput="refreshConference()"></div></div><div class="office-tabs" id="officeTabs"></div><div id="officePanels"></div><div id="conference" class="conference conf-bad">Aguardando lançamento dos votos.</div><div class="actions" style="margin-top:13px"><button class="primary" type="submit">Salvar B.U.</button><button class="soft" type="button" onclick="refreshConference()">Conferir agora</button></div></form></div></div></section>
 <section id="apurados" class="section"><div class="stats"><div class="stat"><span>B.U.s</span><strong id="stBU">0</strong></div><div class="stat"><span>Seções restantes</span><strong id="stRest">80</strong></div><div class="stat"><span>Aptos</span><strong id="stAptos">0</strong></div><div class="stat"><span>Comparecimento</span><strong id="stComp">0</strong></div><div class="stat"><span>Faltosos</span><strong id="stFalt">0</strong></div><div class="stat"><span>Progresso</span><strong id="stProg">0%</strong></div></div><div class="card"><div class="head"><h3>B.U.s lançados</h3><span id="buCount" style="font-size:12px;color:#667085"></span></div><div class="toolbar"><input id="buSearch" placeholder="Pesquisar seção, urna ou local..." oninput="renderBUs()"><select id="buZone" onchange="renderBUs()"><option value="">Todas as seções</option></select></div><div class="table-wrap"><table><thead><tr><th>Seção</th><th>Local</th><th>Urna</th><th>Aptos</th><th>Comparecimento</th><th>Fed.</th><th>Est.</th><th>Senador</th><th>Gov.</th><th>Pres.</th><th>Status</th><th>Ações</th></tr></thead><tbody id="buBody"></tbody></table><div class="empty" id="buEmpty">Nenhum B.U. salvo.</div></div></div></section>
 <section id="resultados" class="section"><div class="results-grid" id="resultsGrid"></div></section>
 <section id="candidatos" class="section"><div class="card"><div class="head"><h3>Base de candidatos cadastrados</h3><div class="actions"><button class="primary" onclick="refreshCandidates(true)">Atualizar pelo TSE</button></div></div><div class="body"><div class="candidate-browser"><div><div class="field"><label>Cargo</label><select id="candOffice" onchange="renderCandidateBrowser()"></select></div><div class="field" style="margin-top:8px"><label>Pesquisar</label><input id="candSearch" placeholder="Número, nome ou partido..." oninput="renderCandidateBrowser()"></div><div id="candSummary" class="source" style="margin-top:10px"></div></div><div id="candidateList" class="candidate-list"></div></div></div></div></section>
 <div class="notice"><strong>Importante:</strong> ferramenta independente para digitação e conferência de B.U.s. Não substitui o Boletim de Urna oficial nem a totalização oficial da Justiça Eleitoral. Os dados ficam salvos somente neste navegador/dispositivo.</div>
+<div class="dw-footer"><b>DW <span>Tech</span></b><span>Soluções reais para pessoas reais</span><span><span class="orange">inovação</span> • desempenho • confiança</span><span>B.U. 2026 • desenvolvido pela DW Tech</span></div>
 </main>
 <script>
 const ODAC_SECOES=[{"secao":"1","local":"Escola Municipal Raimunda Jacome Ericeira","endereco":"Travessa Santo Antonio, S/N, Centro - Zona Urbana"},{"secao":"2","local":"Escola Municipal Raimunda Jacome Ericeira","endereco":"Travessa Santo Antonio, S/N, Centro - Zona Urbana"},{"secao":"3","local":"Escola Municipal Raimunda Jacome Ericeira","endereco":"Travessa Santo Antonio, S/N, Centro - Zona Urbana"},{"secao":"4","local":"Escola Municipal Raimunda Jacome Ericeira","endereco":"Travessa Santo Antonio, S/N, Centro - Zona Urbana"},{"secao":"5","local":"Unidade Integrada Dr Jose Maria Cabral Marques","endereco":"Praca Jose Antonio de Azevedo, S/N, Centro - Zona Urbana"},{"secao":"6","local":"Unidade Integrada Dr Jose Maria Cabral Marques","endereco":"Praca Jose Antonio de Azevedo, S/N, Centro - Zona Urbana"},{"secao":"7","local":"Unidade Integrada Dr Jose Maria Cabral Marques","endereco":"Praca Jose Antonio de Azevedo, S/N, Centro - Zona Urbana"},{"secao":"8","local":"Escola Municipal Frei Estevao","endereco":"Rua Paulo Ramos, S/N, Centro - Zona Urbana"},{"secao":"10","local":"Escola Municipal Frei Estevao","endereco":"Rua Paulo Ramos, S/N, Centro - Zona Urbana"},{"secao":"12","local":"Colegio Estadual Dr. Francisco Batista Ferreira","endereco":"Travessa Santo Antonio, S/N, Centro - Zona Urbana"},{"secao":"14","local":"Colegio Estadual Dr. Francisco Batista Ferreira","endereco":"Travessa Santo Antonio, S/N, Centro - Zona Urbana"},{"secao":"16","local":"Colegio Estadual Dr. Francisco Batista Ferreira","endereco":"Travessa Santo Antonio, S/N, Centro - Zona Urbana"},{"secao":"18","local":"Colegio Estadual Dr. Francisco Batista Ferreira","endereco":"Travessa Santo Antonio, S/N, Centro - Zona Urbana"},{"secao":"20","local":"Unidade Integrada Dr Jose Maria Cabral Marques","endereco":"Praca Jose Antonio de Azevedo, S/N, Centro - Zona Urbana"},{"secao":"21","local":"Unidade Integrada Dr Jose Maria Cabral Marques","endereco":"Praca Jose Antonio de Azevedo, S/N, Centro - Zona Urbana"},{"secao":"22","local":"Unidade Integrada Dr Jose Maria Cabral Marques","endereco":"Praca Jose Antonio de Azevedo, S/N, Centro - Zona Urbana"},{"secao":"23","local":"Escola Municipal Vitorino Cabral","endereco":"Rua Santa Helena, S/N, Antonio Cafe - Zona Urbana"},{"secao":"25","local":"Escola Municipal Humberto de Campos","endereco":"Praca da Republica, S/N, Centro - Zona Urbana"},{"secao":"27","local":"Escola Municipal Humberto de Campos","endereco":"Praca da Republica, S/N, Centro - Zona Urbana"},{"secao":"29","local":"Jardim de Infancia Municipal Manoel Campos Sousa","endereco":"Rua Sao Francisco, S/N, Bairro Novo - Zona Urbana"},{"secao":"30","local":"Escola Estadual Ministro Marco Maciel","endereco":"Rua Santo Antonio, S/N, Bairro Novo - Zona Urbana"},{"secao":"31","local":"Escola Estadual Ministro Marco Maciel","endereco":"Rua Santo Antonio, S/N, Bairro Novo - Zona Urbana"},{"secao":"32","local":"Escola Estadual Ministro Marco Maciel","endereco":"Rua Santo Antonio, S/N, Bairro Novo - Zona Urbana"},{"secao":"33","local":"Escola Estadual Ministro Marco Maciel","endereco":"Rua Santo Antonio, S/N, Bairro Novo - Zona Urbana"},{"secao":"34","local":"Escola Municipal Roseana Sarney","endereco":"Rua dos Jasmins, S/N, Residencial Primavera - Zona Urbana"},{"secao":"35","local":"Escola Municipal Roseana Sarney","endereco":"Rua dos Jasmins, S/N, Residencial Primavera - Zona Urbana"},{"secao":"36","local":"Escola Municipal Roseana Sarney","endereco":"Rua dos Jasmins, S/N, Residencial Primavera - Zona Urbana"},{"secao":"37","local":"Sindicato dos Trabalhadores Rurais","endereco":"Avenida Zezico Costa, S/N, Centro - Zona Urbana"},{"secao":"39","local":"Escola Municipal Tia Santoca","endereco":"Rua Grande, S/N - Zona Rural"},{"secao":"40","local":"Escola Municipal Argemira Bastos Silva","endereco":"Rua Antonio de Sousa, Povoado Bacuri da Linha - Zona Rural"},{"secao":"41","local":"Escola Municipal Argemira Bastos Silva","endereco":"Rua Antonio de Sousa, Povoado Bacuri da Linha - Zona Rural"},{"secao":"42","local":"Escola Municipal Jose Sarney","endereco":"Rua Grande, S/N, Povoado Bacuri da Linha - Zona Rural"},{"secao":"43","local":"Escola Municipal Jose Sarney","endereco":"Rua Grande, S/N, Povoado Bacuri da Linha - Zona Rural"},{"secao":"46","local":"Escola Municipal Jose Sarney","endereco":"Rua Grande, S/N, Povoado Bacuri da Linha - Zona Rural"},{"secao":"49","local":"Escola Municipal Aluisio Holanda Lima","endereco":"Povoado Limoeiro da Mata - Zona Rural"},{"secao":"50","local":"Escola Municipal Jose Antonio de Azevedo","endereco":"BR-316, Povoado Setubal dos Barreiros - Zona Rural"},{"secao":"51","local":"Escola Municipal Dr. Magno Bacelar","endereco":"Povoado Telemacos - Zona Rural"},{"secao":"52","local":"Escola Municipal do Canela","endereco":"Povoado Canela dos Ferreiras - Zona Rural"},{"secao":"53","local":"Escola Municipal Raimundo Cafe","endereco":"Povoado Centro de Jose Rodrigues, S/N - Zona Rural"},{"secao":"54","local":"Escola Municipal Raimundo Cafe","endereco":"Povoado Centro de Jose Rodrigues, S/N - Zona Rural"},{"secao":"55","local":"Escola Municipal Miguel Gastao do Nascimento - Francilina","endereco":"Povoado Francilina - Zona Rural"},{"secao":"56","local":"Escola Municipal Dom Pedro II","endereco":"Povoado Santa Maria do Mazol - Zona Rural"},{"secao":"67","local":"Escola Municipal Dr. Magno Bacelar","endereco":"Povoado Telemacos - Zona Rural"},{"secao":"72","local":"Escola Municipal Padre Mohama","endereco":"BR-316, Km 320, S/N, Povoado Ze Chicao - Zona Rural"},{"secao":"73","local":"Escola Municipal Veloso Silva","endereco":"MA-010, Povoado Velosiana - Zona Rural"},{"secao":"74","local":"Escola Municipal Raimundo Leal","endereco":"Povoado Barraquinha da Linha - Zona Rural"},{"secao":"75","local":"Colegio Municipal Miguel Gastao do Nascimento","endereco":"Povoado Centro dos Gastoes - Zona Rural"},{"secao":"78","local":"Escola Municipal Vereador Antonio Tomaz","endereco":"Povoado Centro dos Jose Rodrigues - Zona Rural"},{"secao":"136","local":"Escola Municipal Sao Raimundo","endereco":"Povoado Pinheiro - Zona Rural"},{"secao":"143","local":"Escola Municipal Sao Jose","endereco":"Povoado Fortaleza dos Gustavos - Zona Rural"},{"secao":"148","local":"Escola Municipal Vereador Antonio Tomaz","endereco":"Povoado Centro dos Jose Rodrigues - Zona Rural"},{"secao":"149","local":"Escola Municipal Vitorino Cabral","endereco":"Rua Santa Helena, S/N, Antonio Cafe - Zona Urbana"},{"secao":"150","local":"Escola Municipal Tia Santoca","endereco":"Rua Grande, S/N - Zona Rural"},{"secao":"153","local":"Jardim de Infancia Municipal Manoel Campos Sousa","endereco":"Rua Sao Francisco, S/N, Bairro Novo - Zona Urbana"},{"secao":"158","local":"Escola Municipal Antonio Lisboa de Castro","endereco":"Rua do Anil, S/N, Vila Elvira - Zona Urbana"},{"secao":"167","local":"Escola Municipal Argemira Bastos Silva","endereco":"Rua Antonio de Sousa, Povoado Bacuri da Linha - Zona Rural"},{"secao":"178","local":"Escola Municipal Jose Sarney","endereco":"Rua Grande, S/N, Povoado Bacuri da Linha - Zona Rural"},{"secao":"180","local":"Escola Municipal Santo Antonio","endereco":"Povoado Teteu - Zona Rural"},{"secao":"183","local":"Escola Municipal Humberto de Campos","endereco":"Praca da Republica, S/N, Centro - Zona Urbana"},{"secao":"185","local":"Escola Municipal Aluisio Holanda Lima","endereco":"Povoado Limoeiro da Mata - Zona Rural"},{"secao":"186","local":"Escola Municipal Veloso Silva","endereco":"MA-010, Povoado Velosiana - Zona Rural"},{"secao":"190","local":"Escola Municipal Miguel Gastao do Nascimento - Francilina","endereco":"Povoado Francilina - Zona Rural"},{"secao":"191","local":"Escola Municipal Antonio Lisboa de Castro","endereco":"Rua do Anil, S/N, Vila Elvira - Zona Urbana"},{"secao":"192","local":"Escola Municipal Raimundo Leal","endereco":"Povoado Barraquinha da Linha - Zona Rural"},{"secao":"194","local":"Escola Municipal Dom Pedro II","endereco":"Povoado Santa Maria do Mazol - Zona Rural"},{"secao":"195","local":"Escola Municipal Sao Raimundo","endereco":"Povoado Pinheiro - Zona Rural"},{"secao":"196","local":"Escola Municipal do Canela","endereco":"Povoado Canela dos Ferreiras - Zona Rural"},{"secao":"197","local":"Escola Municipal Jose Antonio de Azevedo","endereco":"BR-316, Povoado Setubal dos Barreiros - Zona Rural"},{"secao":"200","local":"Colegio Municipal Miguel Gastao do Nascimento","endereco":"Povoado Centro dos Gastoes - Zona Rural"},{"secao":"206","local":"Escola Municipal Padre Mohama","endereco":"BR-316, Km 320, S/N, Povoado Ze Chicao - Zona Rural"},{"secao":"209","local":"Sindicato dos Trabalhadores Rurais","endereco":"Avenida Zezico Costa, S/N, Centro - Zona Urbana"},{"secao":"210","local":"Escola Municipal Jose Sarney","endereco":"Rua Grande, S/N, Povoado Bacuri da Linha - Zona Rural"},{"secao":"211","local":"Escola Estadual Ministro Marco Maciel","endereco":"Rua Santo Antonio, S/N, Bairro Novo - Zona Urbana"},{"secao":"213","local":"Escola Municipal Argemira Bastos Silva","endereco":"Rua Antonio de Sousa, Povoado Bacuri da Linha - Zona Rural"},{"secao":"215","local":"Escola Municipal Vereador Antonio Tomaz","endereco":"Povoado Centro dos Jose Rodrigues - Zona Rural"},{"secao":"216","local":"Escola Municipal Raimundo Cafe","endereco":"Povoado Centro de Jose Rodrigues, S/N - Zona Rural"},{"secao":"217","local":"Escola Municipal Roseana Sarney","endereco":"Rua dos Jasmins, S/N, Residencial Primavera - Zona Urbana"},{"secao":"222","local":"Escola Municipal Vitorino Cabral","endereco":"Rua Santa Helena, S/N, Antonio Cafe - Zona Urbana"},{"secao":"223","local":"Escola Municipal Jose Sarney","endereco":"Rua Grande, S/N, Povoado Bacuri da Linha - Zona Rural"},{"secao":"224","local":"Escola Estadual Ministro Marco Maciel","endereco":"Rua Santo Antonio, S/N, Bairro Novo - Zona Urbana"}];
@@ -37,7 +375,7 @@ let candidates={federal:[],estadual:[],senador:[],governador:[],presidente:[]},b
 function blankDraft(){const d={};ORDER.forEach(k=>d[k]={cand:{},legend:{},brancos:0,nulos:0});return d}
 function esc(s=""){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}
 function num(v){return Number(v||0)}function fmt(n){return Number(n||0).toLocaleString("pt-BR")}function candidateByNumber(k,nr){return candidates[k].find(c=>String(c.numero)===String(nr))}
-function showMain(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));btn.classList.add("active");if(id==="resultados")renderResults();if(id==="candidatos")renderCandidateBrowser()}
+function showMain(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");document.querySelectorAll(".side-link[data-target]").forEach(x=>x.classList.toggle("active",x.dataset.target===id));if(id==="resultados")renderResults();if(id==="candidatos")renderCandidateBrowser()}
 function showOffice(k,btn){document.querySelectorAll(".office-panel").forEach(x=>x.classList.remove("active"));document.getElementById("office_"+k).classList.add("active");document.querySelectorAll(".office-tab").forEach(x=>x.classList.remove("active"));btn.classList.add("active")}
 function renderSections(){const s=document.getElementById("secao"),cur=s.value;s.innerHTML='<option value="">Selecione a seção</option>';ODAC_SECOES.forEach(x=>{const used=buData.some(b=>String(b.secao)===String(x.secao)),o=document.createElement("option");o.value=x.secao;o.textContent=(used?"✓ ":"")+String(x.secao).padStart(3,"0")+" — "+x.local;s.appendChild(o)});if(ODAC_SECOES.some(x=>String(x.secao)===String(cur)))s.value=cur}
 function fillSection(){const x=ODAC_SECOES.find(x=>String(x.secao)===String(document.getElementById("secao").value));document.getElementById("local").value=x?.local||"";document.getElementById("enderecoLocal").value=x?.endereco||""}
@@ -115,7 +453,7 @@ async function refreshCandidates(force=false){
 function renderAll(){renderStats();renderBUs();renderBUFilter();renderResults();renderSections()}
 function exportCSV(){const rows=[["Seção","Local","Urna","Aptos","Comparecimento",...ORDER.map(k=>OFFICE[k].label+" total")]];buData.forEach(r=>rows.push([r.secao,r.local,r.urna,r.aptos,r.comparecimento,...ORDER.map(k=>officeTotal(k,r.votes[k]))]));const csv=rows.map(row=>row.map(x=>`"${String(x??"").replaceAll('"','""')}"`).join(";")).join("\n"),blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="BU_2026_apuracao_Olho_dAgua.csv";a.click();URL.revokeObjectURL(url)}
 function backupJSON(){const blob=new Blob([JSON.stringify({candidates,buData,meta:JSON.parse(localStorage.getItem(KEY_META)||"{}")},null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="backup_BU_2026.json";a.click();URL.revokeObjectURL(url)}
-function openResultsWindow(){const used=new Set(buData.map(r=>String(r.secao))).size,w=window.open("","BU2026_RESULTADOS","width=1500,height=950,resizable=yes,scrollbars=yes");if(!w){alert("Permita pop-ups para abrir a janela de resultados.");return}const panels=ORDER.map(k=>{const a=aggregate(k),den=a.valid+(OFFICE[k].legend?a.legend:0),rows=a.rows.map((x,i)=>'<div class="rr"><b>'+(i+1)+'º</b><b>'+esc(x.numero)+'</b><span>'+esc(x.nome)+' <small>'+esc(x.partido)+'</small></span><b style="text-align:right">'+fmt(x.votos)+'<small style="display:block">'+(den?(x.votos/den*100).toFixed(2):"0.00")+'%</small></b></div>').join("");return'<section><h2>'+OFFICE[k].label+'</h2><div class="scroll">'+(rows||'<div class="empty">Sem votos.</div>')+'</div></section>'}).join("");w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>B.U. 2026 — Resultados</title><style>body{margin:0;background:#07111f;color:#f8fafc;font-family:Segoe UI,Arial}header{padding:18px 20px;background:#0d1b2d;position:sticky;top:0}.top{display:flex;justify-content:space-between;gap:12px;align-items:center}.top h1,.top p{margin:0 0 4px}.btn{padding:10px;border:0;border-radius:8px;font-weight:800}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:15px 20px}.st{background:#101d30;border:1px solid #26354c;border-radius:13px;padding:13px}.st span{display:block;color:#9cb0cb;font-size:11px}.st b{display:block;font-size:25px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 20px 20px}section{background:#101d30;border:1px solid #26354c;border-radius:15px;overflow:hidden}h2{font-size:17px;margin:0;padding:13px 15px;border-bottom:1px solid #26354c}.scroll{max-height:60vh;overflow:auto}.rr{display:grid;grid-template-columns:45px 75px 1fr 105px;gap:8px;padding:9px 12px;border-bottom:1px solid #26354c}.rr small{color:#9cb0cb}.empty{padding:25px;color:#9cb0cb;text-align:center}@media(max-width:950px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}}</style></head><body><header><div class="top"><div><h1>B.U. 2026 — Resultados</h1><p>Olho d\'Água das Cunhãs • 87ª Zona • '+used+'/'+ODAC_SECOES.length+' seções lançadas</p></div><div><button class="btn" onclick="document.documentElement.requestFullscreen()">Tela cheia</button> <button class="btn" onclick="window.close()">Fechar</button></div></div></header><div class="stats"><div class="st"><span>Seções</span><b>'+used+'/'+ODAC_SECOES.length+'</b></div><div class="st"><span>Progresso</span><b>'+(used/ODAC_SECOES.length*100).toFixed(1)+'%</b></div><div class="st"><span>B.U.s</span><b>'+buData.length+'</b></div></div><div class="grid">'+panels+'</div></body></html>');w.document.close();w.focus()}
+function openResultsWindow(){const used=new Set(buData.map(r=>String(r.secao))).size,w=window.open("","BU2026_RESULTADOS","width=1500,height=950,resizable=yes,scrollbars=yes");if(!w){alert("Permita pop-ups para abrir a janela de resultados.");return}const panels=ORDER.map(k=>{const a=aggregate(k),den=a.valid+(OFFICE[k].legend?a.legend:0),rows=a.rows.map((x,i)=>'<div class="rr"><b>'+(i+1)+'º</b><b>'+esc(x.numero)+'</b><span>'+esc(x.nome)+' <small>'+esc(x.partido)+'</small></span><b style="text-align:right">'+fmt(x.votos)+'<small style="display:block">'+(den?(x.votos/den*100).toFixed(2):"0.00")+'%</small></b></div>').join("");return'<section><h2>'+OFFICE[k].label+'</h2><div class="scroll">'+(rows||'<div class="empty">Sem votos.</div>')+'</div></section>'}).join("");w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>DW Tech • B.U. 2026 — Resultados</title><style>body{margin:0;background:#07111f;color:#f8fafc;font-family:Segoe UI,Arial}header{padding:18px 20px;background:#0d1b2d;position:sticky;top:0}.top{display:flex;justify-content:space-between;gap:12px;align-items:center}.top h1,.top p{margin:0 0 4px}.btn{padding:10px;border:0;border-radius:8px;font-weight:800}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:15px 20px}.st{background:#101d30;border:1px solid #26354c;border-radius:13px;padding:13px}.st span{display:block;color:#9cb0cb;font-size:11px}.st b{display:block;font-size:25px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 20px 20px}section{background:#101d30;border:1px solid #26354c;border-radius:15px;overflow:hidden}h2{font-size:17px;margin:0;padding:13px 15px;border-bottom:1px solid #26354c}.scroll{max-height:60vh;overflow:auto}.rr{display:grid;grid-template-columns:45px 75px 1fr 105px;gap:8px;padding:9px 12px;border-bottom:1px solid #26354c}.rr small{color:#9cb0cb}.empty{padding:25px;color:#9cb0cb;text-align:center}@media(max-width:950px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}}</style></head><body><header><div class="top"><div><h1>DW Tech • B.U. 2026 — Resultados</h1><p>Olho d\'Água das Cunhãs • 87ª Zona • '+used+'/'+ODAC_SECOES.length+' seções lançadas</p></div><div><button class="btn" onclick="document.documentElement.requestFullscreen()">Tela cheia</button> <button class="btn" onclick="window.close()">Fechar</button></div></div></header><div class="stats"><div class="st"><span>Seções</span><b>'+used+'/'+ODAC_SECOES.length+'</b></div><div class="st"><span>Progresso</span><b>'+(used/ODAC_SECOES.length*100).toFixed(1)+'%</b></div><div class="st"><span>B.U.s</span><b>'+buData.length+'</b></div></div><div class="grid">'+panels+'</div></body></html>');w.document.close();w.focus()}
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
 </body>
