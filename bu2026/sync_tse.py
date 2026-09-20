@@ -4,6 +4,8 @@ import io
 import json
 import sys
 import urllib.request
+import urllib.error
+import http.cookiejar
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -23,15 +25,50 @@ def clean(value):
     return (value or "").strip()
 
 def download():
-    req = urllib.request.Request(
-        SOURCE,
-        headers={
-            "User-Agent": "Mozilla/5.0 (compatible; BU2026/1.0; +https://github.com/Diw87/DillResgate)",
-            "Accept": "application/zip,*/*;q=0.8",
-        },
-    )
-    with urllib.request.urlopen(req, timeout=90) as r:
-        return r.read()
+    portal = "https://dadosabertos.tse.jus.br/dataset/candidatos-2026"
+    resource = "https://dadosabertos.tse.jus.br/dataset/candidatos-2026/resource/7748de82-a23b-47c4-9ec1-35535d945e5b/download/consulta_cand_2026.zip"
+    ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+    jar = http.cookiejar.CookieJar()
+    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+
+    common = {
+        "User-Agent": ua,
+        "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+    }
+
+    # Abre primeiro o Portal de Dados Abertos para obter a sessão/cookies.
+    try:
+        req0 = urllib.request.Request(portal, headers={**common, "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"})
+        with opener.open(req0, timeout=45) as r:
+            r.read(4096)
+    except Exception as exc:
+        print(f"AVISO: não foi possível preparar sessão no portal TSE: {exc}")
+
+    errors = []
+    for url in (resource, SOURCE):
+        try:
+            req = urllib.request.Request(
+                url,
+                headers={
+                    **common,
+                    "Referer": portal,
+                    "Accept": "application/zip,application/octet-stream,*/*;q=0.8",
+                    "Sec-Fetch-Site": "same-site",
+                    "Sec-Fetch-Mode": "navigate",
+                    "Sec-Fetch-Dest": "document",
+                },
+            )
+            with opener.open(req, timeout=120) as r:
+                body = r.read()
+                if body[:2] != b"PK":
+                    raise RuntimeError(f"resposta não parece ZIP ({len(body)} bytes)")
+                return body
+        except Exception as exc:
+            errors.append(f"{url}: {exc}")
+
+    raise RuntimeError(" | ".join(errors))
 
 def main():
     try:
