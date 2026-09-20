@@ -17,7 +17,7 @@ main{max-width:1650px;margin:auto;padding:20px 18px 40px}.hero{display:flex;just
 </style>
 </head>
 <body>
-<header><div class="top"><div class="brand"><div class="logo">B.U.</div><div><h1>B.U. 2026 — Maranhão</h1><small>Apuração independente por Boletim de Urna • Olho d'Água das Cunhãs</small></div></div><div class="actions"><button class="primary" onclick="openResultsWindow()">Resultados em Nova Janela</button><button class="soft" onclick="refreshCandidates(true)">Atualizar candidatos TSE</button><button class="soft" onclick="exportCSV()">Exportar apuração</button><button class="soft" onclick="backupJSON()">Backup</button></div></div></header>
+<header><div class="top"><div class="brand"><div class="logo">B.U.</div><div><h1>B.U. 2026 — Maranhão</h1><small>Apuração independente por Boletim de Urna • Olho d'Água das Cunhãs</small></div></div><div class="actions"><button class="primary" onclick="openResultsWindow()">Resultados em Nova Janela</button><button class="soft" onclick="refreshCandidates(true)">Recarregar base TSE</button><button class="soft" onclick="exportCSV()">Exportar apuração</button><button class="soft" onclick="backupJSON()">Backup</button></div></div></header>
 <main>
 <div class="hero"><div><h2>Eleições Gerais 2026</h2><p>Deputado Federal → Deputado Estadual → Senador 1 → Senador 2 → Governador → Presidente.</p></div><div class="source" id="sourceStatus">Base de candidatos ainda não carregada.</div></div>
 <div class="tabs"><button class="tab active" onclick="showMain('novo',this)">Novo B.U.</button><button class="tab" onclick="showMain('apurados',this)">B.U.s Apurados</button><button class="tab" onclick="showMain('resultados',this)">Resultados</button><button class="tab" onclick="showMain('candidatos',this)">Candidatos 2026</button></div>
@@ -64,13 +64,59 @@ function aggregate(k){const map={};let valid=0,blank=0,nulls=0,legend=0;buData.f
 function renderResults(){const grid=document.getElementById("resultsGrid");grid.innerHTML="";ORDER.forEach(k=>{const a=aggregate(k),den=a.valid+(OFFICE[k].legend?a.legend:0),rows=a.rows.map((x,i)=>'<div class="rank-row"><div class="rpos">'+(i+1)+'º</div><div class="rnum">'+esc(x.numero)+'</div><div class="rname">'+esc(x.nome)+' <span class="rparty">• '+esc(x.partido)+'</span></div><div class="rvotes">'+fmt(x.votos)+'<span>'+(den?(x.votos/den*100).toFixed(2):"0.00")+'%</span></div></div>').join("");grid.innerHTML+='<div class="result-panel"><h3>'+OFFICE[k].label+' — '+fmt(den)+' válidos'+(OFFICE[k].legend?" (nominais + legenda)":"")+'</h3><div class="rank-list">'+(rows||'<div class="empty">Sem votos lançados.</div>')+'</div></div>'})}
 function renderCandidateBrowser(){const sel=document.getElementById("candOffice");if(!sel.options.length)sel.innerHTML=ORDER.map(k=>'<option value="'+k+'">'+OFFICE[k].label+'</option>').join("");const k=sel.value||ORDER[0],q=(document.getElementById("candSearch").value||"").toLowerCase(),list=candidates[k].filter(c=>!q||[c.numero,c.nome,c.partido,c.situacao].join(" ").toLowerCase().includes(q));document.getElementById("candSummary").textContent=candidates[k].length+" registros no cargo • "+list.length+" exibidos";document.getElementById("candidateList").innerHTML=list.map(c=>'<div class="candidate-item"><b>'+esc(c.numero)+'</b><div><b>'+esc(c.nome)+'</b><div class="st">'+esc(c.situacao||"Situação não informada")+'</div></div><div>'+esc(c.partido)+'</div></div>').join("")||'<div class="empty">Nenhum candidato encontrado.</div>'}
 function normalizeApiCandidate(c){return{id:String(c.id??c.sq_CANDIDATO??c.numero),numero:String(c.numero??c.nr_CANDIDATO??""),nome:c.nomeUrna||c.nm_URNA||c.nomeCompleto||c.nm_CANDIDATO||"",partido:c.partido?.sigla||c.sg_PARTIDO||"",partidoNumero:String(c.partido?.numero||c.nr_PARTIDO||""),partidoNome:c.partido?.nome||c.nm_PARTIDO||"",situacao:c.descricaoSituacao||c.situacaoCandidato||c.descricaoTotalizacao||""}}
-async function loadFromTSEApi(){const urls={presidente:'https://divulgacandcontas.tse.jus.br/divulga/rest/v1/candidatura/listar/2026/BR/'+ELECTION_ID+'/1/candidatos',governador:'https://divulgacandcontas.tse.jus.br/divulga/rest/v1/candidatura/listar/2026/MA/'+ELECTION_ID+'/3/candidatos',senador:'https://divulgacandcontas.tse.jus.br/divulga/rest/v1/candidatura/listar/2026/MA/'+ELECTION_ID+'/5/candidatos',federal:'https://divulgacandcontas.tse.jus.br/divulga/rest/v1/candidatura/listar/2026/MA/'+ELECTION_ID+'/6/candidatos',estadual:'https://divulgacandcontas.tse.jus.br/divulga/rest/v1/candidatura/listar/2026/MA/'+ELECTION_ID+'/7/candidatos'},out={};for(const k of ORDER){const r=await fetch(urls[k],{cache:"no-store"});if(!r.ok)throw new Error("TSE "+k+" HTTP "+r.status);const j=await r.json();if(!Array.isArray(j.candidatos))throw new Error("Resposta TSE inválida em "+k);out[k]=j.candidatos.map(normalizeApiCandidate).filter(c=>c.numero&&c.nome)}return out}
-async function refreshCandidates(force=false){const box=document.getElementById("sourceStatus");box.textContent="Consultando base pública do TSE...";try{const c=await loadFromTSEApi();candidates=c;const meta={source:"DivulgaCandContas/TSE",updated:new Date().toISOString()};localStorage.setItem(KEY_CAND,JSON.stringify(candidates));localStorage.setItem(KEY_META,JSON.stringify(meta));box.style.background="#ecfdf3";box.style.borderColor="#abefc6";box.style.color="#067647";box.textContent="TSE sincronizado em "+new Date().toLocaleString("pt-BR");renderCandidateBrowser();renderOfficeUI()}catch(err){const cached=localStorage.getItem(KEY_CAND);if(cached){candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");box.style.background="#fff6ed";box.style.borderColor="#fedf89";box.style.color="#b54708";box.textContent="TSE indisponível no momento • usando cópia local "+(meta.updated?"de "+new Date(meta.updated).toLocaleString("pt-BR"):"salva anteriormente");renderCandidateBrowser();renderOfficeUI()}else{box.style.background="#fff6ed";box.style.borderColor="#fedf89";box.style.color="#b54708";box.textContent="Não foi possível carregar a base de candidatos do TSE. Tente novamente mais tarde."}}}
+async function loadGeneratedCandidateBase(){
+  const r=await fetch("./candidatos.json?ts="+Date.now(),{cache:"no-store"});
+  if(!r.ok)throw new Error("Base local TSE HTTP "+r.status);
+  const j=await r.json();
+  if(!j||!j.candidates)throw new Error("Arquivo candidatos.json inválido");
+  const required=["federal","estadual","senador","governador","presidente"];
+  required.forEach(k=>{if(!Array.isArray(j.candidates[k]))throw new Error("Cargo ausente: "+k)});
+  return j;
+}
+async function refreshCandidates(force=false){
+  const box=document.getElementById("sourceStatus");
+  box.textContent="Carregando base oficial do TSE...";
+  try{
+    const j=await loadGeneratedCandidateBase();
+    candidates=j.candidates;
+    const meta={
+      source:j.meta?.source||"Portal de Dados Abertos do TSE",
+      updated:j.meta?.generatedAt||new Date().toISOString(),
+      counts:j.meta?.counts||{}
+    };
+    localStorage.setItem(KEY_CAND,JSON.stringify(candidates));
+    localStorage.setItem(KEY_META,JSON.stringify(meta));
+    const total=Object.values(candidates).reduce((s,a)=>s+(Array.isArray(a)?a.length:0),0);
+    box.style.background="#ecfdf3";
+    box.style.borderColor="#abefc6";
+    box.style.color="#067647";
+    box.textContent="TSE sincronizado • "+total+" candidaturas • base gerada em "+new Date(meta.updated).toLocaleString("pt-BR");
+    renderCandidateBrowser();
+    renderOfficeUI();
+  }catch(err){
+    const cached=localStorage.getItem(KEY_CAND);
+    if(cached){
+      candidates=JSON.parse(cached);
+      const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");
+      box.style.background="#fff6ed";
+      box.style.borderColor="#fedf89";
+      box.style.color="#b54708";
+      box.textContent="Base online indisponível • usando cópia local"+(meta.updated?" de "+new Date(meta.updated).toLocaleString("pt-BR"):"");
+      renderCandidateBrowser();
+      renderOfficeUI();
+    }else{
+      box.style.background="#fff6ed";
+      box.style.borderColor="#fedf89";
+      box.style.color="#b54708";
+      box.textContent="A base oficial ainda não foi gerada pelo GitHub Pages. Recarregue após a publicação.";
+    }
+  }
+}
 function renderAll(){renderStats();renderBUs();renderBUFilter();renderResults();renderSections()}
 function exportCSV(){const rows=[["Seção","Local","Urna","Aptos","Comparecimento",...ORDER.map(k=>OFFICE[k].label+" total")]];buData.forEach(r=>rows.push([r.secao,r.local,r.urna,r.aptos,r.comparecimento,...ORDER.map(k=>officeTotal(k,r.votes[k]))]));const csv=rows.map(row=>row.map(x=>`"${String(x??"").replaceAll('"','""')}"`).join(";")).join("\n"),blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="BU_2026_apuracao_Olho_dAgua.csv";a.click();URL.revokeObjectURL(url)}
 function backupJSON(){const blob=new Blob([JSON.stringify({candidates,buData,meta:JSON.parse(localStorage.getItem(KEY_META)||"{}")},null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="backup_BU_2026.json";a.click();URL.revokeObjectURL(url)}
 function openResultsWindow(){const used=new Set(buData.map(r=>String(r.secao))).size,w=window.open("","BU2026_RESULTADOS","width=1500,height=950,resizable=yes,scrollbars=yes");if(!w){alert("Permita pop-ups para abrir a janela de resultados.");return}const panels=ORDER.map(k=>{const a=aggregate(k),den=a.valid+(OFFICE[k].legend?a.legend:0),rows=a.rows.map((x,i)=>'<div class="rr"><b>'+(i+1)+'º</b><b>'+esc(x.numero)+'</b><span>'+esc(x.nome)+' <small>'+esc(x.partido)+'</small></span><b style="text-align:right">'+fmt(x.votos)+'<small style="display:block">'+(den?(x.votos/den*100).toFixed(2):"0.00")+'%</small></b></div>').join("");return'<section><h2>'+OFFICE[k].label+'</h2><div class="scroll">'+(rows||'<div class="empty">Sem votos.</div>')+'</div></section>'}).join("");w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>B.U. 2026 — Resultados</title><style>body{margin:0;background:#07111f;color:#f8fafc;font-family:Segoe UI,Arial}header{padding:18px 20px;background:#0d1b2d;position:sticky;top:0}.top{display:flex;justify-content:space-between;gap:12px;align-items:center}.top h1,.top p{margin:0 0 4px}.btn{padding:10px;border:0;border-radius:8px;font-weight:800}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:15px 20px}.st{background:#101d30;border:1px solid #26354c;border-radius:13px;padding:13px}.st span{display:block;color:#9cb0cb;font-size:11px}.st b{display:block;font-size:25px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 20px 20px}section{background:#101d30;border:1px solid #26354c;border-radius:15px;overflow:hidden}h2{font-size:17px;margin:0;padding:13px 15px;border-bottom:1px solid #26354c}.scroll{max-height:60vh;overflow:auto}.rr{display:grid;grid-template-columns:45px 75px 1fr 105px;gap:8px;padding:9px 12px;border-bottom:1px solid #26354c}.rr small{color:#9cb0cb}.empty{padding:25px;color:#9cb0cb;text-align:center}@media(max-width:950px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}}</style></head><body><header><div class="top"><div><h1>B.U. 2026 — Resultados</h1><p>Olho d\'Água das Cunhãs • 87ª Zona • '+used+'/'+ODAC_SECOES.length+' seções lançadas</p></div><div><button class="btn" onclick="document.documentElement.requestFullscreen()">Tela cheia</button> <button class="btn" onclick="window.close()">Fechar</button></div></div></header><div class="stats"><div class="st"><span>Seções</span><b>'+used+'/'+ODAC_SECOES.length+'</b></div><div class="st"><span>Progresso</span><b>'+(used/ODAC_SECOES.length*100).toFixed(1)+'%</b></div><div class="st"><span>B.U.s</span><b>'+buData.length+'</b></div></div><div class="grid">'+panels+'</div></body></html>');w.document.close();w.focus()}
-(function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Atualizar candidatos TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
+(function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
 </body>
 </html>
