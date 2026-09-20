@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
 
 permissions:
   contents: read
@@ -22,11 +24,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Atualizar base oficial de candidatos 2026
+        run: python3 bu2026/sync_tse.py
+
       - uses: actions/configure-pages@v5
         with:
           enablement: true
+
       - uses: actions/upload-pages-artifact@v4
         with:
           path: .
+
       - id: deployment
         uses: actions/deploy-pages@v4
