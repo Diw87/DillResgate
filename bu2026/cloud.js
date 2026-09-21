@@ -3,6 +3,7 @@ const SB_URL="https://ecptjdykrzyiekunxylx.supabase.co";
 const SB_KEY="sb_publishable_7KNgN5uT6Mywv0rTYv3dtw_QQS7f1Of";
 const QUEUE_KEY="BU2026_CLOUD_QUEUE_V1";
 const DEVICE_KEY="BU2026_DEVICE_ID_V1";
+const PROFILE_CACHE_KEY="BU2026_PROFILE_CACHE_V1";
 const DEVICE_ID=localStorage.getItem(DEVICE_KEY)||crypto.randomUUID();
 localStorage.setItem(DEVICE_KEY,DEVICE_ID);
 
@@ -96,7 +97,7 @@ async function signup(){
  setAuthBusy(false);if(error){authMsg(error.message,"bad");return}
  if(data.session&&data.user)await activate(data.user);else authMsg("Cadastro criado. Se o Supabase pedir confirmação por e-mail, confirme e depois entre. Novos usuários aguardam liberação do administrador.","good")
 }
-async function logout(){await releaseClaim();await client.auth.signOut()}
+async function logout(){await releaseClaim();localStorage.removeItem(PROFILE_CACHE_KEY);await client.auth.signOut()}
 
 async function ensureProfile(){
  let {data,error}=await client.from("bu_profiles").select("*").eq("id",user.id).maybeSingle();
@@ -109,7 +110,16 @@ async function ensureProfile(){
 }
 async function activate(u){
  user=u;
- try{profile=await ensureProfile()}catch(e){showAuth("O banco do B.U. ainda não está pronto: "+e.message);return}
+ try{
+  if(!navigator.onLine){
+   const cached=JSON.parse(localStorage.getItem(PROFILE_CACHE_KEY)||"null");
+   if(!cached||cached.id!==u.id||!cached.active)throw new Error("Entre uma vez com internet para habilitar o uso offline neste aparelho.");
+   profile=cached;
+  }else{
+   profile=await ensureProfile();
+   localStorage.setItem(PROFILE_CACHE_KEY,JSON.stringify(profile));
+  }
+ }catch(e){showAuth("Não foi possível validar seu acesso: "+e.message);return}
  renderCloudStatus();
  if(!profile.active){showAuth("Seu cadastro existe, mas ainda aguarda liberação do administrador.");$("cloudLoginBtn").textContent="Atualizar acesso";$("cloudLoginBtn").onclick=async()=>{profile=await ensureProfile();if(profile.active)await activate(user);else authMsg("Acesso ainda pendente.","warn")};return}
  $("cloudLoginBtn").textContent="Entrar";$("cloudLoginBtn").onclick=login;hideAuth();cloudReady=true;document.body.classList.toggle("cloud-viewer",profile.role==="viewer");
@@ -148,7 +158,7 @@ async function claimSection(secao){
  return data||{ok:false,reason:"busy"}
 }
 async function heartbeat(){if(!currentClaim||!navigator.onLine)return;await client.rpc("bu_heartbeat_section",{p_secao:Number(currentClaim),p_device_id:DEVICE_ID})}
-async function releaseClaim(){if(!currentClaim||!client||!navigator.onLine){currentClaim=null;return}const s=currentClaim;currentClaim=null;clearInterval(heartbeatTimer);await client.rpc("bu_release_section",{p_secao:Number(s),p_device_id:DEVICE_ID}).catch(()=>{});await loadClaims()}
+async function releaseClaim(){if(!currentClaim||!client||!navigator.onLine){currentClaim=null;return}const s=currentClaim;currentClaim=null;clearInterval(heartbeatTimer);try{await client.rpc("bu_release_section",{p_secao:Number(s),p_device_id:DEVICE_ID})}catch{}await loadClaims()}
 
 function recordFromForm(){
  const id=document.getElementById("buId").value||crypto.randomUUID();
