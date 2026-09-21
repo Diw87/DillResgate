@@ -1,7 +1,6 @@
-const CACHE_VERSION="dwtech-bu2026-v9-authgate";
+const CACHE_VERSION="dwtech-bu2026-v10-native-auth";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
-const SUPABASE_CDN="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js";
 const SHELL=[
   "./",
   "./index.html",
@@ -15,8 +14,7 @@ const SHELL=[
   "./jsQR.js",
   "./icons/icon-192.svg",
   "./icons/icon-512.svg",
-  "./icons/icon-maskable-512.svg",
-  SUPABASE_CDN
+  "./icons/icon-maskable-512.svg"
 ];
 
 self.addEventListener("install",event=>{
@@ -64,7 +62,7 @@ self.addEventListener("fetch",event=>{
   const request=event.request;
   if(request.method!=="GET")return;
   const url=new URL(request.url);
-  if(url.href===SUPABASE_CDN){
+  if(url.href===){
     event.respondWith(
       caches.open(STATIC_CACHE).then(async cache=>{
         const hit=await cache.match(request);
