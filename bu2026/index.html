@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DW Tech • B.U. 2026 — Olho d'Água das Cunhãs</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#ff650d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="B.U. 2026">
+<link rel="icon" href="./icons/icon-192.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icons/icon-192.svg">
 <style>
 :root{--bg:#eef3f8;--panel:#fff;--text:#172033;--muted:#667085;--line:#dfe5ec;--primary:#0b4f78;--primary2:#0878b7;--ok:#067647;--warn:#b54708;--danger:#b42318;--blueSoft:#eff8ff;--shadow:0 12px 34px rgba(16,24,40,.08);--radius:16px}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#e7f1f9,#f5f7fa 280px);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.top{max-width:1650px;margin:auto;padding:12px 18px;display:flex;gap:14px;align-items:center;justify-content:space-between}.brand{display:flex;gap:11px;align-items:center}.logo{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#073b5c,#0ea5e9);color:#fff;display:grid;place-items:center;font-weight:900}.brand h1{margin:0;font-size:19px}.brand small{color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap}button{border:0;border-radius:10px;padding:10px 13px;font-weight:800;cursor:pointer}.primary{background:var(--primary);color:#fff}.primary:hover{background:var(--primary2)}.soft{background:#fff;border:1px solid var(--line);color:var(--text)}.danger{background:#fee4e2;color:var(--danger)}
@@ -332,6 +340,26 @@ tbody tr:hover{background:#fff4ec}
   .tab{border-radius:7px}
 }
 
+
+/* DW Tech • PWA */
+.pwa-install-float,.pwa-update-float{
+  position:fixed;right:18px;z-index:180;
+  border:0;border-radius:999px;padding:11px 16px;
+  font-weight:900;font-size:12px;cursor:pointer;
+  box-shadow:0 12px 30px rgba(0,0,0,.22)
+}
+.pwa-install-float{bottom:18px;background:linear-gradient(180deg,#ff741d,#ff650d);color:#fff;display:none}
+.pwa-update-float{bottom:66px;background:#15191e;color:#fff;border:1px solid #3b424a;display:none}
+.pwa-install-float:hover,.pwa-update-float:hover{transform:translateY(-1px)}
+.pwa-status-row{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap;margin-top:7px}
+.pwa-net,.pwa-mode{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;font-size:9px;font-weight:900;letter-spacing:.5px;text-transform:uppercase}
+.pwa-net.online{background:#ecfdf3;color:#067647;border:1px solid #abefc6}.pwa-net.offline{background:#fff1f0;color:#b42318;border:1px solid #fecdca}
+.pwa-mode{background:#fff4ec;color:#c65109;border:1px solid #ffc49d}
+.ios-install-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(5,7,9,.78);backdrop-filter:blur(5px);z-index:1000;padding:18px}
+.ios-install-modal.open{display:flex}.ios-install-card{width:min(440px,94vw);background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 25px 80px rgba(0,0,0,.35)}
+.ios-install-head{background:linear-gradient(110deg,#11151a,#242a31);border-bottom:3px solid #ff650d;color:#fff;padding:15px 17px}.ios-install-head h3{margin:0;font-size:18px}.ios-install-head h3 span{color:#ff650d}.ios-install-body{padding:17px}.ios-install-step{display:flex;gap:11px;padding:10px 0;border-bottom:1px solid #edf0f2}.ios-install-step:last-child{border-bottom:0}.ios-install-step b{width:28px;height:28px;border-radius:50%;background:#ff650d;color:#fff;display:grid;place-items:center;flex:0 0 auto}.ios-install-step span{font-size:13px;line-height:1.45;color:#343a40}.ios-install-actions{display:flex;justify-content:flex-end;padding:0 17px 17px}
+@media(max-width:900px){.pwa-install-float{right:12px;bottom:12px}.pwa-update-float{right:12px;bottom:58px}}
+
 </style>
 <link rel="stylesheet" href="./qr-scanner.css">
 </head>
@@ -342,7 +370,9 @@ tbody tr:hover{background:#fff4ec}
     <div class="dw-word"><strong>DW <span>Tech</span></strong><small>SOLUÇÕES EM TECNOLOGIA</small></div>
   </div>
   <div class="dw-title"><b>B.U. 2026 — <span>Boletim de Urna</span></b><small>Apuração inteligente • desenvolvido pela DW Tech</small></div>
-  <div class="dw-strap">hardware • performance<br>confiança • sempre com você</div>
+  <div class="dw-strap">hardware • performance<br>confiança • sempre com você
+    <div class="pwa-status-row"><span id="pwaNetBadge" class="pwa-net online">● Online</span><span id="pwaModeBadge" class="pwa-mode">Versão web</span></div>
+  </div>
 </div></header>
 <aside class="dw-sidebar">
   <button class="side-link active" data-target="novo" onclick="showMain('novo',document.querySelectorAll('.tab')[0])"><span class="side-icon">⌂</span><span>Início / Novo B.U.</span></button>
@@ -350,6 +380,7 @@ tbody tr:hover{background:#fff4ec}
   <button class="side-link" data-target="resultados" onclick="showMain('resultados',document.querySelectorAll('.tab')[2])"><span class="side-icon">▥</span><span>Resultados</span></button>
   <button class="side-link" data-target="candidatos" onclick="showMain('candidatos',document.querySelectorAll('.tab')[3])"><span class="side-icon">●</span><span>Candidatos 2026</span></button>
   <button class="side-link qr-scan-btn" type="button" onclick="openQrScanner()"><span class="side-icon">📷</span><span>Escanear QR</span></button>
+  <button id="installAppSide" class="side-link" type="button" onclick="installApp()" style="display:none"><span class="side-icon">⬇</span><span>Instalar aplicativo</span></button>
   <div class="side-grow"></div>
   <button class="side-link" onclick="openResultsWindow()"><span class="side-icon">↗</span><span>Tela de Resultados</span></button>
   <button class="side-link" onclick="refreshCandidates(true)"><span class="side-icon">↻</span><span>Recarregar TSE</span></button>
@@ -367,6 +398,22 @@ tbody tr:hover{background:#fff4ec}
 <div class="notice"><strong>Importante:</strong> ferramenta independente para digitação e conferência de B.U.s. Não substitui o Boletim de Urna oficial nem a totalização oficial da Justiça Eleitoral. Os dados ficam salvos somente neste navegador/dispositivo.</div>
 <div class="dw-footer"><b>DW <span>Tech</span></b><span>Soluções reais para pessoas reais</span><span><span class="orange">inovação</span> • desempenho • confiança</span><span>B.U. 2026 • desenvolvido pela DW Tech</span></div>
 </main>
+
+<button id="pwaUpdateBtn" class="pwa-update-float" type="button" onclick="applyPwaUpdate()">↻ Atualizar aplicativo</button>
+<button id="installAppBtn" class="pwa-install-float" type="button" onclick="installApp()">⬇ Instalar B.U. 2026</button>
+
+<div id="iosInstallModal" class="ios-install-modal" aria-hidden="true">
+  <div class="ios-install-card">
+    <div class="ios-install-head"><h3>Instalar <span>DW Tech • B.U. 2026</span></h3></div>
+    <div class="ios-install-body">
+      <div class="ios-install-step"><b>1</b><span>No Safari, toque no botão <strong>Compartilhar</strong>.</span></div>
+      <div class="ios-install-step"><b>2</b><span>Escolha <strong>Adicionar à Tela de Início</strong>.</span></div>
+      <div class="ios-install-step"><b>3</b><span>Confirme em <strong>Adicionar</strong>. O B.U. abrirá como aplicativo.</span></div>
+    </div>
+    <div class="ios-install-actions"><button class="primary" type="button" onclick="closeIOSInstall()">Entendi</button></div>
+  </div>
+</div>
+
 <div id="qrModal" class="qr-modal" aria-hidden="true">
   <div class="qr-card" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
     <div class="qr-modal-head">
@@ -504,7 +551,8 @@ function backupJSON(){const blob=new Blob([JSON.stringify({candidates,buData,met
 function openResultsWindow(){const used=new Set(buData.map(r=>String(r.secao))).size,w=window.open("","BU2026_RESULTADOS","width=1500,height=950,resizable=yes,scrollbars=yes");if(!w){alert("Permita pop-ups para abrir a janela de resultados.");return}const panels=ORDER.map(k=>{const a=aggregate(k),den=a.valid+(OFFICE[k].legend?a.legend:0),rows=a.rows.map((x,i)=>'<div class="rr"><b>'+(i+1)+'º</b><b>'+esc(x.numero)+'</b><span>'+esc(x.nome)+' <small>'+esc(x.partido)+'</small></span><b style="text-align:right">'+fmt(x.votos)+'<small style="display:block">'+(den?(x.votos/den*100).toFixed(2):"0.00")+'%</small></b></div>').join("");return'<section><h2>'+OFFICE[k].label+'</h2><div class="scroll">'+(rows||'<div class="empty">Sem votos.</div>')+'</div></section>'}).join("");w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>DW Tech • B.U. 2026 — Resultados</title><style>body{margin:0;background:#07111f;color:#f8fafc;font-family:Segoe UI,Arial}header{padding:18px 20px;background:#0d1b2d;position:sticky;top:0}.top{display:flex;justify-content:space-between;gap:12px;align-items:center}.top h1,.top p{margin:0 0 4px}.btn{padding:10px;border:0;border-radius:8px;font-weight:800}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:15px 20px}.st{background:#101d30;border:1px solid #26354c;border-radius:13px;padding:13px}.st span{display:block;color:#9cb0cb;font-size:11px}.st b{display:block;font-size:25px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 20px 20px}section{background:#101d30;border:1px solid #26354c;border-radius:15px;overflow:hidden}h2{font-size:17px;margin:0;padding:13px 15px;border-bottom:1px solid #26354c}.scroll{max-height:60vh;overflow:auto}.rr{display:grid;grid-template-columns:45px 75px 1fr 105px;gap:8px;padding:9px 12px;border-bottom:1px solid #26354c}.rr small{color:#9cb0cb}.empty{padding:25px;color:#9cb0cb;text-align:center}@media(max-width:950px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}}</style></head><body><header><div class="top"><div><h1>DW Tech • B.U. 2026 — Resultados</h1><p>Olho d\'Água das Cunhãs • 87ª Zona • '+used+'/'+ODAC_SECOES.length+' seções lançadas</p></div><div><button class="btn" onclick="document.documentElement.requestFullscreen()">Tela cheia</button> <button class="btn" onclick="window.close()">Fechar</button></div></div></header><div class="stats"><div class="st"><span>Seções</span><b>'+used+'/'+ODAC_SECOES.length+'</b></div><div class="st"><span>Progresso</span><b>'+(used/ODAC_SECOES.length*100).toFixed(1)+'%</b></div><div class="st"><span>B.U.s</span><b>'+buData.length+'</b></div></div><div class="grid">'+panels+'</div></body></html>');w.document.close();w.focus()}
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="./jsQR.js"></script>
 <script src="./qr-scanner.js"></script>
+<script src="./pwa.js"></script>
 </body>
 </html>
