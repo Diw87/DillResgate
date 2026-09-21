@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v7-production";
+const CACHE_VERSION="dwtech-bu2026-v8-secure";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SUPABASE_CDN="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js";
