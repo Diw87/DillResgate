@@ -1,6 +1,7 @@
-const CACHE_VERSION="dwtech-bu2026-v5";
+const CACHE_VERSION="dwtech-bu2026-v6-cloud";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
+const SUPABASE_CDN="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js";
 const SHELL=[
   "./",
   "./index.html",
@@ -8,10 +9,13 @@ const SHELL=[
   "./qr-scanner.css",
   "./qr-scanner.js",
   "./pwa.js",
+  "./cloud.css",
+  "./cloud.js",
   "./jsQR.js",
   "./icons/icon-192.svg",
   "./icons/icon-512.svg",
-  "./icons/icon-maskable-512.svg"
+  "./icons/icon-maskable-512.svg",
+  SUPABASE_CDN
 ];
 
 self.addEventListener("install",event=>{
@@ -59,6 +63,18 @@ self.addEventListener("fetch",event=>{
   const request=event.request;
   if(request.method!=="GET")return;
   const url=new URL(request.url);
+  if(url.href===SUPABASE_CDN){
+    event.respondWith(
+      caches.open(STATIC_CACHE).then(async cache=>{
+        const hit=await cache.match(request);
+        if(hit)return hit;
+        const response=await fetch(request);
+        if(response&&response.ok)cache.put(request,response.clone());
+        return response;
+      })
+    );
+    return;
+  }
   if(url.origin!==self.location.origin)return;
 
   if(request.mode==="navigate"){
