@@ -30,6 +30,15 @@ jobs:
       - name: Validar JavaScript
         shell: pwsh
         run: node --check web/app.js
+      - name: Validar B.U. 2026
+        shell: pwsh
+        run: |
+          node --check bu2026/cloud.js
+          node --check bu2026/qr-scanner.js
+          node --check bu2026/pwa.js
+          node --check bu2026/sw.js
+          python -m py_compile bu2026/sync_tse.py
+
       - name: Verificar arquivos essenciais
         shell: pwsh
         run: |
