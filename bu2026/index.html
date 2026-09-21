@@ -548,7 +548,92 @@ async function refreshCandidates(force=false){
 function renderAll(){renderStats();renderBUs();renderBUFilter();renderResults();renderSections()}
 function exportCSV(){const rows=[["Seção","Local","Urna","Aptos","Comparecimento",...ORDER.map(k=>OFFICE[k].label+" total")]];buData.forEach(r=>rows.push([r.secao,r.local,r.urna,r.aptos,r.comparecimento,...ORDER.map(k=>officeTotal(k,r.votes[k]))]));const csv=rows.map(row=>row.map(x=>`"${String(x??"").replaceAll('"','""')}"`).join(";")).join("\n"),blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="BU_2026_apuracao_Olho_dAgua.csv";a.click();URL.revokeObjectURL(url)}
 function backupJSON(){const blob=new Blob([JSON.stringify({candidates,buData,meta:JSON.parse(localStorage.getItem(KEY_META)||"{}")},null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="backup_BU_2026.json";a.click();URL.revokeObjectURL(url)}
-function openResultsWindow(){const used=new Set(buData.map(r=>String(r.secao))).size,w=window.open("","BU2026_RESULTADOS","width=1500,height=950,resizable=yes,scrollbars=yes");if(!w){alert("Permita pop-ups para abrir a janela de resultados.");return}const panels=ORDER.map(k=>{const a=aggregate(k),den=a.valid+(OFFICE[k].legend?a.legend:0),rows=a.rows.map((x,i)=>'<div class="rr"><b>'+(i+1)+'º</b><b>'+esc(x.numero)+'</b><span>'+esc(x.nome)+' <small>'+esc(x.partido)+'</small></span><b style="text-align:right">'+fmt(x.votos)+'<small style="display:block">'+(den?(x.votos/den*100).toFixed(2):"0.00")+'%</small></b></div>').join("");return'<section><h2>'+OFFICE[k].label+'</h2><div class="scroll">'+(rows||'<div class="empty">Sem votos.</div>')+'</div></section>'}).join("");w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>DW Tech • B.U. 2026 — Resultados</title><style>body{margin:0;background:#07111f;color:#f8fafc;font-family:Segoe UI,Arial}header{padding:18px 20px;background:#0d1b2d;position:sticky;top:0}.top{display:flex;justify-content:space-between;gap:12px;align-items:center}.top h1,.top p{margin:0 0 4px}.btn{padding:10px;border:0;border-radius:8px;font-weight:800}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:15px 20px}.st{background:#101d30;border:1px solid #26354c;border-radius:13px;padding:13px}.st span{display:block;color:#9cb0cb;font-size:11px}.st b{display:block;font-size:25px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 20px 20px}section{background:#101d30;border:1px solid #26354c;border-radius:15px;overflow:hidden}h2{font-size:17px;margin:0;padding:13px 15px;border-bottom:1px solid #26354c}.scroll{max-height:60vh;overflow:auto}.rr{display:grid;grid-template-columns:45px 75px 1fr 105px;gap:8px;padding:9px 12px;border-bottom:1px solid #26354c}.rr small{color:#9cb0cb}.empty{padding:25px;color:#9cb0cb;text-align:center}@media(max-width:950px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}}</style></head><body><header><div class="top"><div><h1>DW Tech • B.U. 2026 — Resultados</h1><p>Olho d\'Água das Cunhãs • 87ª Zona • '+used+'/'+ODAC_SECOES.length+' seções lançadas</p></div><div><button class="btn" onclick="document.documentElement.requestFullscreen()">Tela cheia</button> <button class="btn" onclick="window.close()">Fechar</button></div></div></header><div class="stats"><div class="st"><span>Seções</span><b>'+used+'/'+ODAC_SECOES.length+'</b></div><div class="st"><span>Progresso</span><b>'+(used/ODAC_SECOES.length*100).toFixed(1)+'%</b></div><div class="st"><span>B.U.s</span><b>'+buData.length+'</b></div></div><div class="grid">'+panels+'</div></body></html>');w.document.close();w.focus()}
+function openResultsWindow(){
+  const used=new Set(buData.map(r=>String(r.secao))).size;
+  const totalSections=ODAC_SECOES.length;
+  const progress=totalSections?(used/totalSections*100):0;
+  const aptos=buData.reduce((s,r)=>s+num(r.aptos),0);
+  const comparecimento=buData.reduce((s,r)=>s+num(r.comparecimento),0);
+  const faltosos=Math.max(0,aptos-comparecimento);
+  const w=window.open("","BU2026_RESULTADOS","width=1600,height=980,resizable=yes,scrollbars=yes");
+  if(!w){alert("Permita pop-ups para abrir a janela de resultados.");return}
+
+  const panels=ORDER.map(k=>{
+    const a=aggregate(k);
+    const den=a.valid+(OFFICE[k].legend?a.legend:0);
+    const totalGeral=den+a.blank+a.null;
+    const rows=a.rows.map((x,i)=>{
+      const pct=den?(x.votos/den*100):0;
+      return '<div class="rr">'+
+        '<div class="rpos">'+(i+1)+'º</div>'+
+        '<div class="rnum">'+esc(x.numero)+'</div>'+
+        '<div class="rinfo"><b>'+esc(x.nome)+'</b><small>'+esc(x.partido)+'</small></div>'+
+        '<div class="rbar"><i style="width:'+Math.max(0,Math.min(100,pct)).toFixed(2)+'%"></i></div>'+
+        '<div class="rvotes"><b>'+fmt(x.votos)+'</b><small>'+pct.toFixed(2)+'%</small></div>'+
+      '</div>'
+    }).join("");
+
+    return '<section class="result-card">'+
+      '<div class="result-head"><div><span class="office-kicker">RESULTADO POR CARGO</span><h2>'+OFFICE[k].label+'</h2></div>'+
+      '<div class="valid-box"><span>Votos válidos</span><b>'+fmt(den)+'</b></div></div>'+
+      '<div class="rank-head"><span>POS.</span><span>NÚMERO</span><span>CANDIDATO / PARTIDO</span><span>DESEMPENHO</span><span>VOTOS / %</span></div>'+
+      '<div class="scroll">'+(rows||'<div class="empty">Sem votos lançados para este cargo.</div>')+'</div>'+
+      '<div class="result-foot">'+
+        '<div><span>Válidos</span><b>'+fmt(den)+'</b></div>'+
+        '<div><span>Brancos</span><b>'+fmt(a.blank)+'</b></div>'+
+        '<div><span>Nulos</span><b>'+fmt(a.null)+'</b></div>'+
+        '<div><span>Total</span><b>'+fmt(totalGeral)+'</b></div>'+
+      '</div>'+
+    '</section>'
+  }).join("");
+
+  const html='<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DW Tech • B.U. 2026 — Resultados</title><style>'+
+  ':root{--orange:#ff650d;--orange2:#ff7a1a;--black:#0b0d0f;--graphite:#1b2026;--line:#dfe3e8;--muted:#727b85;--green:#1fa958}'+
+  '*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,Segoe UI,Arial,sans-serif;color:#171a1f;background:#eef1f4}'+
+  'body{background:linear-gradient(180deg,#e9edf1 0,#f7f8fa 260px,#eef1f4 100%)}'+
+  'header{position:sticky;top:0;z-index:20;background:linear-gradient(108deg,#080a0c 0%,#15191e 58%,#080a0c 100%);border-bottom:4px solid var(--orange);box-shadow:0 8px 30px rgba(0,0,0,.22)}'+
+  '.top{min-height:100px;display:grid;grid-template-columns:330px 1fr 330px;gap:16px;align-items:center;padding:12px 24px;position:relative;overflow:hidden}'+
+  '.top:after{content:"";position:absolute;right:-80px;top:-100px;width:390px;height:250px;border:3px solid var(--orange);transform:skewX(-25deg);opacity:.55}'+
+  '.brand{display:flex;align-items:center;gap:13px;position:relative;z-index:2}.mark{width:54px;height:62px;position:relative}.mark i{position:absolute;width:15px;height:46px;background:var(--orange);transform:skewY(-38deg);border-radius:2px}.mark i:first-child{left:7px;top:2px}.mark i:last-child{left:30px;top:14px}'+
+  '.brand strong{display:block;color:#fff;font-size:34px;line-height:1;font-weight:950;letter-spacing:-2px}.brand strong span{color:var(--orange)}.brand small{display:block;color:#d4d9df;margin-top:7px;font-size:9px;letter-spacing:4.2px}'+
+  '.headline{text-align:center;position:relative;z-index:2}.headline h1{margin:0;color:#fff;font-size:27px;letter-spacing:-.5px}.headline h1 span{color:var(--orange)}.headline p{margin:6px 0 0;color:#b9c1c9;font-size:10px;letter-spacing:2.5px;text-transform:uppercase}'+
+  '.head-actions{display:flex;gap:7px;justify-content:flex-end;position:relative;z-index:2;flex-wrap:wrap}.btn{border:1px solid #454d56;background:#242a31;color:#fff;padding:10px 12px;border-radius:7px;font-weight:850;cursor:pointer}.btn.orange{background:linear-gradient(180deg,#ff771f,var(--orange));border-color:var(--orange)}.btn:hover{filter:brightness(1.08)}'+
+  'main{max-width:1780px;margin:auto;padding:18px 20px 28px}'+
+  '.overview{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}.st{background:#fff;border:1px solid var(--line);border-top:3px solid var(--orange);border-radius:10px;padding:12px 14px;box-shadow:0 8px 24px rgba(18,25,32,.06)}.st span{display:block;color:var(--muted);font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase}.st b{display:block;margin-top:5px;font-size:25px;color:#15191d}.st.green{border-top-color:var(--green)}'+
+  '.progress-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:14px;display:grid;grid-template-columns:180px 1fr 90px;gap:13px;align-items:center;box-shadow:0 8px 24px rgba(18,25,32,.05)}.progress-card span{font-size:10px;font-weight:900;color:#525b65;text-transform:uppercase;letter-spacing:1px}.progress-track{height:12px;background:#e4e8ec;border-radius:999px;overflow:hidden}.progress-track i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),#ff9a49);border-radius:999px}.progress-card b{text-align:right;font-size:20px;color:#181c21}'+
+  '.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.result-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 10px 28px rgba(20,26,33,.065)}'+
+  '.result-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:13px 15px;background:linear-gradient(180deg,#1a1f25,#101317);border-bottom:3px solid var(--orange);color:#fff}.office-kicker{display:block;color:#aeb6bf;font-size:8px;font-weight:900;letter-spacing:2px}.result-head h2{margin:3px 0 0;font-size:19px}.valid-box{text-align:right}.valid-box span{display:block;color:#bfc6ce;font-size:9px;text-transform:uppercase}.valid-box b{display:block;color:#fff;font-size:20px;margin-top:2px}'+
+  '.rank-head,.rr{display:grid;grid-template-columns:52px 72px minmax(180px,1fr) minmax(120px,.7fr) 98px;gap:9px;align-items:center}.rank-head{padding:8px 11px;background:#f1f3f5;color:#68717b;font-size:8px;font-weight:900;letter-spacing:.7px}.scroll{max-height:510px;overflow:auto}.rr{padding:9px 11px;border-bottom:1px solid #edf0f2}.rr:nth-child(even){background:#fbfcfd}.rr:hover{background:#fff4ec}.rpos{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:#20262c;color:#fff;font-size:11px;font-weight:950}.rr:nth-child(1) .rpos,.rr:nth-child(2) .rpos,.rr:nth-child(3) .rpos{background:var(--orange)}.rnum{font-size:14px;font-weight:950;color:var(--orange)}.rinfo b{display:block;font-size:11px}.rinfo small{display:block;margin-top:2px;color:#7a838d;font-size:9px;font-weight:700}.rbar{height:7px;background:#e6e9ec;border-radius:999px;overflow:hidden}.rbar i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),#ff9948);border-radius:999px}.rvotes{text-align:right}.rvotes b{display:block;font-size:13px}.rvotes small{display:block;margin-top:1px;color:#d45507;font-size:9px;font-weight:900}'+
+  '.result-foot{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#e2e6ea;border-top:1px solid #dde2e7}.result-foot div{background:#f8f9fa;padding:8px 10px}.result-foot span{display:block;color:#78818b;font-size:8px;text-transform:uppercase;font-weight:900}.result-foot b{display:block;margin-top:2px;font-size:12px}'+
+  '.empty{padding:30px;text-align:center;color:#7b848e;font-size:11px}'+
+  '.footer{margin-top:15px;background:linear-gradient(90deg,#0e1114,#242a31,#0e1114);border-left:7px solid var(--orange);border-radius:8px;padding:12px 15px;color:#cbd1d7;display:flex;align-items:center;justify-content:space-between;gap:18px;font-size:8px;letter-spacing:2.6px;text-transform:uppercase}.footer b{color:#fff;font-size:16px;letter-spacing:-.2px;text-transform:none}.footer b span{color:var(--orange)}'+
+  '@media(max-width:1180px){.top{grid-template-columns:280px 1fr}.head-actions{grid-column:1/-1;justify-content:center;padding-bottom:5px}.grid{grid-template-columns:1fr}.overview{grid-template-columns:repeat(3,1fr)}}'+
+  '@media(max-width:700px){.top{grid-template-columns:1fr;padding:12px}.brand{justify-content:center}.headline h1{font-size:20px}.headline p{letter-spacing:1.2px}.overview{grid-template-columns:1fr 1fr}.progress-card{grid-template-columns:1fr}.progress-card b{text-align:left}.rank-head{display:none}.rr{grid-template-columns:42px 58px 1fr 84px}.rbar{display:none}.footer{flex-direction:column;align-items:flex-start}.st b{font-size:20px}}'+
+  '</style></head><body>'+
+  '<header><div class="top">'+
+    '<div class="brand"><div class="mark"><i></i><i></i></div><div><strong>DW <span>Tech</span></strong><small>SOLUÇÕES EM TECNOLOGIA</small></div></div>'+
+    '<div class="headline"><h1>B.U. 2026 — <span>RESULTADOS</span></h1><p>Olho d\'Água das Cunhãs — MA • 87ª Zona Eleitoral</p></div>'+
+    '<div class="head-actions"><button class="btn orange" onclick="opener&&opener.openResultsWindow()">↻ Atualizar</button><button class="btn" onclick="document.documentElement.requestFullscreen()">⛶ Tela cheia</button><button class="btn" onclick="window.close()">✕ Fechar</button></div>'+
+  '</div></header>'+
+  '<main>'+
+    '<div class="overview">'+
+      '<div class="st"><span>Seções apuradas</span><b>'+used+' / '+totalSections+'</b></div>'+
+      '<div class="st green"><span>Progresso</span><b>'+progress.toFixed(1)+'%</b></div>'+
+      '<div class="st"><span>B.U.s lançados</span><b>'+buData.length+'</b></div>'+
+      '<div class="st"><span>Comparecimento</span><b>'+fmt(comparecimento)+'</b></div>'+
+      '<div class="st"><span>Faltosos</span><b>'+fmt(faltosos)+'</b></div>'+
+    '</div>'+
+    '<div class="progress-card"><span>Evolução da apuração</span><div class="progress-track"><i style="width:'+Math.min(100,progress).toFixed(1)+'%"></i></div><b>'+progress.toFixed(1)+'%</b></div>'+
+    '<div class="grid">'+panels+'</div>'+
+    '<div class="footer"><b>DW <span>Tech</span></b><span>Soluções reais para pessoas reais</span><span>inovação • desempenho • confiança</span><span>Apuração independente por Boletim de Urna</span></div>'+
+  '</main></body></html>';
+
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  w.focus()
+}
+
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
 <script src="./jsQR.js"></script>
