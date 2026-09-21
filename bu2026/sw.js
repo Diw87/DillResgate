@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v10-native-auth";
+const CACHE_VERSION="dwtech-bu2026-v11-simple-cloud";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
