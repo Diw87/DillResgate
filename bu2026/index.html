@@ -361,19 +361,11 @@ tbody tr:hover{background:#fff4ec}
 @media(max-width:900px){.pwa-install-float{right:12px;bottom:12px}.pwa-update-float{right:12px;bottom:58px}}
 
 
-/* CLOUD HARD GATE */
-#cloudBootGate{position:fixed;inset:0;z-index:5000;background:radial-gradient(circle at 20% 10%,rgba(255,101,13,.15),transparent 35%),#0a0c0f;display:grid;place-items:center;padding:18px;color:#fff;font-family:Inter,Segoe UI,Arial,sans-serif}
-#cloudBootGate .gate-card{width:min(430px,94vw);padding:26px 22px;border-radius:16px;background:linear-gradient(145deg,#15191e,#0d1013);border:1px solid #333b44;border-bottom:4px solid #ff650d;box-shadow:0 30px 90px rgba(0,0,0,.45);text-align:center}
-#cloudBootGate strong{display:block;font-size:28px}.gate-orange{color:#ff650d}#cloudBootGate p{margin:10px 0 0;color:#bdc5ce;font-size:12px;line-height:1.55}
-#cloudBootGate .gate-dot{width:10px;height:10px;margin:18px auto 0;border-radius:50%;background:#ff650d;box-shadow:0 0 0 0 rgba(255,101,13,.55);animation:gatePulse 1.2s infinite}
-@keyframes gatePulse{70%{box-shadow:0 0 0 13px rgba(255,101,13,0)}100%{box-shadow:0 0 0 0 rgba(255,101,13,0)}}
-body.cloud-locked>header,body.cloud-locked>.dw-sidebar,body.cloud-locked>main,body.cloud-locked>.pwa-install-float,body.cloud-locked>.pwa-update-float{visibility:hidden!important;pointer-events:none!important}
 </style>
 <link rel="stylesheet" href="./qr-scanner.css">
 <link rel="stylesheet" href="./cloud.css">
 </head>
-<body class="cloud-locked">
-<div id="cloudBootGate"><div class="gate-card"><strong>DW <span class="gate-orange">Tech</span> • B.U. 2026</strong><p>Iniciando acesso seguro à central multiusuário…</p><div class="gate-dot"></div></div></div>
+<body>
 <header class="dw-header"><div class="dw-top">
   <div class="dw-brand">
     <div class="dw-symbol" aria-hidden="true"><i></i><i></i></div>
@@ -649,6 +641,6 @@ function openResultsWindow(){
 <script src="./jsQR.js"></script>
 <script src="./qr-scanner.js"></script>
 <script src="./pwa.js"></script>
-<script src="./cloud.js?v=20260921-native1"></script>
+<script src="./cloud.js?v=20260921-simple1"></script>
 </body>
 </html>
