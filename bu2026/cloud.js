@@ -31,6 +31,11 @@ function ensureUI(){
     <div class="field"><label>Senha</label><input id="cloudPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Mínimo 6 caracteres"></div>
     <div class="cloud-login-actions"><button id="cloudLoginBtn" class="primary" type="button">Entrar</button><button id="cloudSignupBtn" class="soft" type="button">Criar acesso</button></div>
     <div id="cloudAuthMsg" class="cloud-msg"></div>
+    <div id="cloudBootstrapBox" class="cloud-bootstrap">
+      <label>Código único do administrador inicial</label>
+      <div class="cloud-bootstrap-row"><input id="cloudBootstrapCode" autocomplete="off" placeholder="DW26-XXXXX-XXXXX-XXXXX"><button id="cloudBootstrapBtn" class="primary" type="button">Ativar administrador</button></div>
+      <small>Use somente no primeiro acesso administrativo. Após a ativação, este código é inutilizado automaticamente.</small>
+    </div>
    </div>
   </div>
  </div>
@@ -50,6 +55,7 @@ function ensureUI(){
  }
  $("cloudLoginBtn").onclick=login;
  $("cloudSignupBtn").onclick=signup;
+ $("cloudBootstrapBtn").onclick=bootstrapAdmin;
  $("cloudCloseAdmin").onclick=()=>$("cloudAdminModal").classList.remove("open");
  $("cloudRefreshAdmin").onclick=loadAdminPanel;
  $("cloudTeamBtn")?.addEventListener("click",openAdmin);
@@ -82,7 +88,7 @@ async function boot(){
 }
 
 function showAuth(msg=""){cloudReady=false;$("cloudAuth").classList.remove("hidden");if(msg)authMsg(msg,"warn");renderCloudStatus()}
-function hideAuth(){$("cloudAuth").classList.add("hidden")}
+function hideAuth(){$("cloudAuth").classList.add("hidden");$("cloudBootstrapBox")?.classList.remove("show")}
 async function login(){
  const email=$("cloudEmail").value.trim(),password=$("cloudPassword").value;if(!email||!password){authMsg("Informe e-mail e senha.","bad");return}
  setAuthBusy(true);authMsg("Entrando…","warn");
@@ -96,6 +102,13 @@ async function signup(){
  const {data,error}=await client.auth.signUp({email,password,options:{data:{display_name}}});
  setAuthBusy(false);if(error){authMsg(error.message,"bad");return}
  if(data.session&&data.user)await activate(data.user);else authMsg("Cadastro criado. Se o Supabase pedir confirmação por e-mail, confirme e depois entre. Novos usuários aguardam liberação do administrador.","good")
+}
+async function bootstrapAdmin(){
+ const code=$("cloudBootstrapCode").value.trim();if(!code){authMsg("Informe o código único de ativação.","bad");return}
+ const b=$("cloudBootstrapBtn");b.disabled=true;
+ const {data,error}=await client.rpc("bu_bootstrap_admin",{p_code:code});b.disabled=false;
+ if(error){authMsg(error.message==="invalid bootstrap code"?"Código de ativação inválido.":error.message,"bad");return}
+ profile=data;localStorage.setItem(PROFILE_CACHE_KEY,JSON.stringify(profile));$("cloudBootstrapBox").classList.remove("show");authMsg("Administrador ativado com sucesso.","good");await activate(user)
 }
 async function logout(){await releaseClaim();localStorage.removeItem(PROFILE_CACHE_KEY);await client.auth.signOut()}
 
@@ -121,7 +134,15 @@ async function activate(u){
   }
  }catch(e){showAuth("Não foi possível validar seu acesso: "+e.message);return}
  renderCloudStatus();
- if(!profile.active){showAuth("Seu cadastro existe, mas ainda aguarda liberação do administrador.");$("cloudLoginBtn").textContent="Atualizar acesso";$("cloudLoginBtn").onclick=async()=>{profile=await ensureProfile();if(profile.active)await activate(user);else authMsg("Acesso ainda pendente.","warn")};return}
+ if(!profile.active){
+  let bootstrap=null;
+  if(navigator.onLine){const r=await client.rpc("bu_bootstrap_status");if(!r.error)bootstrap=r.data}
+  showAuth(bootstrap&&!bootstrap.admin_exists&&bootstrap.code_available?"Este é o primeiro acesso administrativo. Informe o código único abaixo.":"Seu cadastro existe, mas ainda aguarda liberação do administrador.");
+  $("cloudBootstrapBox")?.classList.toggle("show",!!(bootstrap&&!bootstrap.admin_exists&&bootstrap.code_available));
+  $("cloudLoginBtn").textContent="Atualizar acesso";
+  $("cloudLoginBtn").onclick=async()=>{profile=await ensureProfile();if(profile.active)await activate(user);else authMsg("Acesso ainda pendente.","warn")};
+  return
+ }
  $("cloudLoginBtn").textContent="Entrar";$("cloudLoginBtn").onclick=login;hideAuth();cloudReady=true;document.body.classList.toggle("cloud-viewer",profile.role==="viewer");
  if(profile.role==="admin")$("cloudTeamBtn").style.display="flex";else $("cloudTeamBtn").style.display="none";
  patchApp();await loadCloudBallots();await loadClaims();subscribe();await syncQueue();renderCloudStatus();toast("Conectado à central DW Tech como "+roleLabel(profile.role))
