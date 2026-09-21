@@ -62,18 +62,6 @@ self.addEventListener("fetch",event=>{
   const request=event.request;
   if(request.method!=="GET")return;
   const url=new URL(request.url);
-  if(url.href===){
-    event.respondWith(
-      caches.open(STATIC_CACHE).then(async cache=>{
-        const hit=await cache.match(request);
-        if(hit)return hit;
-        const response=await fetch(request);
-        if(response&&response.ok)cache.put(request,response.clone());
-        return response;
-      })
-    );
-    return;
-  }
   if(url.origin!==self.location.origin)return;
 
   if(request.mode==="navigate"){
