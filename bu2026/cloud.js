@@ -77,7 +77,8 @@ function renderCloudStatus(){
 
 async function boot(){
  ensureUI();
- if(!window.supabase?.createClient){authMsg("O módulo de nuvem não carregou. Verifique a conexão e recarregue a página.","bad");return}
+ const gate=$("cloudBootGate");if(gate)gate.style.display="none";
+ if(!window.supabase?.createClient){document.body.classList.add("cloud-locked");authMsg("O módulo de nuvem não carregou. Verifique a conexão e recarregue a página.","bad");return}
  client=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true},realtime:{params:{eventsPerSecond:10}}});
  window.__BU_SUPABASE=client;
  client.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_OUT"){stopCloud();showAuth()}else if(session?.user&&event!=="TOKEN_REFRESHED"){await activate(session.user)}});
@@ -87,8 +88,8 @@ async function boot(){
  window.addEventListener("offline",renderCloudStatus);
 }
 
-function showAuth(msg=""){cloudReady=false;$("cloudAuth").classList.remove("hidden");if(msg)authMsg(msg,"warn");renderCloudStatus()}
-function hideAuth(){$("cloudAuth").classList.add("hidden");$("cloudBootstrapBox")?.classList.remove("show")}
+function showAuth(msg=""){cloudReady=false;document.body.classList.add("cloud-locked");$("cloudAuth").classList.remove("hidden");if(msg)authMsg(msg,"warn");renderCloudStatus()}
+function hideAuth(){document.body.classList.remove("cloud-locked");$("cloudAuth").classList.add("hidden");$("cloudBootstrapBox")?.classList.remove("show")}
 async function login(){
  const email=$("cloudEmail").value.trim(),password=$("cloudPassword").value;if(!email||!password){authMsg("Informe e-mail e senha.","bad");return}
  setAuthBusy(true);authMsg("Entrando…","warn");
