@@ -64,8 +64,9 @@ async function refreshVisitCount(){
 countVisit();
 tick();interval=setInterval(tick,1000);
 // Atualização oculta a cada 5 segundos sem recarregar a página.
-setInterval(()=>{
+// Atualização silenciosa a cada 5 segundos: mantém a página e o modo tela cheia.
+setInterval(async ()=>{
   tick();
-  refreshVisitCount();
+  await refreshVisitCount();
 },5000);
 </script></body></html>
