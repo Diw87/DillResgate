@@ -12,7 +12,7 @@ h1{font-size:clamp(28px,5vw,56px);margin:0 0 10px}.sub{color:#aeb7c6;margin-bott
 footer{margin-top:20px;color:#7e899a;font-size:13px}@media(max-width:650px){.timer{grid-template-columns:repeat(2,1fr)}.controls{grid-template-columns:1fr}.panel{border-radius:20px}}
 </style></head>
 <body><main class="wrap"><div class="brand">DW TECH</div><section class="panel">
-<h1 id="title">Contagem Regressiva</h1><div class="sub" id="targetText">Defina seu evento e a data final</div>
+<h1 id="title">Eleições 2026</h1><div class="sub" id="targetText">Contagem regressiva para o encerramento da votação • 04/10/2026 às 17:00</div>
 <div class="timer" id="timer">
 <div class="box"><span class="num" id="days">00</span><span class="lab">Dias</span></div>
 <div class="box"><span class="num" id="hours">00</span><span class="lab">Horas</span></div>
@@ -22,12 +22,12 @@ footer{margin-top:20px;color:#7e899a;font-size:13px}@media(max-width:650px){.tim
 <div class="actions"><button class="secondary" onclick="resetTimer()">Limpar</button><button class="secondary" onclick="fullscreen()">Tela cheia</button></div>
 </section><footer>Dill • Tecnologia • Design • Inovação</footer></main>
 <script>
-const $=id=>document.getElementById(id);let end=0,interval;
+const $=id=>document.getElementById(id);let end=new Date('2026-10-04T17:00:00-03:00').getTime(),interval;
 function pad(n){return String(n).padStart(2,'0')}
 function save(){const d=$('date').value;if(!d)return alert('Escolha a data e a hora final.');end=new Date(d).getTime();const name=$('event').value.trim()||'Contagem Regressiva';localStorage.setItem('dwCountdown',JSON.stringify({end,name,date:d}));load();tick()}
 function load(){const x=JSON.parse(localStorage.getItem('dwCountdown')||'null');if(x){end=x.end;$('event').value=x.name;$('date').value=x.date;$('title').textContent=x.name;$('targetText').textContent='Até '+new Date(x.end).toLocaleString('pt-BR')}}
 function tick(){if(!end)return;let diff=end-Date.now();if(diff<=0){$('timer').innerHTML='<div class="done" style="grid-column:1/-1">CHEGOU A HORA!</div>';clearInterval(interval);return}const d=Math.floor(diff/864e5);diff%=864e5;const h=Math.floor(diff/36e5);diff%=36e5;const m=Math.floor(diff/6e4);const s=Math.floor((diff%6e4)/1000);$('days').textContent=pad(d);$('hours').textContent=pad(h);$('minutes').textContent=pad(m);$('seconds').textContent=pad(s)}
 function resetTimer(){localStorage.removeItem('dwCountdown');location.reload()}
 function fullscreen(){document.documentElement.requestFullscreen?.()}
-load();tick();interval=setInterval(tick,1000);
+if(!localStorage.getItem('dwCountdown')){ $('event').value='Eleições 2026'; $('date').value='2026-10-04T17:00'; $('title').textContent='Eleições 2026'; $('targetText').textContent='Contagem regressiva para o encerramento da votação • 04/10/2026 às 17:00'; } else { load(); } tick();interval=setInterval(tick,1000);
 </script></body></html>
