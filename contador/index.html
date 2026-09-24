@@ -2,18 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111827"><title>Contagem Regressiva • Eleições 2026</title>
-<meta name="description" content="Contagem regressiva para o encerramento da votação das Eleições 2026 • 04/10/2026 às 17h">
-<meta property="og:type" content="website">
-<meta property="og:title" content="⏱️ Contagem Regressiva — Eleições 2026">
-<meta property="og:description" content="Acompanhe a contagem regressiva até 04/10/2026 às 17h.">
-<meta property="og:url" content="https://diw87.github.io/DillResgate/contador/">
-<meta property="og:image" content="https://diw87.github.io/DillResgate/contador/preview.svg">
-<meta property="og:image:type" content="image/svg+xml">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="⏱️ Contagem Regressiva — Eleições 2026">
-<meta name="twitter:description" content="Acompanhe a contagem regressiva até 04/10/2026 às 17h.">
-<meta name="twitter:image" content="https://diw87.github.io/DillResgate/contador/preview.svg">
+<meta name="theme-color" content="#111827"><title>Contagem Regressiva • DW Tech</title>
 <style>
 *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(circle at top,#263247 0,#10151f 48%,#07090d 100%);color:#fff;display:grid;place-items:center;padding:22px}
 .wrap{width:min(1100px,100%);text-align:center}.brand{font-weight:900;letter-spacing:.12em;color:#ff7a18;margin-bottom:18px}.panel{background:#ffffff0d;border:1px solid #ffffff1f;border-radius:28px;padding:clamp(22px,5vw,54px);box-shadow:0 30px 80px #0008;backdrop-filter:blur(16px)}
@@ -29,14 +18,12 @@ footer{margin-top:20px;color:#7e899a;font-size:13px}@media(max-width:650px){.tim
 <div class="box"><span class="num" id="hours">00</span><span class="lab">Horas</span></div>
 <div class="box"><span class="num" id="minutes">00</span><span class="lab">Minutos</span></div>
 <div class="box"><span class="num" id="seconds">00</span><span class="lab">Segundos</span></div></div>
-<div class="actions"><button onclick="shareWhatsApp()">Compartilhar no WhatsApp</button><button class="secondary" onclick="share()">Compartilhar</button><button class="secondary" onclick="fullscreen()">Tela cheia</button></div>
+<div class="actions"><button class="secondary" onclick="fullscreen()">Tela cheia</button></div>
 </section><footer>Dill • Tecnologia • Design • Inovação</footer></main>
 <script>
 const $=id=>document.getElementById(id);let end=new Date('2026-10-04T17:00:00-03:00').getTime(),interval;
 function pad(n){return String(n).padStart(2,'0')}
 function tick(){if(!end)return;let diff=end-Date.now();if(diff<=0){$('timer').innerHTML='<div class="done" style="grid-column:1/-1">CHEGOU A HORA!</div>';clearInterval(interval);return}const d=Math.floor(diff/864e5);diff%=864e5;const h=Math.floor(diff/36e5);diff%=36e5;const m=Math.floor(diff/6e4);const s=Math.floor((diff%6e4)/1000);$('days').textContent=pad(d);$('hours').textContent=pad(h);$('minutes').textContent=pad(m);$('seconds').textContent=pad(s)}
-function shareWhatsApp(){const url=location.href.split('?')[0];const msg='⏱️ *Contagem Regressiva — Eleições 2026*\n\nAcompanhe a contagem até 04/10/2026 às 17h.\n\n'+url;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank')}
-async function share(){const data={title:'Contagem Regressiva — Eleições 2026',text:'Acompanhe a contagem regressiva até 04/10/2026 às 17h.',url:location.href.split('?')[0]};if(navigator.share){try{await navigator.share(data)}catch(e){}}else{await navigator.clipboard.writeText(data.url);alert('Link copiado!')}}
 function fullscreen(){document.documentElement.requestFullscreen?.()}
 tick();interval=setInterval(tick,1000);
 </script></body></html>
