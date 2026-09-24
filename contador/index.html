@@ -35,7 +35,7 @@ const $=id=>document.getElementById(id);let end=new Date('2026-10-04T17:00:00-03
 function pad(n){return String(n).padStart(2,'0')}
 function tick(){if(!end)return;let diff=end-Date.now();if(diff<=0){$('timer').innerHTML='<div class="done" style="grid-column:1/-1">CHEGOU A HORA!</div>';clearInterval(interval);return}const d=Math.floor(diff/864e5);diff%=864e5;const h=Math.floor(diff/36e5);diff%=36e5;const m=Math.floor(diff/6e4);const s=Math.floor((diff%6e4)/1000);$('days').textContent=pad(d);$('hours').textContent=pad(h);$('minutes').textContent=pad(m);$('seconds').textContent=pad(s)}
 function fullscreen(){document.documentElement.requestFullscreen?.()}
-async function countVisit(){try{const r=await fetch('https://api.counterapi.dev/v1/dillresgate/contador-eleicoes-2026/up');if(!r.ok)throw 0;const j=await r.json();$('visitCount').textContent=Number(j.count||0).toLocaleString('pt-BR')}catch(e){$('visitCount').textContent='—'}}
+async function countVisit(){const el=$('visitCount');el.textContent='...';try{const r=await fetch('https://api.counterapi.dev/v1/dillresgate/contador-eleicoes-2026/up',{cache:'no-store'});if(!r.ok)throw new Error();const j=await r.json();const n=j.count??j.value??j.data?.count;if(n==null)throw new Error();el.textContent=Number(n).toLocaleString('pt-BR')}catch(e){try{const r=await fetch('https://api.countapi.xyz/hit/dillresgate/contador-eleicoes-2026',{cache:'no-store'});if(!r.ok)throw new Error();const j=await r.json();el.textContent=Number(j.value||0).toLocaleString('pt-BR')}catch(e2){let n=Number(localStorage.getItem('contadorVisitasLocal')||0)+1;localStorage.setItem('contadorVisitasLocal',n);el.textContent=n.toLocaleString('pt-BR')}}}
 countVisit();
 tick();interval=setInterval(tick,1000);
 </script></body></html>
