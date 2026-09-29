@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v11-simple-cloud";
+const CACHE_VERSION="dwtech-bu2026-v12-gerais-icons";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -12,9 +12,10 @@ const SHELL=[
   "./cloud.css",
   "./cloud.js",
   "./jsQR.js",
-  "./icons/icon-192.svg",
-  "./icons/icon-512.svg",
-  "./icons/icon-maskable-512.svg"
+  "./icons/favicon-32.png",
+  "./icons/apple-touch-icon.png",
+  "./icons/bu-icon.svg",
+  "./icons/bu-icon-maskable.svg"
 ];
 
 self.addEventListener("install",event=>{
