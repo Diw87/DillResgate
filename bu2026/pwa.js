@@ -85,7 +85,7 @@ function handleShortcut(){
   if(!abrir)return;
   setTimeout(()=>{
     const tabs=[...document.querySelectorAll(".tab")];
-    const ids=["novo","apurados","resultados","candidatos"];
+    const ids=["novo","apurados","resultados","gerais","candidatos"];
     const i=ids.indexOf(abrir);
     if(i>=0&&tabs[i]&&typeof showMain==="function")showMain(abrir,tabs[i]);
   },350);
