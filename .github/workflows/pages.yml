@@ -6,6 +6,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "17 * * * *"
+    - cron: "*/5 20-23 4 10 *"
+    - cron: "*/5 0-3 5 10 *"
 
 permissions:
   contents: read
@@ -27,6 +29,9 @@ jobs:
 
       - name: Atualizar base oficial de candidatos 2026
         run: python3 bu2026/sync_tse.py
+
+      - name: Atualizar resultados oficiais TSE 2026
+        run: python3 bu2026/sync_resultados_tse.py
 
       - uses: actions/configure-pages@v5
         with:
