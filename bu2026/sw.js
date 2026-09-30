@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v12-gerais-icons";
+const CACHE_VERSION="dwtech-bu2026-v13-tse-oficial";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -70,7 +70,7 @@ self.addEventListener("fetch",event=>{
     return;
   }
 
-  if(url.pathname.endsWith("/candidatos.json")){
+  if(url.pathname.endsWith("/candidatos.json") || url.pathname.endsWith("/resultados-oficiais.json")){
     event.respondWith(networkFirst(request));
     return;
   }
