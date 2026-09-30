@@ -38,6 +38,7 @@ jobs:
           node --check bu2026/pwa.js
           node --check bu2026/sw.js
           python -m py_compile bu2026/sync_tse.py
+          python -m py_compile bu2026/sync_resultados_tse.py
 
       - name: Verificar arquivos essenciais
         shell: pwsh
