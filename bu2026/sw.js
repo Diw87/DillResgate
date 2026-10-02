@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v13-tse-oficial";
+const CACHE_VERSION="dwtech-bu2026-v14-urna-test-qr";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
