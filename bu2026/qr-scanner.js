@@ -5,7 +5,7 @@ const OFFICE_CODE={1:"presidente",3:"governador",5:"senador",6:"federal",7:"esta
 const OFFICE_NAME={federal:"Deputado Federal",estadual:"Deputado Estadual",senador:"Senador",governador:"Governador",presidente:"Presidente"};
 const GLOBAL_KEYS=new Set(["ORIG","ORLC","PROC","DTPL","PLEI","TURN","FASE","UNFE","MUNI","ZONA","SECA","AGRE","IDUE","IDCA","HIQT","HICA","VERS","LOCA","APTO","APTS","APTT","COMP","FALT","HBBM","HBBG","HBSB","DTAB","HRAB","DTFC","HRFC","JUNT","TURM","DTEM","HREM","IDEL","MAJO","PROP"]);
 let state,stream=null,raf=null,detector=null,canvas=null,ctx=null,lastSeen="",lastSeenAt=0,torch=false;
-function fresh(){return{parts:new Map(),total:0,version:"",certParts:new Map(),certTotal:0,parsed:null,hashChecks:[],hashOK:false,compatible:false,signaturePresent:false,startedAt:new Date().toISOString()}}
+function fresh(){return{parts:new Map(),total:0,version:"",certParts:new Map(),certTotal:0,parsed:null,testReport:null,hashChecks:[],hashOK:false,compatible:false,signaturePresent:false,startedAt:new Date().toISOString()}}
 state=fresh();
 const $=id=>document.getElementById(id);
 const norm=s=>String(s||"").replace(/[\r\n\t]+/g," ").replace(/\s+/g," ").trim();
@@ -20,7 +20,7 @@ function renderProgress(){
 }
 function firstMissing(){for(let i=1;i<=state.total;i++)if(!state.parts.has(i))return i;return state.total}
 function resetSession(keepCamera=false){
- state=fresh();renderProgress();renderPreview();$("qrRawPaste").value="";$("qrImportBadge")?.classList.remove("show");
+ state=fresh();renderProgress();const ab=$("qrApplyBtn");if(ab){ab.textContent="✓ Aplicar dados ao B.U.";ab.disabled=true}renderPreview();$("qrRawPaste").value="";$("qrImportBadge")?.classList.remove("show");
  setStatus("Aponte a câmera para o QR Code 1 do Boletim de Urna.","");
  if(!keepCamera){stopCamera();startCamera()}
 }
@@ -66,7 +66,26 @@ async function acceptPayload(raw){
  }
  m=raw.match(/^QRCE:(\d+):(\d+)\s+(.+)$/i);
  if(m){const idx=+m[1],total=+m[2];state.certTotal=total;state.certParts.set(idx,raw);beep();setStatus("QR de certificado "+idx+" de "+total+" capturado.","good");renderPreview();return}
- setStatus("O código lido não tem o cabeçalho oficial QRBU/QRCE esperado para Boletim de Urna.","bad");
+ if(/(?:^|\s)PROC:\d+/i.test(raw)&&/(?:^|\s)ZONA:\d+/i.test(raw)&&/(?:^|\s)SECA:\d+/i.test(raw)&&/(?:^|\s)IDUE:[^\s]+/i.test(raw)){
+  state.testReport=parseUrnaReport(raw);state.compatible=reportCompatibility(state.testReport).ok;beep();stopCamera();renderPreview();
+  setStatus("QR de relatório/teste da urna reconhecido. Ele não é um B.U. e não contém votos; você pode usar os dados apenas para conferir a identificação da urna.","good");return
+ }
+ setStatus("QR lido, mas ele não corresponde a um B.U. nem a um relatório de identificação da urna reconhecido pelo sistema.","bad");
+}
+function parseTokenMap(raw){
+ const m={};norm(raw).split(/\s+/).forEach(t=>{const i=t.indexOf(":");if(i>0)m[t.slice(0,i).toUpperCase()]=t.slice(i+1)});return m
+}
+function parseUrnaReport(raw){
+ const m=parseTokenMap(raw);
+ return {raw,meta:m,proc:m.PROC||"",uf:m.UNFE||"",municipio:m.MUNI||"",zona:m.ZONA||"",secao:m.SECA||"",urna:m.IDUE||"",modelo:m.MDUE||"",identificacaoCarga:m.IDCA||"",dataCarga:m.DTCA||"",horaCarga:m.HRCA||"",versao:m.VERS||"",dataEleicao:m.DTPL||"",origem:m.ORIG||"",assinatura:m.ASSI||""}
+}
+function reportCompatibility(r){
+ const errors=[],warn=[],sec=String(Number(r.secao||0));
+ if(r.uf&&r.uf!=="MA")errors.push("UF do relatório: "+r.uf+" (o sistema está configurado para MA)");
+ if(r.zona&&Number(r.zona)!==87)errors.push("Zona do relatório: "+r.zona+" (esperada: 87)");
+ if(sec&&typeof ODAC_SECOES!=="undefined"&&!ODAC_SECOES.some(x=>String(Number(x.secao))===sec))warn.push("Seção "+sec+" não está na lista local configurada; o QR foi lido, mas não será selecionado automaticamente.");
+ if(r.dataEleicao&&r.dataEleicao!=="20261004")warn.push("Data da eleição no QR: "+r.dataEleicao);
+ return {ok:errors.length===0,errors,warn}
 }
 function extractPart(raw){
  const s=norm(raw).replace(/^QRBU:\d+:\d+\s+VRQR:[^\s]+\s+/i,"");
@@ -119,7 +138,26 @@ async function finishData(){
 }
 function renderPreview(comp){
  const box=$("qrPreview");if(!box)return;
- if(!state.parsed){box.innerHTML='<div class="qr-preview-title">Prévia da leitura</div><div style="padding:18px;color:#707985;font-size:12px">Escaneie todos os QR do boletim para reconstruir os dados.</div>';$("qrApplyBtn").disabled=true;return}
+ if(state.testReport){
+  const r=state.testReport,rc=reportCompatibility(r),ab=$("qrApplyBtn");
+  const checks=[
+   {t:"QR decodificado com sucesso",c:"good"},
+   {t:"Este documento é um relatório/teste da urna, não um Boletim de Urna",c:"warn"},
+   {t:rc.ok?"UF e zona compatíveis com este sistema":"Relatório incompatível com a configuração local",c:rc.ok?"good":"bad"},
+   ...rc.errors.map(t=>({t,c:"bad"})),...rc.warn.map(t=>({t,c:"warn"}))
+  ];
+  box.innerHTML='<div class="qr-preview-title">QR de relatório/teste da urna</div><div class="qr-meta">'+
+   '<div><span>UF / Zona / Seção</span><b>'+escQ(r.uf||"-")+' / '+escQ(r.zona||"-")+' / '+escQ(r.secao||"-")+'</b></div>'+
+   '<div><span>Urna (IDUE)</span><b>'+escQ(r.urna||"-")+'</b></div>'+
+   '<div><span>Modelo da urna</span><b>'+escQ(r.modelo||"-")+'</b></div>'+
+   '<div><span>Versão</span><b>'+escQ(r.versao||"-")+'</b></div>'+
+   '<div><span>Data da carga</span><b>'+escQ(r.dataCarga||"-")+' '+escQ(r.horaCarga||"")+'</b></div>'+
+   '<div><span>Data da eleição</span><b>'+escQ(r.dataEleicao||"-")+'</b></div></div>'+
+   '<div class="qr-checks">'+checks.map(x=>'<div class="qr-check '+x.c+'"><i>'+(x.c==="good"?"✓":x.c==="bad"?"✕":"!")+'</i><span>'+escQ(x.t)+'</span></div>').join("")+'</div>'+
+   '<div class="notice" style="margin:10px 12px 12px"><strong>Sem votos:</strong> este QR serve para identificação/estado da urna. O B.U. final terá outro QR, com os dados da votação e a sequência QRBU.</div>';
+  if(ab){ab.disabled=!rc.ok;ab.textContent="✓ Aplicar identificação da urna"}return
+ }
+ if(!state.parsed){box.innerHTML='<div class="qr-preview-title">Prévia da leitura</div><div style="padding:18px;color:#707985;font-size:12px">Escaneie o QR do B.U. final ou um QR de relatório/teste da urna.</div>';$("qrApplyBtn").disabled=true;return}
  comp=comp||compatibility(state.parsed);const m=state.parsed.meta,o=state.parsed.offices;
  const checkRows=[
   {t:state.hashOK?"Integridade SHA-512 confirmada":"Integridade SHA-512 não confirmada",c:state.hashOK?"good":"bad"},
@@ -145,6 +183,16 @@ function resolveCandidate(k,nr,partyNr){
  return{id:c?.id||("qr-"+k+"-"+nr),numero:nr,nome:c?.nome||("Candidato nº "+nr),partido:party||c?.partido||""}
 }
 function applyToForm(){
+ if(state.testReport){
+  const r=state.testReport,rc=reportCompatibility(r);if(!rc.ok)return;
+  const sec=String(Number(r.secao||0)),sel=document.getElementById("secao");
+  if([...sel.options].some(o=>String(Number(o.value||0))===sec)){sel.value=sec;fillSection()}
+  document.getElementById("urna").value=r.urna||"";
+  if(/^\d{8}$/.test(r.dataEleicao||""))document.getElementById("dataEleicao").value=r.dataEleicao.slice(0,4)+"-"+r.dataEleicao.slice(4,6)+"-"+r.dataEleicao.slice(6,8);
+  window.__qrImportMeta={source:"QR de relatório/teste da urna",capturedAt:new Date().toISOString(),qrVersion:r.versao||"",hashVerified:false,signaturePresent:!!r.assinatura,phase:r.meta.FASE||"",uf:r.uf||"",zone:r.zona||"",section:r.secao||"",urn:r.urna||"",noVotes:true};
+  const b=$("qrImportBadge");if(b){b.classList.add("show");b.innerHTML='<span class="dot"></span><span>Identificação da urna importada do QR de teste/relatório • sem votos</span>'}
+  closeScanner();try{showMain("novo",document.querySelectorAll(".tab")[0])}catch{}window.scrollTo({top:0,behavior:"smooth"});return
+ }
  if(!state.parsed||!state.hashOK||!state.compatible)return;
  const m=state.parsed.meta,sec=String(Number(m.SECA||0));document.getElementById("secao").value=sec;fillSection();
  document.getElementById("urna").value=m.IDUE||"";document.getElementById("aptos").value=Number(m.APTO||0);document.getElementById("comparecimento").value=Number(m.COMP||0);
