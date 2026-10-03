@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v14-urna-test-qr";
+const CACHE_VERSION="dwtech-bu2026-v15-access-fiscal";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -10,7 +10,9 @@ const SHELL=[
   "./qr-scanner.js",
   "./pwa.js",
   "./cloud.css",
+  "./access.css",
   "./cloud.js",
+  "./access.js",
   "./jsQR.js",
   "./icons/favicon-32.png",
   "./icons/apple-touch-icon.png",
