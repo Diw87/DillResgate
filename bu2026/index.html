@@ -374,8 +374,42 @@ tbody tr:hover{background:#fff4ec}
 </style>
 <link rel="stylesheet" href="./qr-scanner.css">
 <link rel="stylesheet" href="./cloud.css">
+<link rel="stylesheet" href="./access.css">
 </head>
-<body>
+<body class="access-pending">
+<div id="accessGate" class="access-gate">
+  <div class="access-shell">
+    <div class="access-brand">
+      <div class="access-brand-top">
+        <div class="access-logo" aria-hidden="true"></div>
+        <div><strong>DW <span>Tech</span></strong><small>Soluções em Tecnologia</small></div>
+      </div>
+      <div class="access-brand-copy">
+        <h1>B.U. 2026 — <span>Boletim de Urna</span></h1>
+        <p>Acompanhamento da apuração de Olho d'Água das Cunhãs, resultados oficiais do Maranhão e resultado nacional para Presidente.</p>
+      </div>
+      <div class="access-brand-foot">apuração • tecnologia • acompanhamento em tempo real</div>
+    </div>
+    <div class="access-panel">
+      <h2>Como deseja acessar?</h2>
+      <p>Escolha o modo de acesso. Visitantes acompanham somente os resultados; fiscais podem lançar e conferir os B.U.s.</p>
+      <div class="access-choice">
+        <button id="visitorAccessBtn" class="visitor" type="button">
+          <span class="ico">👁</span><span>Entrar como visitante<small>Sem senha • somente resultados</small></span>
+        </button>
+        <button id="showFiscalBtn" class="fiscal" type="button">
+          <span class="ico">✓</span><span>Entrar como fiscal<small>Acesso ao lançamento e conferência dos B.U.s</small></span>
+        </button>
+      </div>
+      <div id="fiscalLoginBox" class="fiscal-login">
+        <div class="field"><label>Login</label><input id="fiscalUser" autocomplete="username" value="fiscal" placeholder="fiscal"></div>
+        <div class="field"><label>Senha de 6 dígitos</label><input id="fiscalPass" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="current-password" placeholder="••••••"></div>
+        <div class="row"><button class="soft" type="button" onclick="document.getElementById('fiscalLoginBox').classList.remove('show')">Voltar</button><button id="fiscalLoginBtn" class="primary" type="button">Entrar como fiscal</button></div>
+        <div id="fiscalLoginMsg" class="msg"></div>
+      </div>
+    </div>
+  </div>
+</div>
 <header class="dw-header"><div class="dw-top">
   <div class="dw-brand">
     <div class="dw-symbol" aria-hidden="true"><i></i><i></i></div>
@@ -767,5 +801,6 @@ function openResultsWindow(){
 <script src="./qr-scanner.js"></script>
 <script src="./pwa.js"></script>
 <script src="./cloud.js?v=20260921-simple1"></script>
+<script src="./access.js?v=20261003-access1"></script>
 </body>
 </html>
