@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v29-tse-odc-merge";
+const CACHE_VERSION="dwtech-bu2026-v30-hybrid-tse-local";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
