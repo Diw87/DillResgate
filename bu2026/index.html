@@ -372,9 +372,9 @@ tbody tr:hover{background:#fff4ec}
 @media(max-width:1200px){.general-summary{grid-template-columns:repeat(3,1fr)}.general-groups{grid-template-columns:1fr}}@media(max-width:700px){.general-summary{grid-template-columns:1fr 1fr}.general-candidate{grid-template-columns:32px 52px 1fr 78px}.general-bar{display:none}}
 
 </style>
-<link rel="stylesheet" href="./qr-scanner.css?build=20261004.8">
-<link rel="stylesheet" href="./cloud.css?build=20261004.8">
-<link rel="stylesheet" href="./access.css?build=20261004.8">
+<link rel="stylesheet" href="./qr-scanner.css?build=20261004.9">
+<link rel="stylesheet" href="./cloud.css?build=20261004.9">
+<link rel="stylesheet" href="./access.css?build=20261004.9">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -676,7 +676,19 @@ function paintOfficialResults(data){
 async function loadOfficialResults(force=false){
  const now=Date.now();if(!force&&officialResultsCache&&now-officialResultsFetchedAt<15000){paintOfficialResults(officialResultsCache);return officialResultsCache}
  const status=document.getElementById("generalOfficialStatus");if(status)status.textContent="Consultando os arquivos oficiais do TSE…";
- let data=await fetchOfficialDirect();if(!data)data=await fetchOfficialFallback();
+ const [direct,fallback]=await Promise.all([fetchOfficialDirect(),fetchOfficialFallback()]);
+ let data=null;
+ if(direct||fallback){
+  const mergedResults={...(fallback?.results||{}),...(direct?.results||{})};
+  const odcKeys=["presidente_odc","governador_odc","senador_odc","federal_odc","estadual_odc"];
+  odcKeys.forEach(k=>{if(fallback?.results?.[k])mergedResults[k]=fallback.results[k]});
+  data={
+   meta:{...(fallback?.meta||{}),...(direct?.meta||{}),available:Object.keys(mergedResults).length>0,
+    loaded:Object.keys(mergedResults).length,expected:10,
+    message:Object.keys(mergedResults).length+" de 10 resultados oficiais disponíveis"},
+   results:mergedResults
+  };
+ }
  if(!data)data={meta:{available:false,message:"Aguardando divulgação oficial do TSE"},results:{}};
  officialResultsCache=data;officialResultsFetchedAt=Date.now();paintOfficialResults(data);return data
 }
@@ -839,11 +851,11 @@ function openResultsWindow(targetWindow=null){
 
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
-<script src="./jsQR.js?build=20261004.8"></script>
-<script src="./qr-scanner.js?build=20261004.8"></script>
-<script src="./pwa.js?build=20261004.8"></script>
-<script src="./cloud.js?build=20261004.8"></script>
-<script src="./access.js?build=20261004.8"></script>
-<script src="./navigation.js?build=20261004.8"></script>
+<script src="./jsQR.js?build=20261004.9"></script>
+<script src="./qr-scanner.js?build=20261004.9"></script>
+<script src="./pwa.js?build=20261004.9"></script>
+<script src="./cloud.js?build=20261004.9"></script>
+<script src="./access.js?build=20261004.9"></script>
+<script src="./navigation.js?build=20261004.9"></script>
 </body>
 </html>
