@@ -372,9 +372,9 @@ tbody tr:hover{background:#fff4ec}
 @media(max-width:1200px){.general-summary{grid-template-columns:repeat(3,1fr)}.general-groups{grid-template-columns:1fr}}@media(max-width:700px){.general-summary{grid-template-columns:1fr 1fr}.general-candidate{grid-template-columns:32px 52px 1fr 78px}.general-bar{display:none}}
 
 </style>
-<link rel="stylesheet" href="./qr-scanner.css?build=20261004.7">
-<link rel="stylesheet" href="./cloud.css?build=20261004.7">
-<link rel="stylesheet" href="./access.css?build=20261004.7">
+<link rel="stylesheet" href="./qr-scanner.css?build=20261004.8">
+<link rel="stylesheet" href="./cloud.css?build=20261004.8">
+<link rel="stylesheet" href="./access.css?build=20261004.8">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -442,7 +442,23 @@ tbody tr:hover{background:#fff4ec}
 <div class="tabs"><button class="tab active" onclick="showMain('novo',this)">▣ &nbsp;Novo B.U.</button><button class="tab" onclick="showMain('apurados',this)">▥ &nbsp;B.U.s Apurados</button><button class="tab" onclick="showMain('resultados',this)">▥ &nbsp;Resultados</button><button class="tab" onclick="showMain('gerais',this)">◫ &nbsp;Resultados Gerais</button><button class="tab" onclick="showMain('candidatos',this)">● &nbsp;Candidatos 2026</button></div>
 <section id="novo" class="section active"><div class="card"><div class="head"><h3>Identificação da seção</h3><div class="actions"><button class="qr-scan-btn" type="button" onclick="openQrScanner()">📷 Escanear QR do B.U.</button><button class="soft" type="button" onclick="resetBU()">Limpar B.U.</button></div></div><div class="body"><form id="buForm"><input type="hidden" id="buId"><div class="form-grid"><div class="field"><label>Município</label><input id="municipio" value="Olho d'Água das Cunhãs" readonly></div><div class="field"><label>UF</label><input id="uf" value="MA" readonly></div><div class="field"><label>Zona eleitoral</label><input id="zona" value="87" readonly></div><div class="field"><label>Seção *</label><select id="secao" required onchange="fillSection()"><option value="">Selecione a seção</option></select></div><div class="field span2"><label>Local de votação</label><input id="local" readonly></div><div class="field span2"><label>Endereço</label><input id="enderecoLocal" readonly></div><div class="field"><label>ID / código da urna</label><input id="urna"></div><div class="field"><label>Data da eleição</label><input id="dataEleicao" type="date" value="2026-10-04"></div><div class="field"><label>Eleitores aptos *</label><input id="aptos" type="number" min="0" required oninput="refreshConference()"></div><div class="field"><label>Comparecimento *</label><input id="comparecimento" type="number" min="0" required oninput="refreshConference()"></div></div><div class="office-tabs" id="officeTabs"></div><div id="officePanels"></div><div id="qrImportBadge" class="qr-import-badge"></div><div id="conference" class="conference conf-bad">Aguardando lançamento dos votos.</div><div class="actions" style="margin-top:13px"><button class="primary" type="submit">Salvar B.U.</button><button class="soft" type="button" onclick="refreshConference()">Conferir agora</button></div></form></div></div></section>
 <section id="apurados" class="section"><div class="stats"><div class="stat"><span>B.U.s</span><strong id="stBU">0</strong></div><div class="stat"><span>Seções restantes</span><strong id="stRest">80</strong></div><div class="stat"><span>Aptos</span><strong id="stAptos">0</strong></div><div class="stat"><span>Comparecimento</span><strong id="stComp">0</strong></div><div class="stat"><span>Faltosos</span><strong id="stFalt">0</strong></div><div class="stat"><span>Progresso</span><strong id="stProg">0%</strong></div></div><div class="card"><div class="head"><h3>B.U.s lançados</h3><span id="buCount" style="font-size:12px;color:#667085"></span></div><div class="toolbar"><input id="buSearch" placeholder="Pesquisar seção, urna ou local..." oninput="renderBUs()"><select id="buZone" onchange="renderBUs()"><option value="">Todas as seções</option></select></div><div class="table-wrap"><table><thead><tr><th>Seção</th><th>Local</th><th>Urna</th><th>Aptos</th><th>Comparecimento</th><th>Fed.</th><th>Est.</th><th>Senador</th><th>Gov.</th><th>Pres.</th><th>Status</th><th>Ações</th></tr></thead><tbody id="buBody"></tbody></table><div class="empty" id="buEmpty">Nenhum B.U. salvo.</div></div></div></section>
-<section id="resultados" class="section"><div class="results-grid" id="resultsGrid"></div></section>
+<section id="resultados" class="section">
+  <div class="head" style="border:1px solid var(--dw-line);border-radius:11px;box-shadow:var(--shadow);margin-bottom:12px">
+    <h3>Apuração local — B.U.s escaneados</h3>
+    <div class="general-actions"><button class="soft" type="button" onclick="loadOfficialResults(true)">↻ Atualizar TSE ODC</button></div>
+  </div>
+  <div class="results-grid" id="resultsGrid"></div>
+  <div class="general-wrap" style="margin-top:14px">
+    <div class="general-group">
+      <div class="general-group-head">
+        <div><small>Totalização oficial do TSE • código 08710</small><h3>OLHO D’ÁGUA DAS CUNHÃS <span>OFICIAL</span></h3></div><b>ODC</b>
+      </div>
+      <div id="odcOfficialSummary" class="general-summary"></div>
+      <div id="odcOfficialStatus" class="general-note">Consultando o TSE…</div>
+      <div id="odcOfficialResults"></div>
+    </div>
+  </div>
+</section>
 <section id="gerais" class="section">
   <div class="general-wrap">
     <div class="head" style="border:1px solid var(--dw-line);border-radius:11px;box-shadow:var(--shadow)">
@@ -533,7 +549,7 @@ let candidates={federal:[],estadual:[],senador:[],governador:[],presidente:[]},b
 function blankDraft(){const d={};ORDER.forEach(k=>d[k]={cand:{},legend:{},brancos:0,nulos:0,outros:0,expectedQr:null});return d}
 function esc(s=""){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}
 function num(v){return Number(v||0)}function fmt(n){return Number(n||0).toLocaleString("pt-BR")}function candidateByNumber(k,nr){return candidates[k].find(c=>String(c.numero)===String(nr))}
-function showMain(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");document.querySelectorAll(".side-link[data-target]").forEach(x=>x.classList.toggle("active",x.dataset.target===id));if(id==="resultados")renderResults();if(id==="gerais")renderGeneralResults();if(id==="candidatos")renderCandidateBrowser()}
+function showMain(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");document.querySelectorAll(".side-link[data-target]").forEach(x=>x.classList.toggle("active",x.dataset.target===id));if(id==="resultados"){renderResults();loadOfficialResults(false)}if(id==="gerais")renderGeneralResults();if(id==="candidatos")renderCandidateBrowser()}
 function showOffice(k,btn){document.querySelectorAll(".office-panel").forEach(x=>x.classList.remove("active"));document.getElementById("office_"+k).classList.add("active");document.querySelectorAll(".office-tab").forEach(x=>x.classList.remove("active"));btn.classList.add("active")}
 function renderSections(){const s=document.getElementById("secao"),cur=s.value;s.innerHTML='<option value="">Selecione a seção</option>';ODAC_SECOES.forEach(x=>{const used=buData.some(b=>String(b.secao)===String(x.secao)),o=document.createElement("option");o.value=x.secao;o.textContent=(used?"✓ ":"")+String(x.secao).padStart(3,"0")+" — "+x.local;s.appendChild(o)});if(ODAC_SECOES.some(x=>String(x.secao)===String(cur)))s.value=cur}
 function fillSection(){const x=ODAC_SECOES.find(x=>String(x.secao)===String(document.getElementById("secao").value));document.getElementById("local").value=x?.local||"";document.getElementById("enderecoLocal").value=x?.endereco||""}
@@ -564,7 +580,12 @@ const TSE_RESULT_SOURCES={
  governador_ma:{cargo:"Governador",abrangencia:"Maranhão",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma-c0003-e006259-u.json"},
  senador_ma:{cargo:"Senador",abrangencia:"Maranhão",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma-c0005-e006259-u.json"},
  federal_ma:{cargo:"Deputado Federal",abrangencia:"Maranhão",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma-c0006-e006259-u.json"},
- estadual_ma:{cargo:"Deputado Estadual",abrangencia:"Maranhão",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma-c0007-e006259-u.json"}
+ estadual_ma:{cargo:"Deputado Estadual",abrangencia:"Maranhão",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma-c0007-e006259-u.json"},
+ presidente_odc:{cargo:"Presidente",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ma/ma08710-c0001-e006257-u.json"},
+ governador_odc:{cargo:"Governador",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma08710-c0003-e006259-u.json"},
+ senador_odc:{cargo:"Senador",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma08710-c0005-e006259-u.json"},
+ federal_odc:{cargo:"Deputado Federal",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma08710-c0006-e006259-u.json"},
+ estadual_odc:{cargo:"Deputado Estadual",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma08710-c0007-e006259-u.json"}
 };
 let officialResultsCache=null,officialResultsFetchedAt=0,officialResultsTimer=null;
 
@@ -588,7 +609,7 @@ async function fetchOfficialDirect(){
   try{const r=await fetch(info.url+"?ts="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);const doc=await r.json();if(doc.f&&doc.f!=="o")throw new Error("fase não oficial");return [key,normalizeTseDocument(key,doc)]}catch{return [key,null]}
  }));
  const results={};entries.forEach(([k,v])=>{if(v)results[k]=v});
- return Object.keys(results).length?{meta:{source:"Tribunal Superior Eleitoral — Resultados 2026",official:true,available:true,generatedAt:new Date().toISOString(),loaded:Object.keys(results).length,expected:5,message:"Dados oficiais TSE"},results}:null
+ return Object.keys(results).length?{meta:{source:"Tribunal Superior Eleitoral — Resultados 2026",official:true,available:true,generatedAt:new Date().toISOString(),loaded:Object.keys(results).length,expected:Object.keys(TSE_RESULT_SOURCES).length,message:"Dados oficiais TSE"},results}:null
 }
 async function fetchOfficialFallback(){
  try{const r=await fetch("./resultados-oficiais.json?ts="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);return await r.json()}catch{return null}
@@ -615,6 +636,24 @@ function officialOfficeHTML(r,maxRows=15){
  const status=!canShow?'<div class="empty">A divulgação desta votação ainda não foi liberada pelo TSE.</div>':(rows||'<div class="empty">Aguardando votos divulgados pelo TSE.</div>');
  return '<div class="general-office"><div class="general-office-title"><b>'+esc(r.cargo)+'</b><span>'+r.secoes.percentual.toFixed(2)+'% das seções totalizadas • '+officialStatusLabel(r)+'</span></div><div class="general-top3">'+status+'</div>'+extra+'</div>'
 }
+function paintOfficialOdc(data){
+ const sum=document.getElementById("odcOfficialSummary"),status=document.getElementById("odcOfficialStatus"),box=document.getElementById("odcOfficialResults");
+ if(!sum||!status||!box)return;
+ const keys=["presidente_odc","governador_odc","senador_odc","federal_odc","estadual_odc"];
+ const rows=keys.map(k=>data?.results?.[k]).filter(Boolean);
+ const base=rows[0]||null;
+ sum.innerHTML='<div class="stat"><span>Fonte</span><strong>TSE Oficial</strong></div>'+
+   '<div class="stat"><span>Seções totalizadas</span><strong>'+(base?fmt(base.secoes.totalizadas)+" / "+fmt(base.secoes.total):"—")+'</strong></div>'+
+   '<div class="stat"><span>Progresso</span><strong>'+(base?base.secoes.percentual.toFixed(2):"0.00")+'%</strong></div>'+
+   '<div class="stat"><span>Atualização</span><strong style="font-size:14px">'+esc(officialWhen(base))+'</strong></div>';
+ if(!rows.length){
+   status.innerHTML='<strong>Aguardando dados oficiais do TSE para ODC.</strong>';
+   box.innerHTML='';
+   return;
+ }
+ status.innerHTML='<strong>Totalização oficial de Olho d’Água das Cunhãs.</strong> Estes números vêm do TSE e não alteram os B.U.s escaneados pela central.';
+ box.innerHTML=keys.map(k=>officialOfficeHTML(data?.results?.[k],12)).join("");
+}
 function paintOfficialResults(data){
  const sum=document.getElementById("generalSummary"),status=document.getElementById("generalOfficialStatus");if(!sum)return;
  const ma=officialStateProgress(data),br=data?.results?.presidente_br;
@@ -625,6 +664,7 @@ function paintOfficialResults(data){
   '<div class="stat"><span>Seções MA</span><strong>'+(ma?fmt(ma.secoes.totalizadas)+" / "+fmt(ma.secoes.total):"—")+'</strong></div>'+
   '<div class="stat"><span>Seções BR + exterior</span><strong>'+(br?fmt(br.secoes.totalizadas)+" / "+fmt(br.secoes.total):"—")+'</strong></div>'+
   '<div class="stat"><span>Atualização TSE</span><strong style="font-size:14px">'+esc(officialWhen(br||ma))+'</strong></div>';
+ paintOfficialOdc(data);
  if(status){
   status.innerHTML=available?
    '<strong>Dados oficiais do Tribunal Superior Eleitoral.</strong> Maranhão: Governador, Senador, Deputado Federal e Deputado Estadual. Presidente: Brasil + exterior. Atualização automática.':
@@ -799,11 +839,11 @@ function openResultsWindow(targetWindow=null){
 
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
-<script src="./jsQR.js?build=20261004.7"></script>
-<script src="./qr-scanner.js?build=20261004.7"></script>
-<script src="./pwa.js?build=20261004.7"></script>
-<script src="./cloud.js?build=20261004.7"></script>
-<script src="./access.js?build=20261004.7"></script>
-<script src="./navigation.js?build=20261004.7"></script>
+<script src="./jsQR.js?build=20261004.8"></script>
+<script src="./qr-scanner.js?build=20261004.8"></script>
+<script src="./pwa.js?build=20261004.8"></script>
+<script src="./cloud.js?build=20261004.8"></script>
+<script src="./access.js?build=20261004.8"></script>
+<script src="./navigation.js?build=20261004.8"></script>
 </body>
 </html>
