@@ -95,7 +95,7 @@ async function loadCloudBallots(silent=false){
   const fp=JSON.stringify((data||[]).map(x=>[x.id,x.revision,x.updated_at]));
   if(silent&&fp===lastFingerprint)return;
   lastFingerprint=fp;
-  buData=(data||[]).map(rowToRec);
+  buData=(data||[]).map(rowToRec).filter(r=>typeof ODC_OFFICIAL_SECTION_IDS==="undefined"||ODC_OFFICIAL_SECTION_IDS.has(Number(r.secao)));
 
   for(const item of queue().filter(x=>x.state!=="conflict")){
    const r={...item.rec,_queued:true};
