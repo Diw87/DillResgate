@@ -101,7 +101,7 @@ async function verifyHashes(){
 }
 function parseData(){
  const joined=Array.from({length:state.total},(_,i)=>extractPart(state.parts.get(i+1)).data).join(" ");
- const toks=joined.split(/\s+/),meta={},offices={};Object.values(OFFICE_CODE).forEach(k=>offices[k]={cand:{},legend:{},brancos:0,nulos:0,total:0,nominais:0,legendaTotal:0});
+ const toks=joined.split(/\s+/),meta={},offices={};Object.values(OFFICE_CODE).forEach(k=>offices[k]={cand:{},legend:{},brancos:0,nulos:0,outros:0,total:0,nominais:0,legendaTotal:0});
  let currentOffice=null,currentParty=null;
  for(const token of toks){const p=token.indexOf(":");if(p<1)continue;const key=token.slice(0,p).toUpperCase(),val=token.slice(p+1);
   if(GLOBAL_KEYS.has(key)){meta[key]=val;continue}
@@ -117,6 +117,12 @@ function parseData(){
   if(key==="TOTC"){offices[currentOffice].total=Number(val||0);continue}
   if(/^\d+$/.test(key)&&/^\d+$/.test(val)){const nr=String(Number(key)),q=Number(val);offices[currentOffice].cand[nr]=(offices[currentOffice].cand[nr]||0)+q}
  }
+ Object.values(offices).forEach(x=>{
+  const cand=Object.values(x.cand||{}).reduce((s,v)=>s+Number(v||0),0);
+  const leg=Object.values(x.legend||{}).reduce((s,v)=>s+Number(v||0),0);
+  const known=cand+leg+Number(x.brancos||0)+Number(x.nulos||0);
+  x.outros=x.total>known?x.total-known:0;
+ });
  const last=extractPart(state.parts.get(state.total));state.signaturePresent=!!last.assi;
  return{meta,offices,raw:joined,signature:last.assi||""}
 }
@@ -167,7 +173,7 @@ function renderPreview(comp){
   {t:comp.ok?"UF, zona e seção compatíveis com este B.U.":"B.U. incompatível com a configuração local",c:comp.ok?"good":"bad"},
   ...comp.errors.map(t=>({t,c:"bad"})),...comp.warn.map(t=>({t,c:"warn"}))
  ];
- const offices=Object.keys(OFFICE_NAME).map(k=>{const x=o[k],cand=Object.values(x.cand).reduce((a,b)=>a+b,0),leg=Object.values(x.legend).reduce((a,b)=>a+b,0);return'<div class="qr-office-row"><b>'+OFFICE_NAME[k]+'</b><span>'+cand+'</span><span>'+x.brancos+'</span><span>'+x.nulos+'</span></div>'}).join("");
+ const offices=Object.keys(OFFICE_NAME).map(k=>{const x=o[k],cand=Object.values(x.cand).reduce((a,b)=>a+b,0),leg=Object.values(x.legend).reduce((a,b)=>a+b,0),extra=Number(x.outros||0);return'<div class="qr-office-row"><b>'+OFFICE_NAME[k]+(extra?' <small style="color:#b54708">+'+extra+' outro(s)</small>':'')+'</b><span>'+cand+'</span><span>'+x.brancos+'</span><span>'+x.nulos+'</span></div>'}).join("");
  box.innerHTML='<div class="qr-preview-title">B.U. reconstruído</div><div class="qr-meta">'+
   '<div><span>UF / Zona / Seção</span><b>'+escQ(m.UNFE||"-")+' / '+escQ(m.ZONA||"-")+' / '+escQ(m.SECA||"-")+'</b></div>'+
   '<div><span>Urna</span><b>'+escQ(m.IDUE||"-")+'</b></div>'+
@@ -200,7 +206,7 @@ async function applyToForm(autoSave=false){
  document.getElementById("urna").value=m.IDUE||"";document.getElementById("aptos").value=Number(m.APTO||0);document.getElementById("comparecimento").value=Number(m.COMP||0);
  if(/^\d{8}$/.test(m.DTPL||""))document.getElementById("dataEleicao").value=m.DTPL.slice(0,4)+"-"+m.DTPL.slice(4,6)+"-"+m.DTPL.slice(6,8);
  draftVotes=blankDraft();
- for(const k of Object.keys(OFFICE_NAME)){const src=state.parsed.offices[k],dst=draftVotes[k];dst.brancos=src.brancos;dst.nulos=src.nulos;
+ for(const k of Object.keys(OFFICE_NAME)){const src=state.parsed.offices[k],dst=draftVotes[k];dst.brancos=src.brancos;dst.nulos=src.nulos;dst.outros=Number(src.outros||0);
   for(const [nr,q] of Object.entries(src.cand)){let partyNr="";if(k==="federal"||k==="estadual")partyNr=nr.slice(0,2);const c=resolveCandidate(k,nr,partyNr);dst.cand[c.id]={numero:c.numero,nome:c.nome,partido:c.partido,votos:q}}
   for(const [pn,q] of Object.entries(src.legend)){let p={sigla:"Partido "+pn};try{p=partyMap(k)[pn]||p}catch{}dst.legend[pn]={numero:pn,nome:p.sigla,votos:q}}
  }
