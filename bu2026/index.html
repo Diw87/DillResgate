@@ -372,9 +372,9 @@ tbody tr:hover{background:#fff4ec}
 @media(max-width:1200px){.general-summary{grid-template-columns:repeat(3,1fr)}.general-groups{grid-template-columns:1fr}}@media(max-width:700px){.general-summary{grid-template-columns:1fr 1fr}.general-candidate{grid-template-columns:32px 52px 1fr 78px}.general-bar{display:none}}
 
 </style>
-<link rel="stylesheet" href="./qr-scanner.css?build=20261004.2">
-<link rel="stylesheet" href="./cloud.css?build=20261004.2">
-<link rel="stylesheet" href="./access.css?build=20261004.2">
+<link rel="stylesheet" href="./qr-scanner.css?build=20261004.3">
+<link rel="stylesheet" href="./cloud.css?build=20261004.3">
+<link rel="stylesheet" href="./access.css?build=20261004.3">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -644,7 +644,7 @@ function renderGeneralResults(){
  loadOfficialResults(false);
  if(!officialResultsTimer)officialResultsTimer=setInterval(()=>{if(document.getElementById("gerais")?.classList.contains("active"))loadOfficialResults(true)},30000)
 }
-async async function openGeneralResultsWindow(targetWindow=null){
+async function openGeneralResultsWindow(targetWindow=null){
  const w=(targetWindow&&!targetWindow.closed)?targetWindow:window.open("","BU2026_GERAIS","width=1700,height=1000,resizable=yes,scrollbars=yes");if(!w){alert("Permita pop-ups para abrir o painel oficial.");return}
  w.document.open();w.document.write('<!DOCTYPE html><html><head><title>DW Tech • TSE 2026</title></head><body style="margin:0;background:#0b0d0f;color:white;font-family:Segoe UI,Arial;display:grid;place-items:center;min-height:100vh"><div style="text-align:center"><h2>DW Tech • B.U. 2026</h2><p>Carregando resultados oficiais do TSE…</p></div></body></html>');w.document.close();
  const data=await loadOfficialResults(true);
@@ -798,11 +798,11 @@ function openResultsWindow(targetWindow=null){
 
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
-<script src="./jsQR.js?build=20261004.2"></script>
-<script src="./qr-scanner.js?build=20261004.2"></script>
-<script src="./pwa.js?build=20261004.2"></script>
-<script src="./cloud.js?build=20261004.2"></script>
-<script src="./access.js?build=20261004.2"></script>
-<script src="./navigation.js?build=20261004.2"></script>
+<script src="./jsQR.js?build=20261004.3"></script>
+<script src="./qr-scanner.js?build=20261004.3"></script>
+<script src="./pwa.js?build=20261004.3"></script>
+<script src="./cloud.js?build=20261004.3"></script>
+<script src="./access.js?build=20261004.3"></script>
+<script src="./navigation.js?build=20261004.3"></script>
 </body>
 </html>
