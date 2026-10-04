@@ -178,6 +178,27 @@ async function syncQueue(){
  await loadCloudBallots(true);
  if(q.some(x=>x.state==="conflict"))toast("Uma seção pendente já foi lançada por outro aparelho.","warn");
 }
+async function softRefresh(){
+ if(!navigator.onLine){renderStatus();return}
+ const view=document.querySelector(".section.active")?.id||"";
+ const y=window.scrollY||0;
+ try{
+  await syncQueue();
+  await loadCloudBallots(true);
+  if(view==="gerais"&&typeof window.loadOfficialResults==="function"){
+   try{await window.loadOfficialResults(true)}catch{}
+  }
+ }finally{
+  requestAnimationFrame(()=>window.scrollTo({top:y,left:0,behavior:"auto"}));
+ }
+}
+async function syncAfterBallot(){
+ if(!navigator.onLine){renderStatus();return}
+ try{
+  await syncQueue();
+  await loadCloudBallots(true);
+ }catch{}
+}
 async function submitCapture(e){
  e.preventDefault();e.stopImmediatePropagation();
  if(!refreshConference()){alert("O B.U. ainda não confere. Revise os totais de cada cargo.");return}
@@ -195,7 +216,7 @@ async function submitCapture(e){
    enqueue(rec);rec._queued=true;buData.unshift(rec);localStorage.setItem(KEY_BU,JSON.stringify(buData));renderAll();resetBU();
    toast("Sem internet: B.U. guardado para sincronizar depois.","warn");return;
   }
-  await saveCloud(rec);await loadCloudBallots();resetBU();toast("B.U. salvo e compartilhado com os outros aparelhos.");
+  await saveCloud(rec);await syncAfterBallot();resetBU();toast("B.U. salvo e sincronizado com os outros aparelhos.");
  }catch(e){
   if(e.kind==="conflict"){alert(e.message);await loadCloudBallots();return}
   if(!navigator.onLine||/fetch|network|tempo|internet/i.test(e.message||"")){
@@ -251,10 +272,10 @@ async function boot(){
  await loadCloudBallots();
  await syncQueue();
  clearInterval(pollTimer);
- pollTimer=setInterval(()=>loadCloudBallots(true),3000);
+ pollTimer=setInterval(()=>softRefresh(),30000);
 }
 
-window.BUCloud={reload:loadCloudBallots,sync:syncQueue,hasDuplicateSection};
+window.BUCloud={reload:softRefresh,sync:syncQueue,hasDuplicateSection,softRefresh};
 document.addEventListener("DOMContentLoaded",boot);
 
 })();
