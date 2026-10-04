@@ -221,7 +221,7 @@ async function applyToForm(autoSave=false){
   for(const [nr,q] of Object.entries(src.cand)){let partyNr="";if(k==="federal"||k==="estadual")partyNr=nr.slice(0,2);const c=resolveCandidate(k,nr,partyNr);dst.cand[c.id]={numero:c.numero,nome:c.nome,partido:c.partido,votos:q}}
   for(const [pn,q] of Object.entries(src.legend)){let p={sigla:"Partido "+pn};try{p=partyMap(k)[pn]||p}catch{}dst.legend[pn]={numero:pn,nome:p.sigla,votos:q}}
  }
- window.__qrImportMeta={source:"QRBU oficial TSE",capturedAt:new Date().toISOString(),qrVersion:state.version,qrCount:state.total,hashVerified:true,signaturePresent:state.signaturePresent,phase:m.FASE||"",uf:m.UNFE||"",zone:m.ZONA||"",section:m.SECA||"",urn:m.IDUE||""};
+ window.__qrImportMeta={source:"QRBU oficial TSE",capturedAt:new Date().toISOString(),qrVersion:state.version,qrCount:state.total,hashVerified:true,summaryVerified:validateQrOfficeSummaries(state.parsed).ok,signaturePresent:state.signaturePresent,phase:m.FASE||"",uf:m.UNFE||"",zone:m.ZONA||"",section:m.SECA||"",urn:m.IDUE||""};
  renderOfficeUI();refreshConference();
  const b=$("qrImportBadge");if(b){b.classList.add("show");b.innerHTML='<span class="dot"></span><span>Dados importados do QR oficial do B.U. • '+state.total+' QR lido(s) • integridade SHA‑512 confirmada</span>'}
  closeScanner();try{showMain("novo",document.querySelectorAll(".tab")[0])}catch{}window.scrollTo({top:0,behavior:"smooth"});
