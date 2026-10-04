@@ -37,6 +37,13 @@ jobs:
           node --check bu2026/qr-scanner.js
           node --check bu2026/pwa.js
           node --check bu2026/sw.js
+          $html = Get-Content bu2026/index.html -Raw
+          $matches = [regex]::Matches($html, '<script(?:\s[^>]*)?>([\s\S]*?)</script>', 'IgnoreCase')
+          $inline = ($matches | ForEach-Object { $_.Groups[1].Value }) -join "`n"
+          $tmpInline = Join-Path $env:TEMP 'bu2026-inline.js'
+          Set-Content -Path $tmpInline -Value $inline -Encoding utf8
+          Write-Host "Validar JavaScript embutido do B.U."
+          node --check $tmpInline
           python -m py_compile bu2026/sync_tse.py
           python -m py_compile bu2026/sync_resultados_tse.py
 
