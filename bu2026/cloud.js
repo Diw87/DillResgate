@@ -48,7 +48,7 @@ function ensureUI(){
    grow?.insertAdjacentHTML("beforebegin",
     '<div id="cloudSimpleStatus" class="cloud-status offline"><b><span class="dot"></span> Central compartilhada</b><span id="cloudSimpleText">Conectando…</span></div>'+
     '<button id="cloudSyncBtn" class="side-link" type="button"><span class="side-icon">↻</span><span>Sincronizar agora</span></button>');
-   document.getElementById("cloudSyncBtn").onclick=async()=>{await syncQueue();await loadCloudBallots();toast("Sincronização concluída.")};
+   document.getElementById("cloudSyncBtn").onclick=async()=>{await softRefresh();toast("Sincronização concluída.")};
   }
  }
  if(!document.getElementById("cloudToast")){
@@ -63,7 +63,7 @@ function renderStatus(){
  const c=$("cloudSimpleStatus"),t=$("cloudSimpleText");if(!c||!t)return;
  const q=queue(),conf=q.filter(x=>x.state==="conflict").length,pending=q.filter(x=>x.state!=="conflict").length;
  c.classList.toggle("offline",!navigator.onLine);
- t.innerHTML=(navigator.onLine?"Online":"Offline")+
+ t.innerHTML=(navigator.onLine?"Online • atualização automática 30s":"Offline")+
   (pending?'<br><span class="queue">'+pending+' pendente(s)</span>':"")+
   (conf?'<br><span class="queue">'+conf+' conflito(s)</span>':"");
 }
