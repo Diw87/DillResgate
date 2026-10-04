@@ -77,6 +77,17 @@ function rowToRec(r){
   salvoEm:r.created_at,_cloud:true,cloudStatus:r.status,revision:r.revision,updatedAt:r.updated_at
  };
 }
+function refreshActiveViewAfterCloud(){
+ try{
+  renderStats();
+  renderBUs();
+  renderBUFilter();
+  renderResults();
+  renderSections();
+  const view=document.querySelector(".section.active")?.id||"";
+  if(view==="gerais"&&typeof window.renderGeneralResults==="function")window.renderGeneralResults();
+ }catch(e){console.error("Falha ao redesenhar dados da central:",e)}
+}
 async function loadCloudBallots(silent=false){
  if(!navigator.onLine)return;
  try{
@@ -92,7 +103,7 @@ async function loadCloudBallots(silent=false){
   }
 
   localStorage.setItem(KEY_BU,JSON.stringify(buData));
-  renderAll();renderSections();renderStatus();
+  refreshActiveViewAfterCloud();renderStatus();
   cloudReady=true;
  }catch(e){
   cloudReady=false;renderStatus();
@@ -175,7 +186,7 @@ async function syncQueue(){
   }
  }
  q=q.filter(x=>x.state!=="done");if(changed)setQueue(q);
- await loadCloudBallots(true);
+ await loadCloudBallots(false);
  if(q.some(x=>x.state==="conflict"))toast("Uma seção pendente já foi lançada por outro aparelho.","warn");
 }
 async function softRefresh(){
@@ -196,7 +207,7 @@ async function syncAfterBallot(){
  if(!navigator.onLine){renderStatus();return}
  try{
   await syncQueue();
-  await loadCloudBallots(true);
+  await loadCloudBallots(false);
  }catch{}
 }
 async function submitCapture(e){
