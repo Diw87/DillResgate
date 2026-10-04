@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v26-qr-office-totals";
+const CACHE_VERSION="dwtech-bu2026-v27-qr-save-final";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
