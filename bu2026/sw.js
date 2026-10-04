@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v18-auto-save-dedupe";
+const CACHE_VERSION="dwtech-bu2026-v19-mobile-back";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -13,6 +13,7 @@ const SHELL=[
   "./access.css",
   "./cloud.js",
   "./access.js",
+  "./navigation.js",
   "./jsQR.js",
   "./icons/favicon-32.png",
   "./icons/apple-touch-icon.png",
