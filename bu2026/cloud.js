@@ -80,8 +80,8 @@ function rowToRec(r){
 function refreshActiveViewAfterCloud(){
  try{
   renderStats();
-  renderBUs();
   renderBUFilter();
+  renderBUs();
   renderResults();
   renderSections();
   const view=document.querySelector(".section.active")?.id||"";
