@@ -372,9 +372,9 @@ tbody tr:hover{background:#fff4ec}
 @media(max-width:1200px){.general-summary{grid-template-columns:repeat(3,1fr)}.general-groups{grid-template-columns:1fr}}@media(max-width:700px){.general-summary{grid-template-columns:1fr 1fr}.general-candidate{grid-template-columns:32px 52px 1fr 78px}.general-bar{display:none}}
 
 </style>
-<link rel="stylesheet" href="./qr-scanner.css?build=20261004.10">
-<link rel="stylesheet" href="./cloud.css?build=20261004.10">
-<link rel="stylesheet" href="./access.css?build=20261004.10">
+<link rel="stylesheet" href="./qr-scanner.css?build=20261004.11">
+<link rel="stylesheet" href="./cloud.css?build=20261004.11">
+<link rel="stylesheet" href="./access.css?build=20261004.11">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -451,7 +451,7 @@ tbody tr:hover{background:#fff4ec}
   <div class="general-wrap" style="margin-top:14px">
     <div class="general-group">
       <div class="general-group-head">
-        <div><small>Totalização oficial do TSE • código 08710</small><h3>OLHO D’ÁGUA DAS CUNHÃS <span>OFICIAL</span></h3></div><b>ODC</b>
+        <div><small>Totalização oficial do TSE • código TSE 8478</small><h3>OLHO D’ÁGUA DAS CUNHÃS <span>OFICIAL</span></h3></div><b>ODC</b>
       </div>
       <div id="odcOfficialSummary" class="general-summary"></div>
       <div id="odcOfficialStatus" class="general-note">Consultando o TSE…</div>
@@ -594,11 +594,11 @@ const TSE_RESULT_SOURCES={
  senador_ma:{cargo:"Senador",abrangencia:"Maranhão",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma-c0005-e006259-u.json"},
  federal_ma:{cargo:"Deputado Federal",abrangencia:"Maranhão",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma-c0006-e006259-u.json"},
  estadual_ma:{cargo:"Deputado Estadual",abrangencia:"Maranhão",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma-c0007-e006259-u.json"},
- presidente_odc:{cargo:"Presidente",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ma/ma08710-c0001-e006257-u.json"},
- governador_odc:{cargo:"Governador",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma08710-c0003-e006259-u.json"},
- senador_odc:{cargo:"Senador",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma08710-c0005-e006259-u.json"},
- federal_odc:{cargo:"Deputado Federal",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma08710-c0006-e006259-u.json"},
- estadual_odc:{cargo:"Deputado Estadual",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma08710-c0007-e006259-u.json"}
+ presidente_odc:{cargo:"Presidente",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ma/ma08478-c0001-e006257-u.json"},
+ governador_odc:{cargo:"Governador",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma08478-c0003-e006259-u.json"},
+ senador_odc:{cargo:"Senador",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma08478-c0005-e006259-u.json"},
+ federal_odc:{cargo:"Deputado Federal",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma08478-c0006-e006259-u.json"},
+ estadual_odc:{cargo:"Deputado Estadual",abrangencia:"Olho d'Água das Cunhãs",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma08478-c0007-e006259-u.json"}
 };
 let officialResultsCache=null,officialResultsFetchedAt=0,officialResultsTimer=null;
 
@@ -864,11 +864,11 @@ function openResultsWindow(targetWindow=null){
 
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
-<script src="./jsQR.js?build=20261004.10"></script>
-<script src="./qr-scanner.js?build=20261004.10"></script>
-<script src="./pwa.js?build=20261004.10"></script>
-<script src="./cloud.js?build=20261004.10"></script>
-<script src="./access.js?build=20261004.10"></script>
-<script src="./navigation.js?build=20261004.10"></script>
+<script src="./jsQR.js?build=20261004.11"></script>
+<script src="./qr-scanner.js?build=20261004.11"></script>
+<script src="./pwa.js?build=20261004.11"></script>
+<script src="./cloud.js?build=20261004.11"></script>
+<script src="./access.js?build=20261004.11"></script>
+<script src="./navigation.js?build=20261004.11"></script>
 </body>
 </html>
