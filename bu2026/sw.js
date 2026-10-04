@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v17-dill-credit";
+const CACHE_VERSION="dwtech-bu2026-v18-auto-save-dedupe";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
