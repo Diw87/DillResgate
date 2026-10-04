@@ -212,7 +212,9 @@ async function syncAfterBallot(){
 }
 async function submitCapture(e){
  e.preventDefault();e.stopImmediatePropagation();
- if(!refreshConference()){alert("O B.U. ainda não confere. Revise os totais de cada cargo.");return}
+ const verifiedQr=!!(window.__qrImportMeta?.source==="QRBU oficial TSE"&&window.__qrImportMeta?.hashVerified&&window.__qrImportMeta?.summaryVerified);
+ if(!verifiedQr&&!refreshConference()){alert("O B.U. ainda não confere. Revise os totais de cada cargo.");return}
+ if(verifiedQr)refreshConference();
  const rec=recordFromForm();
  if(!rec.secao){alert("Selecione a seção.");return}
  if(await hasDuplicateSection(rec.secao,rec.id)){
