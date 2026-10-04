@@ -206,7 +206,7 @@ async function applyToForm(autoSave=false){
  document.getElementById("urna").value=m.IDUE||"";document.getElementById("aptos").value=Number(m.APTO||0);document.getElementById("comparecimento").value=Number(m.COMP||0);
  if(/^\d{8}$/.test(m.DTPL||""))document.getElementById("dataEleicao").value=m.DTPL.slice(0,4)+"-"+m.DTPL.slice(4,6)+"-"+m.DTPL.slice(6,8);
  draftVotes=blankDraft();
- for(const k of Object.keys(OFFICE_NAME)){const src=state.parsed.offices[k],dst=draftVotes[k];dst.brancos=src.brancos;dst.nulos=src.nulos;dst.outros=Number(src.outros||0);
+ for(const k of Object.keys(OFFICE_NAME)){const src=state.parsed.offices[k],dst=draftVotes[k];dst.brancos=src.brancos;dst.nulos=src.nulos;dst.outros=Number(src.outros||0);dst.expectedQr=Number(src.total||0)||null;
   for(const [nr,q] of Object.entries(src.cand)){let partyNr="";if(k==="federal"||k==="estadual")partyNr=nr.slice(0,2);const c=resolveCandidate(k,nr,partyNr);dst.cand[c.id]={numero:c.numero,nome:c.nome,partido:c.partido,votos:q}}
   for(const [pn,q] of Object.entries(src.legend)){let p={sigla:"Partido "+pn};try{p=partyMap(k)[pn]||p}catch{}dst.legend[pn]={numero:pn,nome:p.sigla,votos:q}}
  }
