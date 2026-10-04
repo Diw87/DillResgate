@@ -1,7 +1,7 @@
 (()=>{"use strict";
 let deferredPrompt=null;
 let registration=null;
-const APP_BUILD="20261004.9";
+const APP_BUILD="20261004.10";
 const BUILD_KEY="BU2026_APP_BUILD";
 const $=id=>document.getElementById(id);
 const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
