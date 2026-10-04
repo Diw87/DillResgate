@@ -168,7 +168,7 @@ def main():
     result["meta"]["expected"]=len(SOURCES)+len(MUNICIPAL_SOURCES)
     result["meta"]["errors"]=errors
     if loaded:
-        result["meta"]["message"]=f"{loaded} de {len(SOURCES)} resultados oficiais disponíveis"
+        result["meta"]["message"]=f"{loaded} de {len(SOURCES)+len(MUNICIPAL_SOURCES)} resultados oficiais disponíveis"
     OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps({"loaded":loaded,"errors":errors},ensure_ascii=False))
     return 0
