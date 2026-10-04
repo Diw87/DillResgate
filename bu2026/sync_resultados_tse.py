@@ -5,6 +5,8 @@ from pathlib import Path
 
 OUT=Path(__file__).with_name("resultados-oficiais.json")
 BASE="https://resultados.tse.jus.br/oficial/ele2026"
+PLEITO=3220
+PLEITO6=f"{PLEITO:06d}"
 SOURCES={
   "presidente_br": ("6257","br","0001","006257","Presidente","Brasil + exterior"),
   "governador_ma": ("6259","ma","0003","006259","Governador","Maranhão"),
@@ -41,6 +43,49 @@ def fetch_first(urls):
         except Exception as exc:
             last=exc
     raise last or RuntimeError("Nenhuma URL disponível")
+
+def fetch_odc_section_status():
+    """
+    Consulta EA16 + EA18 para identificar as seções de ODC que já possuem
+    arquivo auxiliar no TSE e, quando disponível, a situação da seção.
+    Falhas não interrompem a atualização dos resultados agregados.
+    """
+    uf=MUNICIPIO_ODC["uf"]
+    mun=MUNICIPIO_ODC["codigo"]
+    zone="0087"
+    cfg_url=f"{BASE}/arquivo-urna/{PLEITO}/config/{uf}/{uf}-p{PLEITO6}-cs.json"
+    cfg=fetch_json(cfg_url)
+    sec_items=[]
+    for abr in cfg.get("abr") or []:
+        if str(abr.get("cd","")).lower()!=uf:
+            continue
+        for mu in abr.get("mu") or []:
+            if str(mu.get("cd","")).zfill(5)!=mun:
+                continue
+            for zon in mu.get("zon") or []:
+                if str(zon.get("cd","")).zfill(4)!=zone:
+                    continue
+                sec_items.extend(zon.get("sec") or [])
+
+    out=[]
+    for sec in sec_items:
+        ns=str(sec.get("ns") or "").zfill(4)
+        # Seção agregada não possui auxiliar próprio; a principal a representa.
+        if sec.get("nsp"):
+            continue
+        item={"secao":int(ns or 0),"da":sec.get("da"),"ha":sec.get("ha"),"status":""}
+        if sec.get("da") and sec.get("ha"):
+            aux_name=f"p{PLEITO6}-{uf}-m{mun}-z{zone}-s{ns}-aux.json"
+            aux_url=f"{BASE}/arquivo-urna/{PLEITO}/dados/{uf}/{mun}/{zone}/{ns}/{aux_name}"
+            try:
+                aux=fetch_json(aux_url)
+                item["status"]=str(aux.get("st") or "")
+                item["auxUrl"]=aux_url
+            except Exception as exc:
+                item["status"]="aux-indisponivel"
+                item["error"]=str(exc)
+        out.append(item)
+    return {"configUrl":cfg_url,"sections":out}
 
 def fetch_json(url):
     req=urllib.request.Request(url,headers={
@@ -163,6 +208,11 @@ def main():
             errors.append({"key":key,"urls":urls,"error":str(exc)})
 
     result["meta"]["municipio"]=MUNICIPIO_ODC
+    try:
+        sec_info=fetch_odc_section_status()
+        result["meta"]["odcSections"]=sec_info
+    except Exception as exc:
+        result["meta"]["odcSections"]={"sections":[],"error":str(exc)}
     result["meta"]["available"]=loaded>0
     result["meta"]["loaded"]=loaded
     result["meta"]["expected"]=len(SOURCES)+len(MUNICIPAL_SOURCES)
