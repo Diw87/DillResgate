@@ -15,7 +15,7 @@ SOURCES={
   "estadual_ma": ("6259","ma","0007","006259","Deputado Estadual","Maranhão"),
 }
 
-MUNICIPIO_ODC={"uf":"ma","codigo":"08710","nome":"Olho d'Água das Cunhãs"}
+MUNICIPIO_ODC={"uf":"ma","codigo":"08478","nome":"Olho d'Água das Cunhãs","tseCode":"8478"}
 MUNICIPAL_SOURCES={
   "presidente_odc": ("6257","0001","006257","Presidente"),
   "governador_odc": ("6259","0003","006259","Governador"),
