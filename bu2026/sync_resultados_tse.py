@@ -13,8 +13,34 @@ SOURCES={
   "estadual_ma": ("6259","ma","0007","006259","Deputado Estadual","Maranhão"),
 }
 
+MUNICIPIO_ODC={"uf":"ma","codigo":"08710","nome":"Olho d'Água das Cunhãs"}
+MUNICIPAL_SOURCES={
+  "presidente_odc": ("6257","0001","006257","Presidente"),
+  "governador_odc": ("6259","0003","006259","Governador"),
+  "senador_odc": ("6259","0005","006259","Senador"),
+  "federal_odc": ("6259","0006","006259","Deputado Federal"),
+  "estadual_odc": ("6259","0007","006259","Deputado Estadual"),
+}
+
 def url_for(election, abr, cargo, eid):
     return f"{BASE}/{election}/dados/{abr}/{abr}-c{cargo}-e{eid}-u.json"
+
+def municipal_url_candidates(election, cargo, eid):
+    uf=MUNICIPIO_ODC["uf"]
+    abr=f'{uf}{MUNICIPIO_ODC["codigo"]}'
+    return [
+      f"{BASE}/{election}/dados/{uf}/{abr}-c{cargo}-e{eid}-u.json",
+      f"{BASE}/{election}/dados/{abr}/{abr}-c{cargo}-e{eid}-u.json",
+    ]
+
+def fetch_first(urls):
+    last=None
+    for url in urls:
+        try:
+            return fetch_json(url), url
+        except Exception as exc:
+            last=exc
+    raise last or RuntimeError("Nenhuma URL disponível")
 
 def fetch_json(url):
     req=urllib.request.Request(url,headers={
@@ -58,7 +84,7 @@ def flatten_candidates(doc):
     out.sort(key=lambda x:(-x["votos"], n(x["numero"],999999)))
     return out
 
-def summarize(key, meta, doc):
+def summarize(key, meta, doc, source_url=None):
     sec=doc.get("s") or {}
     ele=doc.get("e") or {}
     vot=doc.get("v") or {}
@@ -66,7 +92,7 @@ def summarize(key, meta, doc):
       "key":key,
       "cargo":meta[4],
       "abrangencia":meta[5],
-      "sourceUrl":url_for(*meta[:4]),
+      "sourceUrl":source_url or url_for(*meta[:4]),
       "fase":doc.get("f"),
       "divulgacao":doc.get("dv"),
       "andamento":doc.get("and"),
@@ -118,13 +144,28 @@ def main():
             # Aceita apenas fase oficial e arquivos efetivamente divulgáveis.
             if doc.get("f") not in (None,"o"):
                 raise RuntimeError(f"fase não oficial: {doc.get('f')}")
-            result["results"][key]=summarize(key,meta,doc)
+            result["results"][key]=summarize(key,meta,doc,source_url=url)
             loaded+=1
         except Exception as exc:
             errors.append({"key":key,"url":url,"error":str(exc)})
+
+    for key,meta in MUNICIPAL_SOURCES.items():
+        election,cargo,eid,label=meta
+        urls=municipal_url_candidates(election,cargo,eid)
+        try:
+            doc,url=fetch_first(urls)
+            if doc.get("f") not in (None,"o"):
+                raise RuntimeError(f"fase não oficial: {doc.get('f')}")
+            fake=(election,MUNICIPIO_ODC["uf"],cargo,eid,label,MUNICIPIO_ODC["nome"])
+            result["results"][key]=summarize(key,fake,doc,source_url=url)
+            loaded+=1
+        except Exception as exc:
+            errors.append({"key":key,"urls":urls,"error":str(exc)})
+
+    result["meta"]["municipio"]=MUNICIPIO_ODC
     result["meta"]["available"]=loaded>0
     result["meta"]["loaded"]=loaded
-    result["meta"]["expected"]=len(SOURCES)
+    result["meta"]["expected"]=len(SOURCES)+len(MUNICIPAL_SOURCES)
     result["meta"]["errors"]=errors
     if loaded:
         result["meta"]["message"]=f"{loaded} de {len(SOURCES)} resultados oficiais disponíveis"
