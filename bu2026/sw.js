@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v23-tabs-fix";
+const CACHE_VERSION="dwtech-bu2026-v24-display-sync";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
