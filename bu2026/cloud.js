@@ -196,7 +196,7 @@ async function softRefresh(){
  try{
   await syncQueue();
   await loadCloudBallots(true);
-  if(view==="gerais"&&typeof window.loadOfficialResults==="function"){
+  if((view==="gerais"||view==="resultados")&&typeof window.loadOfficialResults==="function"){
    try{await window.loadOfficialResults(true)}catch{}
   }
  }finally{
