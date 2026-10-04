@@ -372,9 +372,9 @@ tbody tr:hover{background:#fff4ec}
 @media(max-width:1200px){.general-summary{grid-template-columns:repeat(3,1fr)}.general-groups{grid-template-columns:1fr}}@media(max-width:700px){.general-summary{grid-template-columns:1fr 1fr}.general-candidate{grid-template-columns:32px 52px 1fr 78px}.general-bar{display:none}}
 
 </style>
-<link rel="stylesheet" href="./qr-scanner.css">
-<link rel="stylesheet" href="./cloud.css">
-<link rel="stylesheet" href="./access.css">
+<link rel="stylesheet" href="./qr-scanner.css?build=20261004.1">
+<link rel="stylesheet" href="./cloud.css?build=20261004.1">
+<link rel="stylesheet" href="./access.css?build=20261004.1">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -798,11 +798,11 @@ function openResultsWindow(){
 
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
-<script src="./jsQR.js"></script>
-<script src="./qr-scanner.js"></script>
-<script src="./pwa.js"></script>
-<script src="./cloud.js?v=20260921-simple1"></script>
-<script src="./access.js?v=20261003-access1"></script>
-<script src="./navigation.js?v=20261004-back1"></script>
+<script src="./jsQR.js?build=20261004.1"></script>
+<script src="./qr-scanner.js?build=20261004.1"></script>
+<script src="./pwa.js?build=20261004.1"></script>
+<script src="./cloud.js?build=20261004.1"></script>
+<script src="./access.js?build=20261004.1"></script>
+<script src="./navigation.js?build=20261004.1"></script>
 </body>
 </html>
