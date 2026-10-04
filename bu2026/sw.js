@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v20-sync-30s";
+const CACHE_VERSION="dwtech-bu2026-v21-instant-update";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -78,7 +78,12 @@ self.addEventListener("fetch",event=>{
     return;
   }
 
-  if(["style","script","image","font"].includes(request.destination)){
+  if(["style","script"].includes(request.destination)){
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  if(["image","font"].includes(request.destination)){
     event.respondWith(staleWhileRevalidate(request));
   }
 });
