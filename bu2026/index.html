@@ -372,9 +372,9 @@ tbody tr:hover{background:#fff4ec}
 @media(max-width:1200px){.general-summary{grid-template-columns:repeat(3,1fr)}.general-groups{grid-template-columns:1fr}}@media(max-width:700px){.general-summary{grid-template-columns:1fr 1fr}.general-candidate{grid-template-columns:32px 52px 1fr 78px}.general-bar{display:none}}
 
 </style>
-<link rel="stylesheet" href="./qr-scanner.css?build=20261004.9">
-<link rel="stylesheet" href="./cloud.css?build=20261004.9">
-<link rel="stylesheet" href="./access.css?build=20261004.9">
+<link rel="stylesheet" href="./qr-scanner.css?build=20261004.10">
+<link rel="stylesheet" href="./cloud.css?build=20261004.10">
+<link rel="stylesheet" href="./access.css?build=20261004.10">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -444,7 +444,7 @@ tbody tr:hover{background:#fff4ec}
 <section id="apurados" class="section"><div class="stats"><div class="stat"><span>B.U.s</span><strong id="stBU">0</strong></div><div class="stat"><span>Seções restantes</span><strong id="stRest">80</strong></div><div class="stat"><span>Aptos</span><strong id="stAptos">0</strong></div><div class="stat"><span>Comparecimento</span><strong id="stComp">0</strong></div><div class="stat"><span>Faltosos</span><strong id="stFalt">0</strong></div><div class="stat"><span>Progresso</span><strong id="stProg">0%</strong></div></div><div class="card"><div class="head"><h3>B.U.s lançados</h3><span id="buCount" style="font-size:12px;color:#667085"></span></div><div class="toolbar"><input id="buSearch" placeholder="Pesquisar seção, urna ou local..." oninput="renderBUs()"><select id="buZone" onchange="renderBUs()"><option value="">Todas as seções</option></select></div><div class="table-wrap"><table><thead><tr><th>Seção</th><th>Local</th><th>Urna</th><th>Aptos</th><th>Comparecimento</th><th>Fed.</th><th>Est.</th><th>Senador</th><th>Gov.</th><th>Pres.</th><th>Status</th><th>Ações</th></tr></thead><tbody id="buBody"></tbody></table><div class="empty" id="buEmpty">Nenhum B.U. salvo.</div></div></div></section>
 <section id="resultados" class="section">
   <div class="head" style="border:1px solid var(--dw-line);border-radius:11px;box-shadow:var(--shadow);margin-bottom:12px">
-    <h3>Apuração local — B.U.s escaneados</h3>
+    <div><h3>Apuração local + TSE</h3><small id="hybridCoverageInfo" style="display:block;margin-top:4px;color:#667085;font-weight:700">Apuração híbrida • carregando…</small></div>
     <div class="general-actions"><button class="soft" type="button" onclick="loadOfficialResults(true)">↻ Atualizar TSE ODC</button></div>
   </div>
   <div class="results-grid" id="resultsGrid"></div>
@@ -574,7 +574,20 @@ function totalNominal(r,k){return Object.values(r.votes?.[k]?.cand||{}).reduce((
 function renderBUs(){const q=(document.getElementById("buSearch")?.value||"").toLowerCase(),filter=document.getElementById("buZone")?.value||"",rows=buData.filter(r=>(!q||[r.secao,r.urna,r.local].join(" ").toLowerCase().includes(q))&&(!filter||String(r.secao)===filter)),tb=document.getElementById("buBody");tb.innerHTML="";rows.forEach(r=>{const ok=ORDER.every(k=>officeTotal(k,r.votes[k])===officeExpected(k,r.votes[k],num(r.comparecimento))),tr=document.createElement("tr");tr.innerHTML='<td><b>'+String(r.secao).padStart(3,"0")+'</b></td><td>'+esc(r.local)+'</td><td>'+esc(r.urna||"-")+'</td><td>'+fmt(r.aptos)+'</td><td>'+fmt(r.comparecimento)+'</td><td>'+fmt(totalNominal(r,"federal"))+'</td><td>'+fmt(totalNominal(r,"estadual"))+'</td><td>'+fmt(totalNominal(r,"senador"))+'</td><td>'+fmt(totalNominal(r,"governador"))+'</td><td>'+fmt(totalNominal(r,"presidente"))+'</td><td><span class="badge '+(ok?"ok":"warn")+'">'+(ok?"Conferido":"Divergente")+'</span></td><td><div class="actions"><button class="soft" onclick="editBU(\''+r.id+'\')">Abrir</button><button class="danger" onclick="deleteBU(\''+r.id+'\')">Anular</button></div></td>';tb.appendChild(tr)});document.getElementById("buEmpty").style.display=rows.length?"none":"block";document.getElementById("buCount").textContent=rows.length+" registro(s)"}
 function renderBUFilter(){const s=document.getElementById("buZone"),cur=s.value;s.innerHTML='<option value="">Todas as seções</option>';[...new Set(buData.map(x=>String(x.secao)))].sort((a,b)=>num(a)-num(b)).forEach(x=>{const o=document.createElement("option");o.value=x;o.textContent=String(x).padStart(3,"0");s.appendChild(o)});if([...s.options].some(o=>o.value===cur))s.value=cur}
 function aggregate(k){const map={};let valid=0,blank=0,nulls=0,legend=0;buData.forEach(r=>{const d=r.votes?.[k]||{};Object.values(d.cand||{}).forEach(x=>{const key=String(x.numero);if(!map[key])map[key]={numero:key,nome:x.nome,partido:x.partido,votos:0};map[key].votos+=num(x.votos);valid+=num(x.votos)});Object.values(d.legend||{}).forEach(x=>legend+=num(x.votos));blank+=num(d.brancos);nulls+=num(d.nulos)});return{rows:Object.values(map).sort((a,b)=>b.votos-a.votos),valid,blank,nulls,legend}}
-function renderResults(){const grid=document.getElementById("resultsGrid");grid.innerHTML="";ORDER.forEach(k=>{const a=aggregate(k),den=a.valid+(OFFICE[k].legend?a.legend:0),rows=a.rows.map((x,i)=>'<div class="rank-row"><div class="rpos">'+(i+1)+'º</div><div class="rnum">'+esc(x.numero)+'</div><div class="rname">'+esc(x.nome)+' <span class="rparty">• '+esc(x.partido)+'</span></div><div class="rvotes">'+fmt(x.votos)+'<span>'+(den?(x.votos/den*100).toFixed(2):"0.00")+'%</span></div></div>').join("");grid.innerHTML+='<div class="result-panel"><h3>'+OFFICE[k].label+' — '+fmt(den)+' válidos'+(OFFICE[k].legend?" (nominais + legenda)":"")+'</h3><div class="rank-list">'+(rows||'<div class="empty">Sem votos lançados.</div>')+'</div></div>'})}
+function odcOfficialKey(k){return({federal:"federal_odc",estadual:"estadual_odc",senador:"senador_odc",governador:"governador_odc",presidente:"presidente_odc"})[k]}
+function localSectionCount(){return new Set(buData.map(r=>String(r.secao))).size}
+function officialOdcBase(){return officialResultsCache?.results?.presidente_odc||officialResultsCache?.results?.governador_odc||officialResultsCache?.results?.senador_odc||officialResultsCache?.results?.federal_odc||officialResultsCache?.results?.estadual_odc||null}
+function hybridCoverage(){
+ const local=localSectionCount(),off=officialOdcBase(),official=num(off?.secoes?.totalizadas);
+ return {local,official,used:Math.max(local,official),source:official>local?"TSE":"LOCAL"}
+}
+function hybridAggregate(k){
+ const local=aggregate(k),cov=hybridCoverage(),off=officialResultsCache?.results?.[odcOfficialKey(k)];
+ if(cov.source!=="TSE"||!off)return {...local,source:"LOCAL",sections:cov.local};
+ const rows=(off.candidatos||[]).map(x=>({numero:String(x.numero),nome:x.nome,partido:x.partido,votos:num(x.votos)})).sort((a,b)=>b.votos-a.votos);
+ return {rows,valid:num(off.votos?.validos),blank:num(off.votos?.brancos),nulls:num(off.votos?.nulos),legend:num(off.votos?.legenda),source:"TSE",sections:num(off.secoes?.totalizadas)};
+}
+function renderResults(){const grid=document.getElementById("resultsGrid");grid.innerHTML="";const cov=hybridCoverage();ORDER.forEach(k=>{const a=hybridAggregate(k),den=a.valid+(OFFICE[k].legend?a.legend:0),rows=a.rows.map((x,i)=>'<div class="rank-row"><div class="rpos">'+(i+1)+'º</div><div class="rnum">'+esc(x.numero)+'</div><div class="rname">'+esc(x.nome)+' <span class="rparty">• '+esc(x.partido)+'</span></div><div class="rvotes">'+fmt(x.votos)+'<span>'+(den?(x.votos/den*100).toFixed(2):"0.00")+'%</span></div></div>').join(""),source=a.source==="TSE"?"TSE oficial":"B.U.s escaneados";grid.innerHTML+='<div class="result-panel"><h3>'+OFFICE[k].label+' — '+fmt(den)+' válidos'+(OFFICE[k].legend?" (nominais + legenda)":"")+' <small style="font-weight:700;color:#667085">• '+source+' • '+fmt(a.sections)+' seções</small></h3><div class="rank-list">'+(rows||'<div class="empty">Sem votos lançados.</div>')+'</div></div>'});const head=document.getElementById("hybridCoverageInfo");if(head)head.textContent='Apuração híbrida • '+fmt(cov.used)+' seções • fonte mais adiantada: '+(cov.source==="TSE"?"TSE oficial":"B.U.s escaneados")+' • local '+fmt(cov.local)+' / TSE '+fmt(cov.official)}
 const TSE_RESULT_SOURCES={
  presidente_br:{cargo:"Presidente",abrangencia:"Brasil + exterior",url:"https://resultados.tse.jus.br/oficial/ele2026/6257/dados/br/br-c0001-e006257-u.json"},
  governador_ma:{cargo:"Governador",abrangencia:"Maranhão",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma-c0003-e006259-u.json"},
@@ -690,7 +703,7 @@ async function loadOfficialResults(force=false){
   };
  }
  if(!data)data={meta:{available:false,message:"Aguardando divulgação oficial do TSE"},results:{}};
- officialResultsCache=data;officialResultsFetchedAt=Date.now();paintOfficialResults(data);return data
+ officialResultsCache=data;officialResultsFetchedAt=Date.now();paintOfficialResults(data);if(document.getElementById("resultados")?.classList.contains("active"))renderResults();return data
 }
 function renderGeneralResults(){
  paintOfficialResults(officialResultsCache||{meta:{available:false},results:{}});
@@ -851,11 +864,11 @@ function openResultsWindow(targetWindow=null){
 
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
-<script src="./jsQR.js?build=20261004.9"></script>
-<script src="./qr-scanner.js?build=20261004.9"></script>
-<script src="./pwa.js?build=20261004.9"></script>
-<script src="./cloud.js?build=20261004.9"></script>
-<script src="./access.js?build=20261004.9"></script>
-<script src="./navigation.js?build=20261004.9"></script>
+<script src="./jsQR.js?build=20261004.10"></script>
+<script src="./qr-scanner.js?build=20261004.10"></script>
+<script src="./pwa.js?build=20261004.10"></script>
+<script src="./cloud.js?build=20261004.10"></script>
+<script src="./access.js?build=20261004.10"></script>
+<script src="./navigation.js?build=20261004.10"></script>
 </body>
 </html>
