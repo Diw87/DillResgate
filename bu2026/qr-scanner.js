@@ -101,13 +101,14 @@ async function verifyHashes(){
 }
 function parseData(){
  const joined=Array.from({length:state.total},(_,i)=>extractPart(state.parts.get(i+1)).data).join(" ");
- const toks=joined.split(/\s+/),meta={},offices={};Object.values(OFFICE_CODE).forEach(k=>offices[k]={cand:{},legend:{},brancos:0,nulos:0,outros:0,total:0,nominais:0,legendaTotal:0});
+ const toks=joined.split(/\s+/),meta={},offices={};Object.values(OFFICE_CODE).forEach(k=>offices[k]={cand:{},legend:{},brancos:0,nulos:0,outros:0,total:0,nominais:0,legendaTotal:0,csec:0});
  let currentOffice=null,currentParty=null;
  for(const token of toks){const p=token.indexOf(":");if(p<1)continue;const key=token.slice(0,p).toUpperCase(),val=token.slice(p+1);
   if(GLOBAL_KEYS.has(key)){meta[key]=val;continue}
   if(key==="CARG"){currentOffice=OFFICE_CODE[Number(val)]||null;currentParty=null;continue}
   if(!currentOffice)continue;
-  if(key==="TIPO"||key==="VERC"||key==="APTA"||key==="APTS"||key==="APTT"||key==="CSEC")continue;
+  if(key==="TIPO"||key==="VERC"||key==="APTA"||key==="APTS"||key==="APTT")continue;
+  if(key==="CSEC"){offices[currentOffice].csec=Number(val||0);continue}
   if(key==="PART"){currentParty=String(Number(val));continue}
   if(key==="LEGP"){if(currentParty)offices[currentOffice].legend[currentParty]=(offices[currentOffice].legend[currentParty]||0)+Number(val||0);continue}
   if(key==="NOMI"){offices[currentOffice].nominais=Number(val||0);continue}
@@ -136,12 +137,22 @@ function compatibility(parsed){
  const date=m.DTPL||"";if(date&&date!=="20261004")warn.push("Data do pleito no QR: "+date);
  return{ok:errors.length===0,errors,warn}
 }
+function validateQrOfficeSummaries(parsed){
+ const issues=[];
+ for(const [k,x] of Object.entries(parsed.offices||{})){
+  const summary=Number(x.nominais||0)+Number(x.legendaTotal||0)+Number(x.brancos||0)+Number(x.nulos||0);
+  const tot=Number(x.total||0);
+  if(tot>0&&summary!==tot)issues.push(OFFICE_NAME[k]+": resumo "+summary+" / TOTC "+tot);
+ }
+ return {ok:issues.length===0,issues}
+}
 async function finishData(){
- stopCamera();await verifyHashes();state.parsed=parseData();const comp=compatibility(state.parsed);state.compatible=comp.ok;renderPreview(comp);
- if(state.hashOK&&comp.ok){
+ stopCamera();await verifyHashes();state.parsed=parseData();const comp=compatibility(state.parsed),summary=validateQrOfficeSummaries(state.parsed);state.compatible=comp.ok&&summary.ok;renderPreview(comp);
+ if(state.hashOK&&comp.ok&&summary.ok){
   setStatus("Leitura completa e íntegra. Salvando este B.U. automaticamente…","good");
   setTimeout(()=>applyToForm(true),180)
  }else if(!state.hashOK)setStatus("A sequência foi lida, mas a conferência SHA-512 não fechou. O B.U. não será salvo.","bad");
+ else if(!summary.ok)setStatus("B.U. íntegro, mas o resumo interno do QR não fechou: "+summary.issues.join(" • ")+". O B.U. não será salvo.","bad");
  else setStatus("B.U. lido, mas ele não corresponde à configuração deste sistema. O B.U. não será salvo.","bad")
 }
 function renderPreview(comp){
@@ -218,11 +229,14 @@ async function applyToForm(autoSave=false){
   if(state.autoSaving||state.autoSaved)return;
   state.autoSaving=true;
   const form=document.getElementById("buForm");
-  if(!refreshConference()){
+  const conferenceOk=refreshConference();
+  const qrSummary=validateQrOfficeSummaries(state.parsed);
+  if(!qrSummary.ok){
    state.autoSaving=false;
-   alert("O QR foi lido, mas os totais do B.U. não conferem. O salvamento automático foi bloqueado.");
+   alert("O QR foi lido, mas o resumo oficial do próprio B.U. não confere: "+qrSummary.issues.join(" • "));
    return
   }
+  if(!conferenceOk)console.warn("Conferência visual divergente; usando TOTC oficial do QR íntegro para o salvamento.");
   try{
    if(window.BUCloud?.hasDuplicateSection){
     const dup=await window.BUCloud.hasDuplicateSection(sec);
