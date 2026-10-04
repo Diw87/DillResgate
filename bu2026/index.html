@@ -644,7 +644,7 @@ function renderGeneralResults(){
  loadOfficialResults(false);
  if(!officialResultsTimer)officialResultsTimer=setInterval(()=>{if(document.getElementById("gerais")?.classList.contains("active"))loadOfficialResults(true)},30000)
 }
-async function openGeneralResultsWindow(targetWindow=null){
+async async function openGeneralResultsWindow(targetWindow=null){
  const w=(targetWindow&&!targetWindow.closed)?targetWindow:window.open("","BU2026_GERAIS","width=1700,height=1000,resizable=yes,scrollbars=yes");if(!w){alert("Permita pop-ups para abrir o painel oficial.");return}
  w.document.open();w.document.write('<!DOCTYPE html><html><head><title>DW Tech • TSE 2026</title></head><body style="margin:0;background:#0b0d0f;color:white;font-family:Segoe UI,Arial;display:grid;place-items:center;min-height:100vh"><div style="text-align:center"><h2>DW Tech • B.U. 2026</h2><p>Carregando resultados oficiais do TSE…</p></div></body></html>');w.document.close();
  const data=await loadOfficialResults(true);
