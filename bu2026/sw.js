@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v21-instant-update";
+const CACHE_VERSION="dwtech-bu2026-v22-results-refresh";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
