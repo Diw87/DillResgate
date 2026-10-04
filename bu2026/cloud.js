@@ -125,7 +125,25 @@ function rowFromRec(rec,isUpdate=false){
  if(!isUpdate){row.id=rec.id;row.election_year=2026}
  return row;
 }
+function hasLocalDuplicateSection(secao,ignoreId=""){
+ const s=String(Number(secao||0));
+ if(!s||s==="0")return false;
+ if(buData.some(x=>String(Number(x.secao||0))===s&&x.id!==ignoreId&&x.cloudStatus!=="anulado"))return true;
+ return queue().some(x=>x.state!=="conflict"&&String(Number(x.rec?.secao||0))===s&&x.rec?.id!==ignoreId)
+}
+async function hasDuplicateSection(secao,ignoreId=""){
+ if(hasLocalDuplicateSection(secao,ignoreId))return true;
+ if(!navigator.onLine)return false;
+ try{
+  const rows=await select("bu_ballots","select=id,secao,status&election_year=eq.2026&uf=eq.MA&zona=eq.87&secao=eq."+encodeURIComponent(Number(secao))+"&status=eq.finalizado&limit=1");
+  return Array.isArray(rows)&&rows.some(x=>x.id!==ignoreId)
+ }catch{return false}
+}
 async function saveCloud(rec){
+ if(await hasDuplicateSection(rec.secao,rec.id)){
+  const err=new Error("B.U. repetido: esta seção já está registrada.");
+  err.kind="conflict";throw err;
+ }
  const existing=buData.find(x=>x.id===rec.id&&x._cloud);
  if(existing){
   await update("bu_ballots","id=eq."+encodeURIComponent(rec.id),rowFromRec(rec,true));
@@ -165,6 +183,10 @@ async function submitCapture(e){
  if(!refreshConference()){alert("O B.U. ainda não confere. Revise os totais de cada cargo.");return}
  const rec=recordFromForm();
  if(!rec.secao){alert("Selecione a seção.");return}
+ if(await hasDuplicateSection(rec.secao,rec.id)){
+  alert("B.U. repetido: a seção "+String(rec.secao).padStart(3,"0")+" já está registrada.");
+  resetBU();return
+ }
 
  const btn=document.querySelector('#buForm button[type="submit"]');
  if(btn){btn.disabled=true;btn.textContent="Salvando…"}
@@ -232,7 +254,7 @@ async function boot(){
  pollTimer=setInterval(()=>loadCloudBallots(true),3000);
 }
 
-window.BUCloud={reload:loadCloudBallots,sync:syncQueue};
+window.BUCloud={reload:loadCloudBallots,sync:syncQueue,hasDuplicateSection};
 document.addEventListener("DOMContentLoaded",boot);
 
 })();
