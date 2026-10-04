@@ -513,10 +513,10 @@ tbody tr:hover{background:#fff4ec}
         <div id="qrPreview" class="qr-preview"></div>
         <div class="qr-actions-bottom">
           <button class="qr-secondary" type="button" onclick="closeQrScanner()">Cancelar</button>
-          <button id="qrApplyBtn" class="qr-apply" type="button" onclick="applyQrToForm()" disabled>✓ Aplicar dados ao B.U.</button>
+          <button id="qrApplyBtn" class="qr-apply" type="button" onclick="applyQrToForm()" disabled>✓ Aplicar manualmente</button>
         </div>
         <div class="notice" style="margin-top:12px">
-          <strong>Segurança:</strong> o sistema só libera o preenchimento automático depois de receber toda a sequência QR e confirmar os hashes SHA‑512. A assinatura digital é detectada e registrada; o salvamento continua exigindo a conferência normal dos totais.
+          <strong>Automático:</strong> ao concluir a leitura de toda a sequência QR e confirmar os hashes SHA‑512, o sistema preenche, confere e salva o B.U. automaticamente. Se a seção já existir, o registro repetido é bloqueado.
         </div>
       </div>
     </div>
