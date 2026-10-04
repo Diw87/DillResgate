@@ -372,9 +372,9 @@ tbody tr:hover{background:#fff4ec}
 @media(max-width:1200px){.general-summary{grid-template-columns:repeat(3,1fr)}.general-groups{grid-template-columns:1fr}}@media(max-width:700px){.general-summary{grid-template-columns:1fr 1fr}.general-candidate{grid-template-columns:32px 52px 1fr 78px}.general-bar{display:none}}
 
 </style>
-<link rel="stylesheet" href="./qr-scanner.css?build=20261004.4">
-<link rel="stylesheet" href="./cloud.css?build=20261004.4">
-<link rel="stylesheet" href="./access.css?build=20261004.4">
+<link rel="stylesheet" href="./qr-scanner.css?build=20261004.5">
+<link rel="stylesheet" href="./cloud.css?build=20261004.5">
+<link rel="stylesheet" href="./access.css?build=20261004.5">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -530,7 +530,7 @@ const OFFICE={federal:{label:"Deputado Federal",cargo:6,digits:4,mult:1,legend:t
 const ORDER=["federal","estadual","senador","governador","presidente"];
 const KEY_BU="BU2026_MA_ODAC_V2",KEY_CAND="BU2026_CANDIDATOS_V2",KEY_META="BU2026_CAND_META_V2";
 let candidates={federal:[],estadual:[],senador:[],governador:[],presidente:[]},buData=[],draftVotes=blankDraft();
-function blankDraft(){const d={};ORDER.forEach(k=>d[k]={cand:{},legend:{},brancos:0,nulos:0});return d}
+function blankDraft(){const d={};ORDER.forEach(k=>d[k]={cand:{},legend:{},brancos:0,nulos:0,outros:0});return d}
 function esc(s=""){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}
 function num(v){return Number(v||0)}function fmt(n){return Number(n||0).toLocaleString("pt-BR")}function candidateByNumber(k,nr){return candidates[k].find(c=>String(c.numero)===String(nr))}
 function showMain(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");document.querySelectorAll(".side-link[data-target]").forEach(x=>x.classList.toggle("active",x.dataset.target===id));if(id==="resultados")renderResults();if(id==="gerais")renderGeneralResults();if(id==="candidatos")renderCandidateBrowser()}
@@ -546,7 +546,7 @@ function addCandidateVote(k){const nr=document.getElementById("nr_"+k).value,c=c
 function addLegendVote(k){const nr=document.getElementById("legnr_"+k).value,p=partyMap(k)[nr],q=num(document.getElementById("legvotes_"+k).value);if(!p){alert("Partido não encontrado na base de candidatos.");return}draftVotes[k].legend[nr]={numero:nr,nome:p.sigla,votos:q};document.getElementById("legnr_"+k).value="";document.getElementById("legvotes_"+k).value=0;updateLegendMatch(k);renderVoteList(k);refreshConference()}
 function setVote(k,id,v){if(draftVotes[k].cand[id])draftVotes[k].cand[id].votos=num(v);refreshConference()}function delVote(k,id){delete draftVotes[k].cand[id];renderVoteList(k);refreshConference()}function setLegend(k,nr,v){if(draftVotes[k].legend[nr])draftVotes[k].legend[nr].votos=num(v);refreshConference()}function delLegend(k,nr){delete draftVotes[k].legend[nr];renderVoteList(k);refreshConference()}
 function renderVoteList(k){const box=document.getElementById("list_"+k);if(!box)return;const rows=Object.entries(draftVotes[k].cand).sort((a,b)=>num(a[1].numero)-num(b[1].numero)).map(([id,x])=>'<div class="vote-row"><div class="num">'+esc(x.numero)+'</div><div class="nm">'+esc(x.nome)+' <span class="party">• '+esc(x.partido)+'</span></div><input type="number" min="0" value="'+num(x.votos)+'" oninput="setVote(\''+k+'\',\''+id+'\',this.value)"><button type="button" class="mini-del" onclick="delVote(\''+k+'\',\''+id+'\')">×</button></div>').join("");const legends=Object.entries(draftVotes[k].legend).sort((a,b)=>num(a[0])-num(b[0])).map(([nr,x])=>'<div class="vote-row"><div class="num">'+esc(nr)+'</div><div class="nm">VOTO DE LEGENDA <span class="party">• '+esc(x.nome)+'</span></div><input type="number" min="0" value="'+num(x.votos)+'" oninput="setLegend(\''+k+'\',\''+nr+'\',this.value)"><button type="button" class="mini-del" onclick="delLegend(\''+k+'\',\''+nr+'\')">×</button></div>').join("");box.innerHTML=rows+legends||'<div class="empty">Nenhum voto nominal/legenda lançado neste cargo.</div>'}
-function officeTotal(k,d=draftVotes[k]){const cand=Object.values(d.cand||{}).reduce((s,x)=>s+num(x.votos),0),leg=Object.values(d.legend||{}).reduce((s,x)=>s+num(x.votos),0);return cand+leg+num(d.brancos)+num(d.nulos)}
+function officeTotal(k,d=draftVotes[k]){const cand=Object.values(d.cand||{}).reduce((s,x)=>s+num(x.votos),0),leg=Object.values(d.legend||{}).reduce((s,x)=>s+num(x.votos),0);return cand+leg+num(d.brancos)+num(d.nulos)+num(d.outros)}
 function refreshConference(){const apt=num(document.getElementById("aptos")?.value),comp=num(document.getElementById("comparecimento")?.value);let all=comp<=apt&&comp>=0;const pieces=[];ORDER.forEach(k=>{const total=officeTotal(k),exp=comp*OFFICE[k].mult,ok=total===exp;all=all&&ok;const st=document.getElementById("officeStatus_"+k),sum=document.getElementById("sum_"+k),ex=document.getElementById("exp_"+k);if(st){st.textContent=fmt(total)+" / "+fmt(exp);st.className="badge "+(ok?"ok":"warn")}if(sum)sum.textContent=fmt(total);if(ex)ex.textContent=fmt(exp);pieces.push(OFFICE[k].label+": "+fmt(total)+"/"+fmt(exp))});const c=document.getElementById("conference");c.className="conference "+(all?"conf-ok":"conf-bad");c.textContent=all?"B.U. conferido — todos os cargos fecham com o comparecimento.":pieces.join(" • ");return all}
 document.getElementById("buForm").addEventListener("submit",e=>{e.preventDefault();if(!refreshConference()){alert("O B.U. ainda não confere. Revise os totais de cada cargo.");return}const id=document.getElementById("buId").value||crypto.randomUUID(),rec={id,municipio:document.getElementById("municipio").value,uf:"MA",zona:"87",secao:document.getElementById("secao").value,local:document.getElementById("local").value,enderecoLocal:document.getElementById("enderecoLocal").value,urna:document.getElementById("urna").value.trim(),dataEleicao:document.getElementById("dataEleicao").value,aptos:num(document.getElementById("aptos").value),comparecimento:num(document.getElementById("comparecimento").value),votes:JSON.parse(JSON.stringify(draftVotes)),qrImport:window.__qrImportMeta?JSON.parse(JSON.stringify(window.__qrImportMeta)):null,salvoEm:new Date().toISOString()};if(!rec.secao){alert("Selecione a seção.");return}const dup=buData.find(x=>String(x.secao)===String(rec.secao)&&x.id!==rec.id);if(dup&&!confirm("Já existe B.U. salvo para esta seção. Deseja salvar outro?"))return;const i=buData.findIndex(x=>x.id===id);if(i>=0)buData[i]=rec;else buData.unshift(rec);localStorage.setItem(KEY_BU,JSON.stringify(buData));renderAll();alert("B.U. salvo e conferido.");resetBU()});
 function resetBU(){window.__qrImportMeta=null;const qb=document.getElementById("qrImportBadge");if(qb){qb.classList.remove("show");qb.innerHTML=""}document.getElementById("buId").value="";document.getElementById("secao").value="";document.getElementById("local").value="";document.getElementById("enderecoLocal").value="";document.getElementById("urna").value="";document.getElementById("aptos").value="";document.getElementById("comparecimento").value="";draftVotes=blankDraft();renderOfficeUI()}
@@ -798,11 +798,11 @@ function openResultsWindow(targetWindow=null){
 
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
-<script src="./jsQR.js?build=20261004.4"></script>
-<script src="./qr-scanner.js?build=20261004.4"></script>
-<script src="./pwa.js?build=20261004.4"></script>
-<script src="./cloud.js?build=20261004.4"></script>
-<script src="./access.js?build=20261004.4"></script>
-<script src="./navigation.js?build=20261004.4"></script>
+<script src="./jsQR.js?build=20261004.5"></script>
+<script src="./qr-scanner.js?build=20261004.5"></script>
+<script src="./pwa.js?build=20261004.5"></script>
+<script src="./cloud.js?build=20261004.5"></script>
+<script src="./access.js?build=20261004.5"></script>
+<script src="./navigation.js?build=20261004.5"></script>
 </body>
 </html>
