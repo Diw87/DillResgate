@@ -5,7 +5,7 @@ const OFFICE_CODE={1:"presidente",3:"governador",5:"senador",6:"federal",7:"esta
 const OFFICE_NAME={federal:"Deputado Federal",estadual:"Deputado Estadual",senador:"Senador",governador:"Governador",presidente:"Presidente"};
 const GLOBAL_KEYS=new Set(["ORIG","ORLC","PROC","DTPL","PLEI","TURN","FASE","UNFE","MUNI","ZONA","SECA","AGRE","IDUE","IDCA","HIQT","HICA","VERS","LOCA","APTO","APTS","APTT","COMP","FALT","HBBM","HBBG","HBSB","DTAB","HRAB","DTFC","HRFC","JUNT","TURM","DTEM","HREM","IDEL","MAJO","PROP"]);
 let state,stream=null,raf=null,detector=null,canvas=null,ctx=null,lastSeen="",lastSeenAt=0,torch=false;
-function fresh(){return{parts:new Map(),total:0,version:"",certParts:new Map(),certTotal:0,parsed:null,testReport:null,hashChecks:[],hashOK:false,compatible:false,signaturePresent:false,startedAt:new Date().toISOString()}}
+function fresh(){return{parts:new Map(),total:0,version:"",certParts:new Map(),certTotal:0,parsed:null,testReport:null,hashChecks:[],hashOK:false,compatible:false,signaturePresent:false,autoSaving:false,autoSaved:false,startedAt:new Date().toISOString()}}
 state=fresh();
 const $=id=>document.getElementById(id);
 const norm=s=>String(s||"").replace(/[\r\n\t]+/g," ").replace(/\s+/g," ").trim();
@@ -132,9 +132,11 @@ function compatibility(parsed){
 }
 async function finishData(){
  stopCamera();await verifyHashes();state.parsed=parseData();const comp=compatibility(state.parsed);state.compatible=comp.ok;renderPreview(comp);
- if(state.hashOK&&comp.ok)setStatus("Leitura completa: sequência íntegra e B.U. compatível. Revise o resumo e toque em “Aplicar ao formulário”.","good");
- else if(!state.hashOK)setStatus("A sequência foi lida, mas a conferência SHA-512 não fechou. Não vou preencher automaticamente para evitar erro.","bad");
- else setStatus("B.U. lido, mas ele não corresponde à configuração deste sistema. Confira os avisos ao lado.","bad")
+ if(state.hashOK&&comp.ok){
+  setStatus("Leitura completa e íntegra. Salvando este B.U. automaticamente…","good");
+  setTimeout(()=>applyToForm(true),180)
+ }else if(!state.hashOK)setStatus("A sequência foi lida, mas a conferência SHA-512 não fechou. O B.U. não será salvo.","bad");
+ else setStatus("B.U. lido, mas ele não corresponde à configuração deste sistema. O B.U. não será salvo.","bad")
 }
 function renderPreview(comp){
  const box=$("qrPreview");if(!box)return;
@@ -175,14 +177,14 @@ function renderPreview(comp){
   '<div><span>Versão QR</span><b>'+escQ(state.version||"-")+'</b></div></div>'+
   '<div class="qr-checks">'+checkRows.map(x=>'<div class="qr-check '+x.c+'"><i>'+(x.c==="good"?"✓":x.c==="bad"?"✕":"!")+'</i><span>'+escQ(x.t)+'</span></div>').join("")+'</div>'+
   '<div class="qr-office-list"><div class="qr-office-row head"><span>Cargo</span><span>Nominais</span><span>Brancos</span><span>Nulos</span></div>'+offices+'</div>';
- $("qrApplyBtn").disabled=!(state.hashOK&&comp.ok)
+ $("qrApplyBtn").disabled=!(state.hashOK&&comp.ok);$("qrApplyBtn").textContent="✓ Aplicar manualmente"
 }
 function resolveCandidate(k,nr,partyNr){
  let c=null;try{c=candidateByNumber(k,nr)}catch{}
  let party="";try{party=c?.partido||partyMap(k)[partyNr]?.sigla||("Partido "+partyNr)}catch{party=c?.partido||""}
  return{id:c?.id||("qr-"+k+"-"+nr),numero:nr,nome:c?.nome||("Candidato nº "+nr),partido:party||c?.partido||""}
 }
-function applyToForm(){
+async function applyToForm(autoSave=false){
  if(state.testReport){
   const r=state.testReport,rc=reportCompatibility(r);if(!rc.ok)return;
   const sec=String(Number(r.secao||0)),sel=document.getElementById("secao");
@@ -206,6 +208,33 @@ function applyToForm(){
  renderOfficeUI();refreshConference();
  const b=$("qrImportBadge");if(b){b.classList.add("show");b.innerHTML='<span class="dot"></span><span>Dados importados do QR oficial do B.U. • '+state.total+' QR lido(s) • integridade SHA‑512 confirmada</span>'}
  closeScanner();try{showMain("novo",document.querySelectorAll(".tab")[0])}catch{}window.scrollTo({top:0,behavior:"smooth"});
+ if(autoSave){
+  if(state.autoSaving||state.autoSaved)return;
+  state.autoSaving=true;
+  const form=document.getElementById("buForm");
+  if(!refreshConference()){
+   state.autoSaving=false;
+   alert("O QR foi lido, mas os totais do B.U. não conferem. O salvamento automático foi bloqueado.");
+   return
+  }
+  try{
+   if(window.BUCloud?.hasDuplicateSection){
+    const dup=await window.BUCloud.hasDuplicateSection(sec);
+    if(dup){
+     state.autoSaving=false;
+     setStatus("Este B.U. já foi registrado anteriormente. Nenhuma duplicata foi salva.","warn");
+     alert("B.U. repetido: a seção "+String(sec).padStart(3,"0")+" já está registrada.");
+     resetBU();
+     return
+    }
+   }
+   state.autoSaved=true;
+   form?.requestSubmit();
+  }catch(e){
+   state.autoSaving=false;
+   alert("Não foi possível concluir o salvamento automático: "+(e?.message||e));
+  }
+ }
 }
 async function decodeFile(file){
  if(!file)return;setStatus("Lendo a imagem selecionada…","");
