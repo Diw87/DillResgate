@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v24-display-sync";
+const CACHE_VERSION="dwtech-bu2026-v25-qr-totc";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
