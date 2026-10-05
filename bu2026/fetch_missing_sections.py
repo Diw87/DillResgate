@@ -49,11 +49,13 @@ def file_entries(h):
     return []
 
 def find_bu_name(h):
-    for a in file_entries(h):
-        nm=a.get("nm","")
-        if nm.lower().endswith(".bu"):
+    entries=file_entries(h)
+    for a in entries:
+        nm=str(a.get("nm",""))
+        tp=str(a.get("tp","")).lower()
+        if nm.lower().endswith(".bu") or tp in ("bu","boletimurna","boletim de urna") or "boletim" in tp:
             return nm
-    raise RuntimeError("arquivo .bu não listado")
+    raise RuntimeError("arquivo BU não listado; arq="+json.dumps(entries,ensure_ascii=False))
 
 def choice_name(v):
     if isinstance(v, tuple) and len(v)==2:
