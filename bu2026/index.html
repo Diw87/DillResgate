@@ -372,9 +372,9 @@ tbody tr:hover{background:#fff4ec}
 @media(max-width:1200px){.general-summary{grid-template-columns:repeat(3,1fr)}.general-groups{grid-template-columns:1fr}}@media(max-width:700px){.general-summary{grid-template-columns:1fr 1fr}.general-candidate{grid-template-columns:32px 52px 1fr 78px}.general-bar{display:none}}
 
 </style>
-<link rel="stylesheet" href="./qr-scanner.css?build=20261004.14">
-<link rel="stylesheet" href="./cloud.css?build=20261004.14">
-<link rel="stylesheet" href="./access.css?build=20261004.14">
+<link rel="stylesheet" href="./qr-scanner.css?build=20261005.15">
+<link rel="stylesheet" href="./cloud.css?build=20261005.15">
+<link rel="stylesheet" href="./access.css?build=20261005.15">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -445,7 +445,7 @@ tbody tr:hover{background:#fff4ec}
 <section id="resultados" class="section">
   <div class="head" style="border:1px solid var(--dw-line);border-radius:11px;box-shadow:var(--shadow);margin-bottom:12px">
     <div><h3>Apuração ODC — Local + TSE</h3><small id="hybridCoverageInfo" style="display:block;margin-top:4px;color:#667085;font-weight:700">Apuração híbrida • carregando…</small></div>
-    <div class="general-actions"><button class="soft" type="button" onclick="loadOfficialResults(true)">↻ Atualizar TSE ODC</button></div>
+    <div class="general-actions"><button class="soft" type="button" onclick="loadOfficialResults(true)">↻ Atualizar</button><button class="primary" type="button" onclick="openResultsWindow(null,true)">🖨 PDF / Imprimir</button></div>
   </div>
   <div class="results-grid" id="resultsGrid"></div>
 </section>
@@ -768,18 +768,24 @@ async function refreshCandidates(force=false){
 function renderAll(){renderStats();renderBUFilter();renderBUs();renderResults();if(document.getElementById("gerais")?.classList.contains("active"))renderGeneralResults();renderSections()}
 function exportCSV(){const rows=[["Seção","Local","Urna","Aptos","Comparecimento",...ORDER.map(k=>OFFICE[k].label+" total")]];buData.forEach(r=>rows.push([r.secao,r.local,r.urna,r.aptos,r.comparecimento,...ORDER.map(k=>officeTotal(k,r.votes[k]))]));const csv=rows.map(row=>row.map(x=>`"${String(x??"").replaceAll('"','""')}"`).join(";")).join("\n"),blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="BU_2026_apuracao_Olho_dAgua.csv";a.click();URL.revokeObjectURL(url)}
 function backupJSON(){const blob=new Blob([JSON.stringify({candidates,buData,meta:JSON.parse(localStorage.getItem(KEY_META)||"{}")},null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="backup_BU_2026.json";a.click();URL.revokeObjectURL(url)}
-function openResultsWindow(targetWindow=null){
-  const used=new Set(buData.map(r=>String(r.secao))).size;
-  const totalSections=ODAC_SECOES.length;
+async function openResultsWindow(targetWindow=null,autoPrint=false){
+  try{await loadOfficialResults(true)}catch{}
+  const cov=hybridCoverage();
+  const used=cov.used;
+  const totalSections=cov.total||ODAC_SECOES.length;
   const progress=totalSections?(used/totalSections*100):0;
-  const aptos=buData.reduce((s,r)=>s+num(r.aptos),0);
-  const comparecimento=buData.reduce((s,r)=>s+num(r.comparecimento),0);
-  const faltosos=Math.max(0,aptos-comparecimento);
+  const odc=officialOdcBase();
+  const useTse=cov.source==="TSE"&&odc;
+  const aptos=useTse&&num(odc?.eleitores?.total)?num(odc.eleitores.total):buData.reduce((s,r)=>s+num(r.aptos),0);
+  const comparecimento=useTse&&num(odc?.eleitores?.comparecimento)?num(odc.eleitores.comparecimento):buData.reduce((s,r)=>s+num(r.comparecimento),0);
+  const faltosos=useTse&&num(odc?.eleitores?.abstencao)?num(odc.eleitores.abstencao):Math.max(0,aptos-comparecimento);
+  const reportSource=cov.source==="TSE"?"TSE Oficial":"B.U.s escaneados";
+  const reportWhen=new Date().toLocaleString("pt-BR");
   const w=(targetWindow&&!targetWindow.closed)?targetWindow:window.open("","BU2026_RESULTADOS","width=1600,height=980,resizable=yes,scrollbars=yes");
   if(!w){alert("Permita pop-ups para abrir a janela de resultados.");return}
 
   const panels=ORDER.map(k=>{
-    const a=aggregate(k);
+    const a=hybridAggregate(k);
     const den=a.valid+(OFFICE[k].legend?a.legend:0);
     const totalGeral=den+a.blank+a.null;
     const rows=a.rows.map((x,i)=>{
@@ -787,7 +793,7 @@ function openResultsWindow(targetWindow=null){
       return '<div class="rr">'+
         '<div class="rpos">'+(i+1)+'º</div>'+
         '<div class="rnum">'+esc(x.numero)+'</div>'+
-        '<div class="rinfo"><b>'+esc(x.nome)+'</b><small>'+esc(x.partido)+'</small></div>'+
+        '<div class="rinfo"><b>'+esc(x.nome)+(x.eleito?' <span class="elected">✓ ELEITO</span>':'')+'</b><small>'+esc(x.partido)+(x.situacao?' • '+esc(x.situacao):'')+'</small></div>'+
         '<div class="rbar"><i style="width:'+Math.max(0,Math.min(100,pct)).toFixed(2)+'%"></i></div>'+
         '<div class="rvotes"><b>'+fmt(x.votos)+'</b><small>'+pct.toFixed(2)+'%</small></div>'+
       '</div>'
@@ -795,7 +801,7 @@ function openResultsWindow(targetWindow=null){
 
     return '<section class="result-card">'+
       '<div class="result-head"><div><span class="office-kicker">RESULTADO POR CARGO</span><h2>'+OFFICE[k].label+'</h2></div>'+
-      '<div class="valid-box"><span>Votos válidos</span><b>'+fmt(den)+'</b></div></div>'+
+      '<div class="valid-box"><span>Votos válidos</span><b>'+fmt(den)+'</b><small>'+esc(a.source==="TSE"?"TSE Oficial":"B.U.s locais")+' • '+fmt(a.sections)+' seções</small></div></div>'+
       '<div class="rank-head"><span>POS.</span><span>NÚMERO</span><span>CANDIDATO / PARTIDO</span><span>DESEMPENHO</span><span>VOTOS / %</span></div>'+
       '<div class="scroll">'+(rows||'<div class="empty">Sem votos lançados para este cargo.</div>')+'</div>'+
       '<div class="result-foot">'+
@@ -823,44 +829,45 @@ function openResultsWindow(targetWindow=null){
   '.progress-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:14px;display:grid;grid-template-columns:180px 1fr 90px;gap:13px;align-items:center;box-shadow:0 8px 24px rgba(18,25,32,.05)}.progress-card span{font-size:10px;font-weight:900;color:#525b65;text-transform:uppercase;letter-spacing:1px}.progress-track{height:12px;background:#e4e8ec;border-radius:999px;overflow:hidden}.progress-track i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),#ff9a49);border-radius:999px}.progress-card b{text-align:right;font-size:20px;color:#181c21}'+
   '.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.result-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 10px 28px rgba(20,26,33,.065)}'+
   '.result-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:13px 15px;background:linear-gradient(180deg,#1a1f25,#101317);border-bottom:3px solid var(--orange);color:#fff}.office-kicker{display:block;color:#aeb6bf;font-size:8px;font-weight:900;letter-spacing:2px}.result-head h2{margin:3px 0 0;font-size:19px}.valid-box{text-align:right}.valid-box span{display:block;color:#bfc6ce;font-size:9px;text-transform:uppercase}.valid-box b{display:block;color:#fff;font-size:20px;margin-top:2px}'+
-  '.rank-head,.rr{display:grid;grid-template-columns:52px 72px minmax(180px,1fr) minmax(120px,.7fr) 98px;gap:9px;align-items:center}.rank-head{padding:8px 11px;background:#f1f3f5;color:#68717b;font-size:8px;font-weight:900;letter-spacing:.7px}.scroll{max-height:510px;overflow:auto}.rr{padding:9px 11px;border-bottom:1px solid #edf0f2}.rr:nth-child(even){background:#fbfcfd}.rr:hover{background:#fff4ec}.rpos{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:#20262c;color:#fff;font-size:11px;font-weight:950}.rr:nth-child(1) .rpos,.rr:nth-child(2) .rpos,.rr:nth-child(3) .rpos{background:var(--orange)}.rnum{font-size:14px;font-weight:950;color:var(--orange)}.rinfo b{display:block;font-size:11px}.rinfo small{display:block;margin-top:2px;color:#7a838d;font-size:9px;font-weight:700}.rbar{height:7px;background:#e6e9ec;border-radius:999px;overflow:hidden}.rbar i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),#ff9948);border-radius:999px}.rvotes{text-align:right}.rvotes b{display:block;font-size:13px}.rvotes small{display:block;margin-top:1px;color:#d45507;font-size:9px;font-weight:900}'+
+  '.rank-head,.rr{display:grid;grid-template-columns:52px 72px minmax(180px,1fr) minmax(120px,.7fr) 98px;gap:9px;align-items:center}.rank-head{padding:8px 11px;background:#f1f3f5;color:#68717b;font-size:8px;font-weight:900;letter-spacing:.7px}.scroll{max-height:510px;overflow:auto}.rr{padding:9px 11px;border-bottom:1px solid #edf0f2}.rr:nth-child(even){background:#fbfcfd}.rr:hover{background:#fff4ec}.rpos{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:#20262c;color:#fff;font-size:11px;font-weight:950}.rr:nth-child(1) .rpos,.rr:nth-child(2) .rpos,.rr:nth-child(3) .rpos{background:var(--orange)}.rnum{font-size:14px;font-weight:950;color:var(--orange)}.rinfo b{display:block;font-size:11px}.rinfo small{display:block;margin-top:2px;color:#7a838d;font-size:9px;font-weight:700}.elected{display:inline-block;margin-left:6px;padding:2px 6px;border-radius:999px;background:#157347;color:#fff;font-size:8px;font-weight:950;letter-spacing:.4px}.valid-box small{display:block;margin-top:2px;color:#aeb6bf;font-size:8px;font-weight:800}.rbar{height:7px;background:#e6e9ec;border-radius:999px;overflow:hidden}.rbar i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),#ff9948);border-radius:999px}.rvotes{text-align:right}.rvotes b{display:block;font-size:13px}.rvotes small{display:block;margin-top:1px;color:#d45507;font-size:9px;font-weight:900}'+
   '.result-foot{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#e2e6ea;border-top:1px solid #dde2e7}.result-foot div{background:#f8f9fa;padding:8px 10px}.result-foot span{display:block;color:#78818b;font-size:8px;text-transform:uppercase;font-weight:900}.result-foot b{display:block;margin-top:2px;font-size:12px}'+
   '.empty{padding:30px;text-align:center;color:#7b848e;font-size:11px}'+
   '.footer{margin-top:15px;background:linear-gradient(90deg,#0e1114,#242a31,#0e1114);border-left:7px solid var(--orange);border-radius:8px;padding:12px 15px;color:#cbd1d7;display:flex;align-items:center;justify-content:space-between;gap:18px;font-size:8px;letter-spacing:2.6px;text-transform:uppercase}.footer b{color:#fff;font-size:16px;letter-spacing:-.2px;text-transform:none}.footer b span{color:var(--orange)}'+
   '@media(max-width:1180px){.top{grid-template-columns:280px 1fr}.head-actions{grid-column:1/-1;justify-content:center;padding-bottom:5px}.grid{grid-template-columns:1fr}.overview{grid-template-columns:repeat(3,1fr)}}'+
-  '@media(max-width:700px){.top{grid-template-columns:1fr;padding:12px}.brand{justify-content:center}.headline h1{font-size:20px}.headline p{letter-spacing:1.2px}.overview{grid-template-columns:1fr 1fr}.progress-card{grid-template-columns:1fr}.progress-card b{text-align:left}.rank-head{display:none}.rr{grid-template-columns:42px 58px 1fr 84px}.rbar{display:none}.footer{flex-direction:column;align-items:flex-start}.st b{font-size:20px}}'+
+  '@media(max-width:700px){.top{grid-template-columns:1fr;padding:12px}.brand{justify-content:center}.headline h1{font-size:20px}.headline p{letter-spacing:1.2px}.overview{grid-template-columns:1fr 1fr}.progress-card{grid-template-columns:1fr}.progress-card b{text-align:left}.rank-head{display:none}.rr{grid-template-columns:42px 58px 1fr 84px}.rbar{display:none}.footer{flex-direction:column;align-items:flex-start}.st b{font-size:20px}}@page{size:A4 landscape;margin:9mm}@media print{html,body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}header{position:static;box-shadow:none}.head-actions{display:none!important}main{max-width:none;padding:8mm 0}.grid{display:block}.result-card{margin:0 0 8mm;box-shadow:none;break-inside:auto}.scroll{max-height:none!important;overflow:visible!important}.rr{break-inside:avoid}.overview,.progress-card{break-inside:avoid}.footer{margin-top:6mm;break-inside:avoid}.top{min-height:82px;padding:8px 14px}.brand strong{font-size:28px}.headline h1{font-size:22px}}'+
   '</style></head><body>'+
   '<header><div class="top">'+
     '<div class="brand"><div class="mark"><i></i><i></i></div><div><strong>DW <span>Tech</span></strong><small>SOLUÇÕES EM TECNOLOGIA</small></div></div>'+
     '<div class="headline"><h1>B.U. 2026 — <span>RESULTADOS</span></h1><p>Olho d\'Água das Cunhãs — MA • 87ª Zona Eleitoral</p></div>'+
-    '<div class="head-actions"><button class="btn orange" onclick="opener&&opener.openResultsWindow(window)">↻ Atualizar</button><button class="btn" onclick="document.documentElement.requestFullscreen()">⛶ Tela cheia</button><button class="btn" onclick="window.close()">✕ Fechar</button></div>'+
+    '<div class="head-actions"><button class="btn orange" onclick="opener&&opener.openResultsWindow(window)">↻ Atualizar</button><button class="btn" onclick="window.print()">🖨 Imprimir / PDF</button><button class="btn" onclick="document.documentElement.requestFullscreen()">⛶ Tela cheia</button><button class="btn" onclick="window.close()">✕ Fechar</button></div>'+
   '</div></header>'+
   '<main>'+
     '<div class="overview">'+
       '<div class="st"><span>Seções apuradas</span><b>'+used+' / '+totalSections+'</b></div>'+
       '<div class="st green"><span>Progresso</span><b>'+progress.toFixed(1)+'%</b></div>'+
-      '<div class="st"><span>B.U.s lançados</span><b>'+buData.length+'</b></div>'+
+      '<div class="st"><span>Fonte atual</span><b style="font-size:16px">'+esc(reportSource)+'</b></div>'+
       '<div class="st"><span>Comparecimento</span><b>'+fmt(comparecimento)+'</b></div>'+
       '<div class="st"><span>Faltosos</span><b>'+fmt(faltosos)+'</b></div>'+
     '</div>'+
     '<div class="progress-card"><span>Evolução da apuração</span><div class="progress-track"><i style="width:'+Math.min(100,progress).toFixed(1)+'%"></i></div><b>'+progress.toFixed(1)+'%</b></div>'+
     '<div class="grid">'+panels+'</div>'+
-    '<div class="footer"><b>DW <span>Tech</span></b><span>Soluções reais para pessoas reais</span><span>inovação • desempenho • confiança</span><span>Apuração independente por Boletim de Urna</span></div>'+
+    '<div class="footer"><b>DW <span>Tech</span></b><span>Olho d\'Água das Cunhãs • 53 seções oficiais</span><span>Gerado em '+esc(reportWhen)+'</span><span>Desenvolvido por Dill Wherbeth</span></div>'+
   '</main></body></html>';
 
   w.document.open();
   w.document.write(html);
   w.document.close();
-  w.focus()
+  w.focus();
+  if(autoPrint)setTimeout(()=>{try{w.print()}catch{}},450)
 }
 
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
-<script src="./jsQR.js?build=20261004.14"></script>
-<script src="./qr-scanner.js?build=20261004.14"></script>
-<script src="./pwa.js?build=20261004.14"></script>
-<script src="./cloud.js?build=20261004.14"></script>
-<script src="./access.js?build=20261004.14"></script>
-<script src="./navigation.js?build=20261004.14"></script>
+<script src="./jsQR.js?build=20261005.15"></script>
+<script src="./qr-scanner.js?build=20261005.15"></script>
+<script src="./pwa.js?build=20261005.15"></script>
+<script src="./cloud.js?build=20261005.15"></script>
+<script src="./access.js?build=20261005.15"></script>
+<script src="./navigation.js?build=20261005.15"></script>
 </body>
 </html>
