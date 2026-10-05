@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v32-odc-whitelist";
+const CACHE_VERSION="dwtech-bu2026-v33-single-panel";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
