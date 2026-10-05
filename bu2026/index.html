@@ -372,9 +372,9 @@ tbody tr:hover{background:#fff4ec}
 @media(max-width:1200px){.general-summary{grid-template-columns:repeat(3,1fr)}.general-groups{grid-template-columns:1fr}}@media(max-width:700px){.general-summary{grid-template-columns:1fr 1fr}.general-candidate{grid-template-columns:32px 52px 1fr 78px}.general-bar{display:none}}
 
 </style>
-<link rel="stylesheet" href="./qr-scanner.css?build=20261005.15">
-<link rel="stylesheet" href="./cloud.css?build=20261005.15">
-<link rel="stylesheet" href="./access.css?build=20261005.15">
+<link rel="stylesheet" href="./qr-scanner.css?build=20261005.1">
+<link rel="stylesheet" href="./cloud.css?build=20261005.1">
+<link rel="stylesheet" href="./access.css?build=20261005.1">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -431,14 +431,14 @@ tbody tr:hover{background:#fff4ec}
   <div class="side-signature"><b>DW Tech</b>tecnologia hoje.<br>mais conquistas amanhã.</div>
 </aside>
 <main>
-<div class="hero"><div><span class="eyebrow">Bem-vindo ao sistema</span><h2>B.U. 2026 — <span>BOLETIM DE URNA</span></h2><p>Olho d'Água das Cunhãs — MA • apuração segura, rápida e transparente</p></div><div class="source" id="sourceStatus">Base de candidatos ainda não carregada.</div></div>
+<div class="hero"><div><span class="eyebrow">Bem-vindo ao sistema</span><h2>B.U. 2026 — <span>BOLETIM DE URNA</span></h2><p>Olho d'Água das Cunhãs — MA • apuração segura, rápida e transparente</p></div><div class="source" id="sourceStatus">ODC • 53 seções oficiais</div></div>
 <div class="tabs"><button class="tab active" onclick="showMain('novo',this)">▣ &nbsp;Novo B.U.</button><button class="tab" onclick="showMain('apurados',this)">▥ &nbsp;B.U.s</button><button class="tab" onclick="showMain('resultados',this)">▥ &nbsp;Resultados</button></div>
 <section id="novo" class="section active"><div class="card"><div class="head"><h3>Identificação da seção</h3><div class="actions"><button class="qr-scan-btn" type="button" onclick="openQrScanner()">📷 Escanear QR do B.U.</button><button class="soft" type="button" onclick="resetBU()">Limpar B.U.</button></div></div><div class="body"><form id="buForm"><input type="hidden" id="buId"><div class="form-grid"><div class="field"><label>Município</label><input id="municipio" value="Olho d'Água das Cunhãs" readonly></div><div class="field"><label>UF</label><input id="uf" value="MA" readonly></div><div class="field"><label>Zona eleitoral</label><input id="zona" value="87" readonly></div><div class="field"><label>Seção *</label><select id="secao" required onchange="fillSection()"><option value="">Selecione a seção</option></select></div><div class="field span2"><label>Local de votação</label><input id="local" readonly></div><div class="field span2"><label>Endereço</label><input id="enderecoLocal" readonly></div><div class="field"><label>ID / código da urna</label><input id="urna"></div><div class="field"><label>Data da eleição</label><input id="dataEleicao" type="date" value="2026-10-04"></div><div class="field"><label>Eleitores aptos *</label><input id="aptos" type="number" min="0" required oninput="refreshConference()"></div><div class="field"><label>Comparecimento *</label><input id="comparecimento" type="number" min="0" required oninput="refreshConference()"></div></div><div class="office-tabs" id="officeTabs"></div><div id="officePanels"></div><div id="qrImportBadge" class="qr-import-badge"></div><div id="conference" class="conference conf-bad">Aguardando lançamento dos votos.</div><div class="actions" style="margin-top:13px"><button class="primary" type="submit">Salvar B.U.</button><button class="soft" type="button" onclick="refreshConference()">Conferir agora</button></div></form></div></div></section>
 <section id="apurados" class="section"><div class="stats"><div class="stat"><span>Seções apuradas</span><strong id="stBU">0</strong></div><div class="stat"><span>Seções restantes</span><strong id="stRest">53</strong></div><div class="stat"><span>Aptos</span><strong id="stAptos">0</strong></div><div class="stat"><span>Comparecimento</span><strong id="stComp">0</strong></div><div class="stat"><span>Faltosos</span><strong id="stFalt">0</strong></div><div class="stat"><span>Progresso</span><strong id="stProg">0%</strong></div></div><div class="card"><div class="head"><h3>B.U.s lançados</h3><span id="buCount" style="font-size:12px;color:#667085"></span></div><div class="toolbar"><input id="buSearch" placeholder="Pesquisar seção, urna ou local..." oninput="renderBUs()"><select id="buZone" onchange="renderBUs()"><option value="">Todas as seções</option></select></div><div class="table-wrap"><table><thead><tr><th>Seção</th><th>Local</th><th>Urna</th><th>Aptos</th><th>Comparecimento</th><th>Fed.</th><th>Est.</th><th>Senador</th><th>Gov.</th><th>Pres.</th><th>Status</th><th>Ações</th></tr></thead><tbody id="buBody"></tbody></table><div class="empty" id="buEmpty">Nenhum B.U. salvo.</div></div></div></section>
 <section id="resultados" class="section">
   <div class="head" style="border:1px solid var(--dw-line);border-radius:11px;box-shadow:var(--shadow);margin-bottom:12px">
-    <div><h3>Apuração ODC — Local + TSE</h3><small id="hybridCoverageInfo" style="display:block;margin-top:4px;color:#667085;font-weight:700">Apuração híbrida • carregando…</small></div>
-    <div class="general-actions"><button class="soft" type="button" onclick="loadOfficialResults(true)">↻ Atualizar</button><button class="primary" type="button" onclick="openResultsWindow(null,true)">🖨 PDF / Imprimir</button></div>
+    <div><h3>Resultados — Olho d’Água das Cunhãs</h3><small id="hybridCoverageInfo" style="display:block;margin-top:4px;color:#667085;font-weight:700">Carregando apuração…</small></div>
+    <div class="general-actions"><button class="soft" type="button" onclick="loadOfficialResults(true)">↻ Atualizar</button></div>
   </div>
   <div class="results-grid" id="resultsGrid"></div>
 </section>
@@ -859,11 +859,11 @@ async function openResultsWindow(targetWindow=null,autoPrint=false){
 
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
-<script src="./jsQR.js?build=20261005.15"></script>
-<script src="./qr-scanner.js?build=20261005.15"></script>
-<script src="./pwa.js?build=20261005.15"></script>
-<script src="./cloud.js?build=20261005.15"></script>
-<script src="./access.js?build=20261005.15"></script>
-<script src="./navigation.js?build=20261005.15"></script>
+<script src="./jsQR.js?build=20261005.1"></script>
+<script src="./qr-scanner.js?build=20261005.1"></script>
+<script src="./pwa.js?build=20261005.1"></script>
+<script src="./cloud.js?build=20261005.1"></script>
+<script src="./access.js?build=20261005.1"></script>
+<script src="./navigation.js?build=20261005.1"></script>
 </body>
 </html>
