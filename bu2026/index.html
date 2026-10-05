@@ -372,9 +372,9 @@ tbody tr:hover{background:#fff4ec}
 @media(max-width:1200px){.general-summary{grid-template-columns:repeat(3,1fr)}.general-groups{grid-template-columns:1fr}}@media(max-width:700px){.general-summary{grid-template-columns:1fr 1fr}.general-candidate{grid-template-columns:32px 52px 1fr 78px}.general-bar{display:none}}
 
 </style>
-<link rel="stylesheet" href="./qr-scanner.css?build=20261004.13">
-<link rel="stylesheet" href="./cloud.css?build=20261004.13">
-<link rel="stylesheet" href="./access.css?build=20261004.13">
+<link rel="stylesheet" href="./qr-scanner.css?build=20261004.14">
+<link rel="stylesheet" href="./cloud.css?build=20261004.14">
+<link rel="stylesheet" href="./access.css?build=20261004.14">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -576,10 +576,10 @@ function hybridCoverage(){
 function hybridAggregate(k){
  const local=aggregate(k),cov=hybridCoverage(),off=officialResultsCache?.results?.[odcOfficialKey(k)];
  if(cov.source!=="TSE"||!off)return {...local,source:"LOCAL",sections:cov.local};
- const rows=(off.candidatos||[]).map(x=>({numero:String(x.numero),nome:x.nome,partido:x.partido,votos:num(x.votos)})).sort((a,b)=>b.votos-a.votos);
+ const rows=(off.candidatos||[]).map(x=>({numero:String(x.numero),nome:x.nome,partido:x.partido,votos:num(x.votos),eleito:!!x.eleito,situacao:x.situacao||""})).sort((a,b)=>b.votos-a.votos);
  return {rows,valid:num(off.votos?.validos),blank:num(off.votos?.brancos),nulls:num(off.votos?.nulos),legend:num(off.votos?.legenda),source:"TSE",sections:num(off.secoes?.totalizadas)};
 }
-function renderResults(){const grid=document.getElementById("resultsGrid");grid.innerHTML="";const cov=hybridCoverage();ORDER.forEach(k=>{const a=hybridAggregate(k),den=a.valid+(OFFICE[k].legend?a.legend:0),rows=a.rows.map((x,i)=>'<div class="rank-row"><div class="rpos">'+(i+1)+'º</div><div class="rnum">'+esc(x.numero)+'</div><div class="rname">'+esc(x.nome)+' <span class="rparty">• '+esc(x.partido)+'</span></div><div class="rvotes">'+fmt(x.votos)+'<span>'+(den?(x.votos/den*100).toFixed(2):"0.00")+'%</span></div></div>').join(""),source=a.source==="TSE"?"TSE oficial":"B.U.s escaneados";grid.innerHTML+='<div class="result-panel"><h3>'+OFFICE[k].label+' — '+fmt(den)+' válidos'+(OFFICE[k].legend?" (nominais + legenda)":"")+' <small style="font-weight:700;color:#667085">• '+source+' • '+fmt(a.sections)+' seções</small></h3><div class="rank-list">'+(rows||'<div class="empty">Sem votos lançados.</div>')+'</div></div>'});const head=document.getElementById("hybridCoverageInfo");if(head)head.textContent='Apuração híbrida • '+fmt(cov.used)+' seções • fonte mais adiantada: '+(cov.source==="TSE"?"TSE oficial":"B.U.s escaneados")+' • local '+fmt(cov.local)+' / TSE '+fmt(cov.official)}
+function renderResults(){const grid=document.getElementById("resultsGrid");grid.innerHTML="";const cov=hybridCoverage();ORDER.forEach(k=>{const a=hybridAggregate(k),den=a.valid+(OFFICE[k].legend?a.legend:0),rows=a.rows.map((x,i)=>'<div class="rank-row"><div class="rpos">'+(i+1)+'º</div><div class="rnum">'+esc(x.numero)+'</div><div class="rname">'+esc(x.nome)+' <span class="rparty">• '+esc(x.partido)+'</span>'+(x.eleito?'<span style="display:inline-block;margin-left:8px;padding:3px 8px;border-radius:999px;background:#157347;color:#fff;font-size:11px;font-weight:900;letter-spacing:.4px">✓ ELEITO</span>':'')+(x.situacao&&!x.eleito?'<small style="display:block;color:#667085;margin-top:2px">'+esc(x.situacao)+'</small>':'')+'</div><div class="rvotes">'+fmt(x.votos)+'<span>'+(den?(x.votos/den*100).toFixed(2):"0.00")+'%</span></div></div>').join(""),source=a.source==="TSE"?"TSE oficial":"B.U.s escaneados";grid.innerHTML+='<div class="result-panel"><h3>'+OFFICE[k].label+' — '+fmt(den)+' válidos'+(OFFICE[k].legend?" (nominais + legenda)":"")+' <small style="font-weight:700;color:#667085">• '+source+' • '+fmt(a.sections)+' seções</small></h3><div class="rank-list">'+(rows||'<div class="empty">Sem votos lançados.</div>')+'</div></div>'});const head=document.getElementById("hybridCoverageInfo");if(head)head.textContent='Apuração híbrida • '+fmt(cov.used)+' seções • fonte mais adiantada: '+(cov.source==="TSE"?"TSE oficial":"B.U.s escaneados")+' • local '+fmt(cov.local)+' / TSE '+fmt(cov.official)}
 const TSE_RESULT_SOURCES={
  presidente_br:{cargo:"Presidente",abrangencia:"Brasil + exterior",url:"https://resultados.tse.jus.br/oficial/ele2026/6257/dados/br/br-c0001-e006257-u.json"},
  governador_ma:{cargo:"Governador",abrangencia:"Maranhão",url:"https://resultados.tse.jus.br/oficial/ele2026/6259/dados/ma/ma-c0003-e006259-u.json"},
@@ -856,11 +856,11 @@ function openResultsWindow(targetWindow=null){
 
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
-<script src="./jsQR.js?build=20261004.13"></script>
-<script src="./qr-scanner.js?build=20261004.13"></script>
-<script src="./pwa.js?build=20261004.13"></script>
-<script src="./cloud.js?build=20261004.13"></script>
-<script src="./access.js?build=20261004.13"></script>
-<script src="./navigation.js?build=20261004.13"></script>
+<script src="./jsQR.js?build=20261004.14"></script>
+<script src="./qr-scanner.js?build=20261004.14"></script>
+<script src="./pwa.js?build=20261004.14"></script>
+<script src="./cloud.js?build=20261004.14"></script>
+<script src="./access.js?build=20261004.14"></script>
+<script src="./navigation.js?build=20261004.14"></script>
 </body>
 </html>
