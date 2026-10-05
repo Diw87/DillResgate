@@ -33,10 +33,6 @@ jobs:
       - name: Atualizar resultados oficiais TSE 2026
         run: python3 bu2026/sync_resultados_tse.py
 
-      - name: Extrair Presidente Governador Senador por secao
-        run: |
-          python3 -m pip install --quiet asn1tools requests
-          python3 bu2026/_tmp_exec_135_allsections.py
 
 
       - uses: actions/configure-pages@v5
