@@ -1,6 +1,6 @@
 (()=>{"use strict";
 
-const LIB_URL="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js";
+const LIB_URL="./jspdf.umd.min.js?build=20261005.3";
 const BRAND={orange:[255,101,13],black:[11,13,15],dark:[27,32,38],gray:[246,247,249],line:[219,224,229],muted:[103,113,124],green:[21,115,71]};
 const OFFICE_ORDER=["federal","estadual","senador","governador","presidente"];
 const OFFICE_LABEL={federal:"Deputado Federal",estadual:"Deputado Estadual",senador:"Senador",governador:"Governador",presidente:"Presidente"};
