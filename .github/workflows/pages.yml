@@ -33,6 +33,11 @@ jobs:
       - name: Atualizar resultados oficiais TSE 2026
         run: python3 bu2026/sync_resultados_tse.py
 
+      - name: Extrair seções faltantes ODC para relatório 100%
+        run: |
+          python3 -m pip install --quiet asn1tools requests
+          python3 bu2026/fetch_missing_sections.py
+
       - uses: actions/configure-pages@v5
         with:
           enablement: true
