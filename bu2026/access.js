@@ -63,7 +63,7 @@ function patchNavigation(){
  if(typeof window.showMain==="function"&&!window.__accessShowMainPatched){
   const base=window.showMain;window.__accessShowMainPatched=true;
   window.showMain=function(id,btn){
-   if(mode==="visitor"&&!["resultados","gerais"].includes(id)){
+   if(mode==="visitor"&&id!=="resultados"){
     id="resultados";btn=document.querySelectorAll(".tab")[2];
    }
    return base(id,btn);
