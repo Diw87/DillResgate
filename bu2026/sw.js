@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v35-pdf-print";
+const CACHE_VERSION="dwtech-bu2026-v35-postmortem-core";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
