@@ -40,7 +40,7 @@ def find_bu_name(h):
     for a in entries:
         nm=str(a.get("nm",""))
         tp=str(a.get("tp","")).lower()
-        if nm.lower().endswith((".bu",".dat")) or tp in ("bu","boletimurna","boletim de urna") or "boletim" in tp:
+        if nm.lower().endswith(".bu") or tp in ("bu","boletimurna","boletim de urna") or "boletim" in tp:
             return nm
     raise RuntimeError("arquivo BU não listado: "+json.dumps(entries,ensure_ascii=False))
 
