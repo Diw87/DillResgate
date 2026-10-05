@@ -131,7 +131,8 @@ function compatibility(parsed){
  const m=parsed.meta,sec=String(Number(m.SECA||0));let errors=[],warn=[];
  if(m.UNFE&&m.UNFE!=="MA")errors.push("UF do B.U.: "+m.UNFE+" (o sistema está configurado para MA)");
  if(m.ZONA&&Number(m.ZONA)!==87)errors.push("Zona do B.U.: "+m.ZONA+" (esperada: 87)");
- if(sec&&typeof ODAC_SECOES!=="undefined"&&!ODAC_SECOES.some(x=>String(Number(x.secao))===sec))errors.push("Seção "+sec+" não pertence à lista configurada de Olho d'Água das Cunhãs");
+ if(m.MUNI&&Number(m.MUNI)!==Number(typeof ODC_TSE_CODE!=="undefined"?ODC_TSE_CODE:8478))errors.push("Município do B.U. não é Olho d'Água das Cunhãs");
+ if(sec&&typeof ODC_OFFICIAL_SECTION_IDS!=="undefined"&&!ODC_OFFICIAL_SECTION_IDS.has(Number(sec)))errors.push("Seção "+sec+" não pertence às 53 seções oficiais de Olho d'Água das Cunhãs");
  if(m.FASE&&m.FASE!=="O")warn.push("FASE:"+m.FASE+" — este B.U. não está marcado como fase oficial (O)");
  if(m.ORLC&&m.ORLC!=="LEG")warn.push("ORLC:"+m.ORLC+" — configuração diferente de eleição legal oficial (LEG)");
  const date=m.DTPL||"";if(date&&date!=="20261004")warn.push("Data do pleito no QR: "+date);
@@ -238,17 +239,7 @@ async function applyToForm(autoSave=false){
   }
   if(!conferenceOk)console.warn("Conferência visual divergente; usando TOTC oficial do QR íntegro para o salvamento.");
   try{
-   if(window.BUCloud?.hasDuplicateSection){
-    const dup=await window.BUCloud.hasDuplicateSection(sec);
-    if(dup){
-     state.autoSaving=false;
-     setStatus("Este B.U. já foi registrado anteriormente. Nenhuma duplicata foi salva.","warn");
-     alert("B.U. repetido: a seção "+String(sec).padStart(3,"0")+" já está registrada.");
-     resetBU();
-     return
-    }
-   }
-   state.autoSaved=true;
+   setStatus("QR validado. Enviando a seção "+String(sec).padStart(3,"0")+" para a central…","good");
    form?.requestSubmit();
   }catch(e){
    state.autoSaving=false;
@@ -263,6 +254,12 @@ async function toggleTorch(){if(!stream)return;const t=stream.getVideoTracks()[0
 function openScanner(){const m=$("qrModal");m.classList.add("open");m.setAttribute("aria-hidden","false");renderProgress();renderPreview();startCamera()}
 function closeScanner(){stopCamera();const m=$("qrModal");m.classList.remove("open");m.setAttribute("aria-hidden","true")}
 window.openQrScanner=openScanner;window.closeQrScanner=closeScanner;window.resetQrSession=()=>resetSession(true);window.applyQrToForm=applyToForm;window.toggleQrTorch=toggleTorch;
+window.BUQrSaveState={
+ confirmed(sec){state.autoSaving=false;state.autoSaved=true;setStatus("Seção "+String(sec).padStart(3,"0")+" confirmada na central.","good")},
+ pending(sec){state.autoSaving=false;state.autoSaved=false;setStatus("Seção "+String(sec).padStart(3,"0")+" salva neste aparelho e aguardando sincronização.","warn")},
+ duplicate(sec,where){state.autoSaving=false;state.autoSaved=where==="central";setStatus(where==="central"?"Seção "+String(sec).padStart(3,"0")+" já está confirmada na central.":"Seção "+String(sec).padStart(3,"0")+" já está pendente neste aparelho.","warn")},
+ failed(sec,msg){state.autoSaving=false;state.autoSaved=false;setStatus("Falha ao salvar a seção "+String(sec).padStart(3,"0")+(msg?": "+msg:"")+".","bad")}
+};
 document.addEventListener("DOMContentLoaded",()=>{
  $("qrFile")?.addEventListener("change",e=>decodeFile(e.target.files?.[0]));
  $("qrPasteBtn")?.addEventListener("click",()=>acceptPayload($("qrRawPaste").value));
