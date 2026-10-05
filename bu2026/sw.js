@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v36-pdf-export";
+const CACHE_VERSION="dwtech-bu2026-v37-pdf-local";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -15,6 +15,7 @@ const SHELL=[
   "./access.js",
   "./navigation.js",
   "./pdf-export.js",
+  "./jspdf.umd.min.js",
   "./jsQR.js",
   "./icons/favicon-32.png",
   "./icons/apple-touch-icon.png",
