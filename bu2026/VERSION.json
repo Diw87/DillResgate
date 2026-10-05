@@ -1,6 +1,6 @@
 {
   "name": "DW Tech • B.U. 2026",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "channel": "production",
   "architecture": "GitHub Pages + Supabase",
   "features": {
@@ -14,9 +14,12 @@
     "tse_sync": true,
     "municipal_whitelist": true,
     "save_receipts": true,
-    "single_results_panel": true
+    "single_results_panel": true,
+    "pdf_general": true,
+    "pdf_individual": true,
+    "pdf_section_by_section": true
   },
   "released_at": "2026-10-05",
-  "build": "20261005.1",
+  "build": "20261005.2",
   "update_policy": "check_on_open_and_force_latest"
 }
