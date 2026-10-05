@@ -54,11 +54,34 @@ function ensureUI(){
  if(!document.getElementById("cloudToast")){
   document.body.insertAdjacentHTML("beforeend",'<div id="cloudToast" class="cloud-toast"></div>');
  }
+ if(!document.getElementById("buSaveReceipt")){
+  document.body.insertAdjacentHTML("beforeend",'<div id="buSaveReceipt" class="bu-save-receipt" aria-hidden="true"><div class="bu-save-card"><div id="buSaveIcon" class="bu-save-icon">✓</div><div id="buSaveTitle" class="bu-save-title">B.U. salvo</div><div id="buSaveSection" class="bu-save-section"></div><div id="buSaveMessage" class="bu-save-message"></div><div id="buSaveTime" class="bu-save-time"></div><div class="bu-save-actions"><button type="button" class="soft" onclick="closeBUSaveReceipt()">Fechar</button><button id="buSaveNext" type="button" class="primary" onclick="closeBUSaveReceipt();openQrScanner()">📷 Próximo B.U.</button></div></div></div>');
+ }
 }
 function toast(msg,type=""){
  const e=$("cloudToast");if(!e)return;e.textContent=msg;e.className="cloud-toast show"+(type?" "+type:"");
  clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.className="cloud-toast",3500);
 }
+function showSaveReceipt(kind,secao,message){
+ const host=$("buSaveReceipt");if(!host)return;
+ const map={
+  saving:{icon:"↻",title:"ENVIANDO B.U.",cls:"saving"},
+  success:{icon:"✓",title:"B.U. SALVO NA CENTRAL",cls:"success"},
+  pending:{icon:"!",title:"SALVO NESTE APARELHO",cls:"pending"},
+  duplicate:{icon:"✓",title:"B.U. JÁ CONFIRMADO",cls:"duplicate"},
+  error:{icon:"×",title:"B.U. NÃO FOI SALVO",cls:"error"}
+ };
+ const x=map[kind]||map.error;
+ host.className="bu-save-receipt open "+x.cls;host.setAttribute("aria-hidden","false");
+ $("buSaveIcon").textContent=x.icon;$("buSaveTitle").textContent=x.title;
+ $("buSaveSection").textContent="Seção "+String(secao||"").padStart(3,"0");
+ $("buSaveMessage").textContent=message||"";
+ $("buSaveTime").textContent=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+ const next=$("buSaveNext");if(next)next.style.display=kind==="error"||kind==="saving"?"none":"inline-flex";
+ if(kind==="success"&&navigator.vibrate)navigator.vibrate([120,70,120]);
+}
+function closeBUSaveReceipt(){const host=$("buSaveReceipt");if(!host)return;host.className="bu-save-receipt";host.setAttribute("aria-hidden","true")}
+window.closeBUSaveReceipt=closeBUSaveReceipt;
 function renderStatus(){
  const c=$("cloudSimpleStatus"),t=$("cloudSimpleText");if(!c||!t)return;
  const q=queue(),conf=q.filter(x=>x.state==="conflict").length,pending=q.filter(x=>x.state!=="conflict").length;
@@ -136,21 +159,32 @@ function rowFromRec(rec,isUpdate=false){
  if(!isUpdate){row.id=rec.id;row.election_year=2026}
  return row;
 }
-function hasLocalDuplicateSection(secao,ignoreId=""){
- const s=String(Number(secao||0));
- if(!s||s==="0")return false;
- if(buData.some(x=>String(Number(x.secao||0))===s&&x.id!==ignoreId&&x.cloudStatus!=="anulado"))return true;
- return queue().some(x=>x.state!=="conflict"&&String(Number(x.rec?.secao||0))===s&&x.rec?.id!==ignoreId)
+function localDuplicateState(secao,ignoreId=""){
+ const s=String(Number(secao||0));if(!s||s==="0")return "none";
+ if(buData.some(x=>String(Number(x.secao||0))===s&&x.id!==ignoreId&&x._cloud&&x.cloudStatus!=="anulado"))return "central";
+ if(queue().some(x=>x.state!=="conflict"&&String(Number(x.rec?.secao||0))===s&&x.rec?.id!==ignoreId))return "pending";
+ if(buData.some(x=>String(Number(x.secao||0))===s&&x.id!==ignoreId&&x._queued))return "pending";
+ return "none";
 }
-async function hasDuplicateSection(secao,ignoreId=""){
- if(hasLocalDuplicateSection(secao,ignoreId))return true;
- if(!navigator.onLine)return false;
+async function duplicateState(secao,ignoreId=""){
+ const local=localDuplicateState(secao,ignoreId);if(local!=="none")return local;
+ if(!navigator.onLine)return "none";
  try{
   const rows=await select("bu_ballots","select=id,secao,status&election_year=eq.2026&uf=eq.MA&zona=eq.87&secao=eq."+encodeURIComponent(Number(secao))+"&status=eq.finalizado&limit=1");
-  return Array.isArray(rows)&&rows.some(x=>x.id!==ignoreId)
- }catch{return false}
+  return Array.isArray(rows)&&rows.some(x=>x.id!==ignoreId)?"central":"none";
+ }catch{return "unknown"}
+}
+async function hasDuplicateSection(secao,ignoreId=""){const s=await duplicateState(secao,ignoreId);return s==="central"||s==="pending"}
+async function confirmCloudSection(secao,id=""){
+ const rows=await select("bu_ballots","select=id,secao,status,updated_at&election_year=eq.2026&uf=eq.MA&zona=eq.87&secao=eq."+encodeURIComponent(Number(secao))+"&status=eq.finalizado&limit=2");
+ const hit=Array.isArray(rows)&&rows.find(x=>!id||x.id===id)||Array.isArray(rows)&&rows[0];
+ if(!hit)throw new Error("A central não confirmou o registro da seção.");
+ return hit;
 }
 async function saveCloud(rec){
+ if(typeof ODC_OFFICIAL_SECTION_IDS!=="undefined"&&!ODC_OFFICIAL_SECTION_IDS.has(Number(rec.secao))){
+  const err=new Error("A seção "+String(rec.secao).padStart(3,"0")+" não pertence às 53 seções oficiais de ODC.");err.kind="invalid_section";throw err;
+ }
  if(await hasDuplicateSection(rec.secao,rec.id)){
   const err=new Error("B.U. repetido: esta seção já está registrada.");
   err.kind="conflict";throw err;
@@ -172,7 +206,9 @@ async function saveCloud(rec){
  }
 }
 function enqueue(rec){
- const q=queue();q.push({id:crypto.randomUUID(),rec,state:"pending",queuedAt:new Date().toISOString(),error:""});setQueue(q);
+ const q=queue(),s=String(Number(rec.secao||0));
+ if(q.some(x=>x.state!=="conflict"&&String(Number(x.rec?.secao||0))===s))return false;
+ q.push({id:crypto.randomUUID(),rec,state:"pending",queuedAt:new Date().toISOString(),error:""});setQueue(q);return true;
 }
 async function syncQueue(){
  if(!navigator.onLine)return;
@@ -215,27 +251,57 @@ async function submitCapture(e){
  const verifiedQr=!!(window.__qrImportMeta?.source==="QRBU oficial TSE"&&window.__qrImportMeta?.hashVerified&&window.__qrImportMeta?.summaryVerified);
  if(!verifiedQr&&!refreshConference()){alert("O B.U. ainda não confere. Revise os totais de cada cargo.");return}
  if(verifiedQr)refreshConference();
- const rec=recordFromForm();
- if(!rec.secao){alert("Selecione a seção.");return}
- if(await hasDuplicateSection(rec.secao,rec.id)){
-  alert("B.U. repetido: a seção "+String(rec.secao).padStart(3,"0")+" já está registrada.");
-  resetBU();return
+ const rec=recordFromForm(),sec=Number(rec.secao||0);
+ if(!sec){alert("Selecione a seção.");return}
+ if(typeof ODC_OFFICIAL_SECTION_IDS!=="undefined"&&!ODC_OFFICIAL_SECTION_IDS.has(sec)){
+  window.BUQrSaveState?.failed(sec,"seção fora de ODC");
+  showSaveReceipt("error",sec,"Esta seção não pertence às 53 seções oficiais de Olho d’Água das Cunhãs.");
+  return
  }
 
  const btn=document.querySelector('#buForm button[type="submit"]');
  if(btn){btn.disabled=true;btn.textContent="Salvando…"}
  try{
+  const dup=await duplicateState(sec,rec.id);
+  if(dup==="central"){
+   window.BUQrSaveState?.duplicate(sec,"central");
+   showSaveReceipt("duplicate",sec,"Esta seção já está confirmada na central. Nenhuma duplicata foi criada.");
+   await loadCloudBallots(true);resetBU();return
+  }
+  if(dup==="pending"){
+   window.BUQrSaveState?.duplicate(sec,"pending");
+   showSaveReceipt("pending",sec,"Esta seção já está salva neste aparelho e ainda aguarda sincronização com a central.");
+   resetBU();return
+  }
+
   if(!navigator.onLine){
    enqueue(rec);rec._queued=true;buData.unshift(rec);localStorage.setItem(KEY_BU,JSON.stringify(buData));renderAll();resetBU();
-   toast("Sem internet: B.U. guardado para sincronizar depois.","warn");return;
+   window.BUQrSaveState?.pending(sec);
+   showSaveReceipt("pending",sec,"Sem internet. O B.U. ficou guardado neste aparelho e será enviado automaticamente quando a conexão voltar.");
+   return
   }
-  await saveCloud(rec);await syncAfterBallot();resetBU();toast("B.U. salvo e sincronizado com os outros aparelhos.");
+
+  showSaveReceipt("saving",sec,"Aguardando confirmação da central…");
+  await saveCloud(rec);
+  await confirmCloudSection(sec,rec.id);
+  window.BUQrSaveState?.confirmed(sec);
+  await syncAfterBallot();
+  resetBU();
+  showSaveReceipt("success",sec,"Registro confirmado no banco central. Agora é seguro passar para o próximo B.U.");
  }catch(e){
-  if(e.kind==="conflict"){alert(e.message);await loadCloudBallots();return}
-  if(!navigator.onLine||/fetch|network|tempo|internet/i.test(e.message||"")){
-   enqueue(rec);rec._queued=true;buData.unshift(rec);localStorage.setItem(KEY_BU,JSON.stringify(buData));renderAll();resetBU();
-   toast("Conexão caiu: B.U. ficou salvo para sincronizar.","warn");
-  }else alert(e.message||String(e));
+  if(e.kind==="conflict"){
+   window.BUQrSaveState?.duplicate(sec,"central");
+   showSaveReceipt("duplicate",sec,"Outro aparelho já confirmou esta seção na central. Nenhuma duplicata foi criada.");
+   await loadCloudBallots(true);resetBU();return
+  }
+  if(!navigator.onLine||/fetch|network|tempo|internet|abort/i.test(e.message||"")){
+   enqueue(rec);rec._queued=true;if(!buData.some(x=>x.id===rec.id))buData.unshift(rec);localStorage.setItem(KEY_BU,JSON.stringify(buData));renderAll();resetBU();
+   window.BUQrSaveState?.pending(sec);
+   showSaveReceipt("pending",sec,"A conexão caiu. O B.U. ficou guardado neste aparelho e aguardará sincronização.");
+  }else{
+   window.BUQrSaveState?.failed(sec,e.message||String(e));
+   showSaveReceipt("error",sec,e.message||"A central não confirmou o salvamento. O formulário foi mantido para nova tentativa.");
+  }
  }finally{if(btn){btn.disabled=false;btn.textContent="Salvar B.U."}}
 }
 
@@ -288,7 +354,7 @@ async function boot(){
  pollTimer=setInterval(()=>softRefresh(),30000);
 }
 
-window.BUCloud={reload:softRefresh,sync:syncQueue,hasDuplicateSection,softRefresh};
+window.BUCloud={reload:softRefresh,sync:syncQueue,hasDuplicateSection,duplicateState,softRefresh};
 document.addEventListener("DOMContentLoaded",boot);
 
 })();
