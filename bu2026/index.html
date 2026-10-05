@@ -372,9 +372,9 @@ tbody tr:hover{background:#fff4ec}
 @media(max-width:1200px){.general-summary{grid-template-columns:repeat(3,1fr)}.general-groups{grid-template-columns:1fr}}@media(max-width:700px){.general-summary{grid-template-columns:1fr 1fr}.general-candidate{grid-template-columns:32px 52px 1fr 78px}.general-bar{display:none}}
 
 </style>
-<link rel="stylesheet" href="./qr-scanner.css?build=20261004.12">
-<link rel="stylesheet" href="./cloud.css?build=20261004.12">
-<link rel="stylesheet" href="./access.css?build=20261004.12">
+<link rel="stylesheet" href="./qr-scanner.css?build=20261004.13">
+<link rel="stylesheet" href="./cloud.css?build=20261004.13">
+<link rel="stylesheet" href="./access.css?build=20261004.13">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -444,20 +444,10 @@ tbody tr:hover{background:#fff4ec}
 <section id="apurados" class="section"><div class="stats"><div class="stat"><span>Seções apuradas</span><strong id="stBU">0</strong></div><div class="stat"><span>Seções restantes</span><strong id="stRest">80</strong></div><div class="stat"><span>Aptos</span><strong id="stAptos">0</strong></div><div class="stat"><span>Comparecimento</span><strong id="stComp">0</strong></div><div class="stat"><span>Faltosos</span><strong id="stFalt">0</strong></div><div class="stat"><span>Progresso</span><strong id="stProg">0%</strong></div></div><div class="card"><div class="head"><h3>B.U.s lançados</h3><span id="buCount" style="font-size:12px;color:#667085"></span></div><div class="toolbar"><input id="buSearch" placeholder="Pesquisar seção, urna ou local..." oninput="renderBUs()"><select id="buZone" onchange="renderBUs()"><option value="">Todas as seções</option></select></div><div class="table-wrap"><table><thead><tr><th>Seção</th><th>Local</th><th>Urna</th><th>Aptos</th><th>Comparecimento</th><th>Fed.</th><th>Est.</th><th>Senador</th><th>Gov.</th><th>Pres.</th><th>Status</th><th>Ações</th></tr></thead><tbody id="buBody"></tbody></table><div class="empty" id="buEmpty">Nenhum B.U. salvo.</div></div></div></section>
 <section id="resultados" class="section">
   <div class="head" style="border:1px solid var(--dw-line);border-radius:11px;box-shadow:var(--shadow);margin-bottom:12px">
-    <div><h3>Apuração local + TSE</h3><small id="hybridCoverageInfo" style="display:block;margin-top:4px;color:#667085;font-weight:700">Apuração híbrida • carregando…</small></div>
+    <div><h3>Apuração ODC — Local + TSE</h3><small id="hybridCoverageInfo" style="display:block;margin-top:4px;color:#667085;font-weight:700">Apuração híbrida • carregando…</small></div>
     <div class="general-actions"><button class="soft" type="button" onclick="loadOfficialResults(true)">↻ Atualizar TSE ODC</button></div>
   </div>
   <div class="results-grid" id="resultsGrid"></div>
-  <div class="general-wrap" style="margin-top:14px">
-    <div class="general-group">
-      <div class="general-group-head">
-        <div><small>Totalização oficial do TSE • código TSE 8478</small><h3>OLHO D’ÁGUA DAS CUNHÃS <span>OFICIAL</span></h3></div><b>ODC</b>
-      </div>
-      <div id="odcOfficialSummary" class="general-summary"></div>
-      <div id="odcOfficialStatus" class="general-note">Consultando o TSE…</div>
-      <div id="odcOfficialResults"></div>
-    </div>
-  </div>
 </section>
 <section id="gerais" class="section">
   <div class="general-wrap">
@@ -866,11 +856,11 @@ function openResultsWindow(targetWindow=null){
 
 (function init(){try{buData=JSON.parse(localStorage.getItem(KEY_BU)||"[]")}catch(e){buData=[]}const cached=localStorage.getItem(KEY_CAND);if(cached){try{candidates=JSON.parse(cached);const meta=JSON.parse(localStorage.getItem(KEY_META)||"{}");document.getElementById("sourceStatus").textContent="Base salva: "+(meta.source||"local")+" • clique em Recarregar base TSE para conferir"}catch(e){}}renderSections();renderOfficeUI();renderAll();renderCandidateBrowser();refreshCandidates(false)})();
 </script>
-<script src="./jsQR.js?build=20261004.12"></script>
-<script src="./qr-scanner.js?build=20261004.12"></script>
-<script src="./pwa.js?build=20261004.12"></script>
-<script src="./cloud.js?build=20261004.12"></script>
-<script src="./access.js?build=20261004.12"></script>
-<script src="./navigation.js?build=20261004.12"></script>
+<script src="./jsQR.js?build=20261004.13"></script>
+<script src="./qr-scanner.js?build=20261004.13"></script>
+<script src="./pwa.js?build=20261004.13"></script>
+<script src="./cloud.js?build=20261004.13"></script>
+<script src="./access.js?build=20261004.13"></script>
+<script src="./navigation.js?build=20261004.13"></script>
 </body>
 </html>
