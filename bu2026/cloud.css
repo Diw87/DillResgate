@@ -16,3 +16,20 @@ body.cloud-viewer #buForm button[type="submit"],body.cloud-viewer .qr-scan-btn{d
 @media(max-width:800px){.cloud-summary{grid-template-columns:1fr 1fr}.cloud-user-row{grid-template-columns:1fr 1fr}.cloud-user-row.head{display:none}.audit-row{grid-template-columns:90px 65px 1fr}.audit-row span:last-child{grid-column:1/-1}.cloud-login-actions{grid-template-columns:1fr}.sync-row{grid-template-columns:70px 1fr}.sync-row span:last-child{grid-column:1/-1}}
 
 .cloud-bootstrap{display:none;margin-top:13px;padding:12px;border-radius:9px;background:#fff7ed;border:1px solid #fed7aa}.cloud-bootstrap.show{display:block}.cloud-bootstrap label{display:block;font-size:10px;font-weight:900;color:#9a3412;text-transform:uppercase;margin-bottom:6px}.cloud-bootstrap-row{display:grid;grid-template-columns:1fr auto;gap:7px}.cloud-bootstrap-row input{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;text-transform:uppercase}.cloud-bootstrap small{display:block;margin-top:7px;color:#9a3412;line-height:1.4}
+
+/* Confirmação inequívoca de salvamento do B.U. */
+.bu-save-receipt{position:fixed;inset:0;z-index:5200;background:rgba(6,9,12,.78);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:18px}
+.bu-save-receipt.open{display:flex}
+.bu-save-card{width:min(480px,94vw);background:#fff;border-radius:18px;padding:26px 22px 20px;text-align:center;box-shadow:0 30px 100px rgba(0,0,0,.45);border-top:7px solid #20a85a}
+.bu-save-icon{width:78px;height:78px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:#eafaf1;color:#157347;font-size:42px;font-weight:1000}
+.bu-save-title{font-size:21px;font-weight:1000;letter-spacing:.3px;color:#172027}
+.bu-save-section{font-size:34px;font-weight:1000;color:#ff650d;margin:8px 0}
+.bu-save-message{font-size:14px;line-height:1.5;color:#4a5560;max-width:390px;margin:0 auto}
+.bu-save-time{margin-top:12px;font-size:11px;color:#7a838d;font-weight:800}
+.bu-save-actions{display:flex;gap:9px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.bu-save-receipt.pending .bu-save-card{border-top-color:#f79009}.bu-save-receipt.pending .bu-save-icon{background:#fff7ed;color:#b54708}
+.bu-save-receipt.error .bu-save-card{border-top-color:#d92d20}.bu-save-receipt.error .bu-save-icon{background:#fff1f0;color:#b42318}
+.bu-save-receipt.duplicate .bu-save-card{border-top-color:#1570ef}.bu-save-receipt.duplicate .bu-save-icon{background:#eff8ff;color:#175cd3}
+.bu-save-receipt.saving .bu-save-card{border-top-color:#667085}.bu-save-receipt.saving .bu-save-icon{background:#f2f4f7;color:#475467;animation:buSpin 1s linear infinite}
+@keyframes buSpin{to{transform:rotate(360deg)}}
+@media(max-width:560px){.bu-save-card{padding:23px 16px 17px}.bu-save-section{font-size:30px}.bu-save-actions{display:grid;grid-template-columns:1fr}.bu-save-actions button{width:100%}}
