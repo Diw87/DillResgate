@@ -13,7 +13,12 @@ TARGETS={
   6: {"2233":"Aldir Júnior","2522":"Marreca Filho","4040":"Othelino Neto","2222":"Fabiana Vilar"},
   7: {"13013":"Luanna","15444":"Vanessa Marreca","15222":"Florêncio Neto","40123":"Marcos Miranda Júnior"},
 }
-TECH_ZIP="https://www.tse.jus.br/eleicoes/eleicoes-2026-content/arquivos/formato-arquivos-de-bu-rdv-e-assinatura-digital"
+ASN1_SOURCES=[
+ "https://raw.githubusercontent.com/alissonlinneker/dataUrnas-br/main/spec/v2/bu.asn1",
+ "https://raw.githubusercontent.com/alissonlinneker/DataUrnas-BR/main/spec/v2/bu.asn1",
+ "https://raw.githubusercontent.com/kuca-belludo/urnas/master/spec/bu.asn1",
+ "https://gist.githubusercontent.com/malbertosp3/4ee494d612527e98e59299e4ee406b9b/raw/bu.asn1",
+]
 BASE="https://resultados.tse.jus.br/oficial/ele2026/arquivo-urna/3220/dados"
 OUT=Path("bu2026/missing_sections_100.json")
 
@@ -76,17 +81,21 @@ def vote_type(v):
     if isinstance(x,str): return x
     return str(x)
 
-def locate_asn1(zbytes):
-    with zipfile.ZipFile(io.BytesIO(zbytes)) as z:
-        names=z.namelist()
-        cands=[n for n in names if n.lower().endswith("bu.asn1")]
-        if not cands:
-            cands=[n for n in names if n.lower().endswith(".asn1") and "bu" in n.lower()]
-        if not cands:
-            raise RuntimeError("bu.asn1 não encontrado no ZIP técnico")
-        td=tempfile.mkdtemp()
-        z.extract(cands[0],td)
-        return os.path.join(td,cands[0])
+def locate_asn1():
+    td=tempfile.mkdtemp()
+    path=os.path.join(td,"bu.asn1")
+    errs=[]
+    for url in ASN1_SOURCES:
+        try:
+            r=requests.get(url,timeout=30,headers={"User-Agent":"Mozilla/5.0"})
+            if r.status_code==200 and "DEFINITIONS" in r.text:
+                Path(path).write_text(r.text,encoding="utf-8")
+                print(json.dumps({"asn1_source":url},ensure_ascii=False))
+                return path
+            errs.append(f"{url}: {r.status_code}")
+        except Exception as exc:
+            errs.append(f"{url}: {exc!r}")
+    raise RuntimeError("Nenhuma especificação ASN.1 disponível: "+" | ".join(errs))
 
 def parse_bu(conv,bdata,secao):
     env=conv.decode("EntidadeEnvelopeGenerico",bytearray(bdata))
@@ -115,8 +124,7 @@ def parse_bu(conv,bdata,secao):
     return out
 
 def main():
-    z=get_bytes(TECH_ZIP)
-    asn1_path=locate_asn1(z)
+    asn1_path=locate_asn1()
     conv=asn1tools.compile_files([asn1_path],codec="ber")
     rows=[]
     errors=[]
