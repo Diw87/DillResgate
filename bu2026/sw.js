@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v35-postmortem-core";
+const CACHE_VERSION="dwtech-bu2026-v36-pdf-export";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -14,6 +14,7 @@ const SHELL=[
   "./cloud.js",
   "./access.js",
   "./navigation.js",
+  "./pdf-export.js",
   "./jsQR.js",
   "./icons/favicon-32.png",
   "./icons/apple-touch-icon.png",
