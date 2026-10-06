@@ -3,14 +3,14 @@
 let handlingPop=false;
 let patched=false;
 let lastView="";
-const VALID_VIEWS=new Set(["novo","apurados","resultados"]);
+const VALID_VIEWS=new Set(["novo","apurados","resultados","vitorino"]);
 
 function activeView(){
  const el=document.querySelector(".section.active");
  return el?.id||"";
 }
 function tabFor(view){
- const map={novo:0,apurados:1,resultados:2};
+ const map={novo:0,apurados:1,resultados:2,vitorino:3};
  const i=map[view];
  return Number.isInteger(i)?document.querySelectorAll(".tab")[i]:null;
 }
