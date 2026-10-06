@@ -158,10 +158,12 @@ async function decodeBatch(page,files,candidateMaps){
 
 function validateBallot(rec){
  if(rec.error)return rec.error;
+ rec.observacoes=[];
  for(const key of OFFICE_ORDER){
   const d=rec.votes?.[key]; if(!d)return "Cargo ausente: "+key;
+  if(!Number.isSafeInteger(num(d.totalOficial))||num(d.totalOficial)<=0)return "Total inválido no cargo: "+key;
   const expected=rec.comparecimento*(key==="senador"?2:1);
-  if(num(d.totalOficial)!==expected)return key+": total "+d.totalOficial+" diferente do esperado "+expected;
+  if(num(d.totalOficial)!==expected)rec.observacoes.push(key+": "+d.totalOficial+" votos para "+rec.comparecimento+" comparecimentos gerais");
  }
  return "";
 }
@@ -204,7 +206,7 @@ async function main(){
      local:rec.localCodigo?`Local eleitoral nº ${rec.localCodigo}`:"Local eleitoral não informado",
      enderecoLocal:"Vitorino Freire - MA",
      localCodigo:rec.localCodigo,secoesAgregadas:rec.secoesAgregadas,urna:rec.urna,aptos:rec.aptos,comparecimento:rec.comparecimento,
-     dataEleicao:"2026-10-04",source:"TSE",status:"finalizado",votes:rec.votes,
+     dataEleicao:"2026-10-04",source:"TSE",status:"finalizado",votes:rec.votes,observacoes:rec.observacoes||[],
      provenance:{...rec.provenance,emissao:rec.emissao}
     });
    }
