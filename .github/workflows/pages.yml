@@ -33,6 +33,13 @@ jobs:
       - name: Atualizar resultados oficiais TSE 2026
         run: python3 bu2026/sync_resultados_tse.py
 
+      - name: Preparar leitor oficial de B.U. 2026
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Atualizar B.U.s de Vitorino Freire
+        run: node bu2026/sync_vitorino_bu.js
 
 
       - uses: actions/configure-pages@v5
