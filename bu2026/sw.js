@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v37-pdf-local";
+const CACHE_VERSION="dwtech-bu2026-v38-pdf-53-secoes";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -15,6 +15,7 @@ const SHELL=[
   "./access.js",
   "./navigation.js",
   "./pdf-export.js",
+  "./bu-secoes-oficiais.json",
   "./jspdf.umd.min.js",
   "./jsQR.js",
   "./icons/favicon-32.png",
@@ -72,6 +73,11 @@ self.addEventListener("fetch",event=>{
 
   if(request.mode==="navigate"){
     event.respondWith(networkFirst(request,"./index.html"));
+    return;
+  }
+
+  if(url.pathname.endsWith("/bu-secoes-oficiais.json")){
+    event.respondWith(networkFirst(request,"./bu-secoes-oficiais.json"));
     return;
   }
 

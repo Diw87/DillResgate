@@ -1,6 +1,7 @@
 (()=>{"use strict";
 
 const LIB_URL="./jspdf.umd.min.js?build=20261005.3";
+const BALLOTS_URL="./bu-secoes-oficiais.json";
 const BRAND={orange:[255,101,13],black:[11,13,15],dark:[27,32,38],gray:[246,247,249],line:[219,224,229],muted:[103,113,124],green:[21,115,71]};
 const OFFICE_ORDER=["federal","estadual","senador","governador","presidente"];
 const OFFICE_LABEL={federal:"Deputado Federal",estadual:"Deputado Estadual",senador:"Senador",governador:"Governador",presidente:"Presidente"};
@@ -28,8 +29,62 @@ function clean(v){
 function n(v){return Number(v||0)}
 function fmt(v){return n(v).toLocaleString("pt-BR")}
 function sectionNo(v){return String(v??"").padStart(3,"0")}
-function orderedBallots(){
- return [...(typeof buData!=="undefined"&&Array.isArray(buData)?buData:[])].sort((a,b)=>n(a.secao)-n(b.secao));
+function usableBallot(rec){
+ if(!rec||rec._queued||[rec.status,rec.cloudStatus].some(s=>s&&s!=="finalizado"))return false;
+ if(rec.uf&&rec.uf!=="MA"||rec.zona!=null&&n(rec.zona)!==87)return false;
+ if(rec.codigoMunicipio!=null&&n(rec.codigoMunicipio)!==8478)return false;
+ if(rec.electionYear!=null&&n(rec.electionYear)!==2026||rec.turno!=null&&n(rec.turno)!==1)return false;
+ if(rec.dataEleicao&&rec.dataEleicao!=="2026-10-04")return false;
+ return OFFICE_ORDER.every(key=>{
+  const d=rec.votes?.[key];if(!d||!d.cand||typeof d.cand!=="object")return false;
+  const counts=[...Object.values(d.cand),...Object.values(d.legend||{})].map(v=>Number(v.votos));
+  counts.push(Number(d.brancos),Number(d.nulos),Number(d.outros||0));
+  if(!counts.every(v=>Number.isSafeInteger(v)&&v>=0))return false;
+  const expected=d.totalOficial??(n(d.comparecimento??rec.comparecimento)*(key==="senador"?2:1));
+  return counts.reduce((sum,v)=>sum+v,0)===n(expected)&&n(expected)>0;
+ });
+}
+async function orderedBallots(){
+ const expected=typeof ODC_OFFICIAL_SECTION_IDS!=="undefined"?[...ODC_OFFICIAL_SECTION_IDS].map(Number).sort((a,b)=>a-b):[];
+ if(expected.length!==53)throw new Error("A base das 53 seções de ODC não está disponível. Atualize o aplicativo.");
+ const allowed=new Set(expected),bySection=new Map();
+ const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);
+ try{
+  const response=await fetch(BALLOTS_URL,{signal:ctrl.signal,cache:"no-cache"});
+  if(!response.ok)throw new Error("Base oficial indisponível.");
+  const data=await response.json(),m=data.meta;
+  if(m?.electionYear!==2026||m.turno!==1||m.uf!=="MA"||n(m.codigoMunicipio)!==8478||n(m.zona)!==87||!Array.isArray(data.ballots))throw new Error("Base oficial incompatível.");
+  for(const rec of data.ballots){
+   const sec=n(rec.secao);
+   if(allowed.has(sec)&&usableBallot(rec))bySection.set(sec,rec);
+  }
+ }catch(e){console.warn("PDF: não foi possível carregar a base oficial por seção.",e.message)}
+ finally{clearTimeout(timer)}
+ const local=typeof buData!=="undefined"&&Array.isArray(buData)?[...buData]:[];
+ local.sort((a,b)=>String(b.salvoEm||"").localeCompare(String(a.salvoEm||"")));
+ const seen=new Set();
+ for(const rec of local){
+  const sec=n(rec.secao);if(!allowed.has(sec)||seen.has(sec)||!usableBallot(rec))continue;
+  const official=bySection.get(sec)||{};
+  bySection.set(sec,{...official,...rec,local:rec.local||official.local,enderecoLocal:rec.enderecoLocal||rec.endereco_local||official.enderecoLocal});
+  seen.add(sec);
+ }
+ const missing=expected.filter(sec=>!bySection.has(sec));
+ if(missing.length)throw new Error("Não foi possível reunir as 53 seções. Faltam: "+missing.map(sectionNo).join(", ")+". Conecte à internet, atualize o aplicativo e tente novamente.");
+ return expected.map(sec=>bySection.get(sec));
+}
+function reportAggregate(ballots,key){
+ const map=new Map();let valid=0,blank=0,nulls=0,legend=0,outros=0;
+ for(const rec of ballots){
+  const d=rec.votes[key];
+  for(const c of Object.values(d.cand)){
+   const number=String(c.numero),row=map.get(number)||{numero:number,nome:c.nome,partido:c.partido,votos:0};
+   row.votos+=n(c.votos);valid+=n(c.votos);map.set(number,row);
+  }
+  legend+=Object.values(d.legend||{}).reduce((sum,c)=>sum+n(c.votos),0);
+  blank+=n(d.brancos);nulls+=n(d.nulos);outros+=n(d.outros);
+ }
+ return {rows:[...map.values()].sort((a,b)=>b.votos-a.votos),valid,blank,nulls,legend,outros};
 }
 function pageBase(doc,title,subtitle=""){
  doc.setFillColor(...BRAND.black);doc.rect(0,0,297,19,"F");
@@ -165,7 +220,7 @@ function drawSection(doc,rec,startNew=true){
  for(const k of OFFICE_ORDER)y=drawOffice(doc,rec,k,y);
 }
 function generalSummary(doc,ballots){
- doc.addPage();let y=pageBase(doc,"RESUMO GERAL","Consolidação dos B.U.s finalizados no aplicativo");
+ doc.addPage();let y=pageBase(doc,"RESUMO GERAL","Consolidação das "+ballots.length+" seções de Olho d'Água das Cunhãs");
  const apt=ballots.reduce((s,r)=>s+n(r.aptos),0),comp=ballots.reduce((s,r)=>s+n(r.comparecimento),0);
  roundedInfo(doc,12,y,64,"Seções no PDF",String(ballots.length));
  roundedInfo(doc,80,y,64,"Aptos",fmt(apt));
@@ -174,7 +229,7 @@ function generalSummary(doc,ballots){
  y+=24;
  doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(...BRAND.black);doc.text("Resultado consolidado por cargo",12,y+5);y+=10;
  for(const k of OFFICE_ORDER){
-  const a=typeof aggregate==="function"?aggregate(k):{rows:[],valid:0,blank:0,nulls:0,legend:0};
+  const a=reportAggregate(ballots,k);
   const den=n(a.valid)+(k==="federal"||k==="estadual"?n(a.legend):0);
   if(y>168){doc.addPage();y=pageBase(doc,"RESUMO GERAL • CONTINUAÇÃO","Consolidação por cargo")}
   doc.setFillColor(...BRAND.dark);doc.roundedRect(12,y,273,9,2,2,"F");
@@ -193,16 +248,16 @@ function generalSummary(doc,ballots){
   if(y>184){doc.addPage();y=pageBase(doc,"RESUMO GERAL • "+OFFICE_LABEL[k],"Continuação")}
   doc.setFillColor(...BRAND.gray);doc.roundedRect(12,y,273,9,1.5,1.5,"F");
   doc.setFont("helvetica","bold");doc.setFontSize(7);doc.setTextColor(...BRAND.muted);
-  doc.text("Válidos: "+fmt(den)+"   •   Brancos: "+fmt(a.blank)+"   •   Nulos: "+fmt(a.nulls)+(n(a.legend)?"   •   Legenda: "+fmt(a.legend):""),16,y+5.9);
+  doc.text("Válidos: "+fmt(den)+"   •   Brancos: "+fmt(a.blank)+"   •   Nulos: "+fmt(a.nulls)+(n(a.legend)?"   •   Legenda: "+fmt(a.legend):"")+(n(a.outros)?"   •   Outros: "+fmt(a.outros):""),16,y+5.9);
   y+=13;
  }
 }
 function createDoc(JsPDF){return new JsPDF({orientation:"landscape",unit:"mm",format:"a4",compress:true})}
 async function downloadGeneral(){
- const ballots=orderedBallots();
- if(!ballots.length){alert("Não há B.U.s finalizados para gerar o PDF.");return}
- const btns=document.querySelectorAll(".dw-pdf-general");btns.forEach(b=>{b.disabled=true;b.dataset.old=b.textContent;b.textContent="Gerando PDF..."});
+ const btns=document.querySelectorAll(".dw-pdf-general");btns.forEach(b=>{b.disabled=true;b.dataset.old=b.textContent;b.textContent="Conferindo 53 seções..."});
  try{
+  const ballots=await orderedBallots();
+  btns.forEach(b=>b.textContent="Gerando PDF • 53/53 seções...");
   const JsPDF=await ensurePdf(),doc=createDoc(JsPDF);
   cover(doc,ballots);
   generalSummary(doc,ballots);
