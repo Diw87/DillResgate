@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v40-vitorino-visitor";
+const CACHE_VERSION="dwtech-bu2026-v41-vitorino-bus-pdf";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -15,6 +15,8 @@ const SHELL=[
   "./access.js",
   "./navigation.js",
   "./pdf-export.js",
+  "./vitorino-bu.js",
+  "./vitorino-bu.css",
   "./bu-secoes-oficiais.json",
   "./jspdf.umd.min.js",
   "./jsQR.js",
@@ -78,6 +80,11 @@ self.addEventListener("fetch",event=>{
 
   if(url.pathname.endsWith("/bu-secoes-oficiais.json")){
     event.respondWith(networkFirst(request,"./bu-secoes-oficiais.json"));
+    return;
+  }
+
+  if(url.pathname.endsWith("/bu-vitorino-oficiais.json")){
+    event.respondWith(networkFirst(request));
     return;
   }
 
