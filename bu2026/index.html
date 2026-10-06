@@ -374,7 +374,8 @@ tbody tr:hover{background:#fff4ec}
 </style>
 <link rel="stylesheet" href="./qr-scanner.css?build=20261005.1">
 <link rel="stylesheet" href="./cloud.css?build=20261005.1">
-<link rel="stylesheet" href="./access.css?build=20261005.1">
+<link rel="stylesheet" href="./access.css?build=20261006.4">
+<link rel="stylesheet" href="./vitorino-bu.css?build=20261006.4">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -446,10 +447,23 @@ tbody tr:hover{background:#fff4ec}
 <section id="vitorino" class="section">
   <div class="head" style="border:1px solid var(--dw-line);border-radius:11px;box-shadow:var(--shadow);margin-bottom:12px">
     <div><h3>Resultados — Vitorino Freire, Maranhão</h3><small id="vitorinoCoverageInfo" style="display:block;margin-top:4px;color:#667085;font-weight:700">Carregando totalização oficial do TSE…</small></div>
-    <div class="general-actions"><button class="soft" type="button" onclick="loadOfficialResults(true)">↻ Atualizar TSE</button></div>
+    <div class="general-actions"><button class="soft" type="button" onclick="loadOfficialResults(true)">↻ Atualizar TSE</button><button class="soft" type="button" onclick="refreshVitorinoBallots()">↻ Atualizar B.U.s</button><button class="primary" type="button" onclick="downloadVitorinoGeneralBUPdf()">📄 PDF geral por seção</button></div>
   </div>
   <div class="stats" id="vitorinoStats" style="grid-template-columns:repeat(4,1fr)"></div>
   <div class="results-grid" id="vitorinoResultsGrid"></div>
+
+  <div class="card vf-section-card">
+    <div class="head">
+      <div><h3>Boletins de Urna — seção por seção</h3><small id="vitorinoBuStatus" style="display:block;margin-top:4px;color:#667085;font-weight:700">Carregando B.U.s oficiais por seção…</small></div>
+      <div class="vf-section-tools"><input id="vitorinoBuSearch" placeholder="Pesquisar seção, urna ou local..." oninput="filterVitorinoBUs()"><button class="primary" type="button" onclick="downloadVitorinoGeneralBUPdf()">📄 Gerar relatório PDF</button></div>
+    </div>
+    <div class="stats" id="vitorinoBuMeta" style="grid-template-columns:repeat(4,1fr);padding:14px;margin:0"></div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Seção</th><th>Local</th><th>Urna</th><th>Aptos</th><th>Comparecimento</th><th>Fonte</th><th>Ações</th></tr></thead><tbody id="vitorinoBuBody"></tbody></table>
+      <div class="empty" id="vitorinoBuEmpty">Aguardando B.U.s oficiais.</div>
+    </div>
+    <div class="toolbar" style="justify-content:flex-end"><span id="vitorinoBuCount" style="font-size:12px;color:#667085"></span></div>
+  </div>
 </section>
 <section id="gerais" class="section">
   <div class="general-wrap">
@@ -482,6 +496,15 @@ tbody tr:hover{background:#fff4ec}
       <div class="ios-install-step"><b>3</b><span>Confirme em <strong>Adicionar</strong>. O B.U. abrirá como aplicativo.</span></div>
     </div>
     <div class="ios-install-actions"><button class="primary" type="button" onclick="closeIOSInstall()">Entendi</button></div>
+  </div>
+</div>
+
+<div id="vitorinoBuModal" class="vf-modal" aria-hidden="true">
+  <div class="vf-modal-card" role="dialog" aria-modal="true">
+    <div class="vf-modal-head"><h3 id="vitorinoBuModalTitle">B.U. • Vitorino Freire</h3><button type="button" onclick="closeVitorinoBU()">✕ Fechar</button></div>
+    <div id="vitorinoBuModalInfo" class="vf-modal-info"></div>
+    <div id="vitorinoBuModalBody" class="vf-modal-body"></div>
+    <div class="vf-modal-actions"><button class="soft" type="button" onclick="closeVitorinoBU()">Fechar</button><button id="vitorinoBuModalPdf" class="primary" type="button">📄 PDF desta seção</button></div>
   </div>
 </div>
 
@@ -546,7 +569,7 @@ let candidates={federal:[],estadual:[],senador:[],governador:[],presidente:[]},b
 function blankDraft(){const d={};ORDER.forEach(k=>d[k]={cand:{},legend:{},brancos:0,nulos:0,outros:0,expectedQr:null});return d}
 function esc(s=""){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}
 function num(v){return Number(v||0)}function fmt(n){return Number(n||0).toLocaleString("pt-BR")}function candidateByNumber(k,nr){return candidates[k].find(c=>String(c.numero)===String(nr))}
-function showMain(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");document.querySelectorAll(".side-link[data-target]").forEach(x=>x.classList.toggle("active",x.dataset.target===id));if(id==="resultados"){renderResults();loadOfficialResults(false)}if(id==="vitorino"){renderVitorinoResults();loadOfficialResults(false)}if(id==="gerais")renderGeneralResults();if(id==="candidatos")renderCandidateBrowser()}
+function showMain(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");document.querySelectorAll(".side-link[data-target]").forEach(x=>x.classList.toggle("active",x.dataset.target===id));if(id==="resultados"){renderResults();loadOfficialResults(false)}if(id==="vitorino"){renderVitorinoResults();loadOfficialResults(false);window.renderVitorinoBUSection?.(false)}if(id==="gerais")renderGeneralResults();if(id==="candidatos")renderCandidateBrowser()}
 function showOffice(k,btn){document.querySelectorAll(".office-panel").forEach(x=>x.classList.remove("active"));document.getElementById("office_"+k).classList.add("active");document.querySelectorAll(".office-tab").forEach(x=>x.classList.remove("active"));btn.classList.add("active")}
 function renderSections(){const s=document.getElementById("secao"),cur=s.value;s.innerHTML='<option value="">Selecione a seção</option>';ODAC_SECOES.forEach(x=>{const used=buData.some(b=>String(b.secao)===String(x.secao)),o=document.createElement("option");o.value=x.secao;o.textContent=(used?"✓ ":"")+String(x.secao).padStart(3,"0")+" — "+x.local;s.appendChild(o)});if(ODAC_SECOES.some(x=>String(x.secao)===String(cur)))s.value=cur}
 function fillSection(){const x=ODAC_SECOES.find(x=>String(x.secao)===String(document.getElementById("secao").value));document.getElementById("local").value=x?.local||"";document.getElementById("enderecoLocal").value=x?.endereco||""}
@@ -896,10 +919,11 @@ async function openResultsWindow(targetWindow=null,autoPrint=false){
 </script>
 <script src="./jsQR.js?build=20261005.1"></script>
 <script src="./qr-scanner.js?build=20261005.1"></script>
-<script src="./pwa.js?build=20261006.3"></script>
+<script src="./pwa.js?build=20261006.4"></script>
 <script src="./cloud.js?build=20261005.1"></script>
-<script src="./access.js?build=20261006.3"></script>
-<script src="./navigation.js?build=20261006.3"></script>
-<script src="./pdf-export.js?build=20261006.1"></script>
+<script src="./access.js?build=20261006.4"></script>
+<script src="./navigation.js?build=20261006.4"></script>
+<script src="./vitorino-bu.js?build=20261006.4"></script>
+<script src="./pdf-export.js?build=20261006.4"></script>
 </body>
 </html>
