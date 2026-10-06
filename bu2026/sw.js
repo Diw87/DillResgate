@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v41-vitorino-bus-pdf";
+const CACHE_VERSION="dwtech-bu2026-v42-vitorino-bus-completos";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
