@@ -2,6 +2,7 @@
 
 const LIB_URL="./jspdf.umd.min.js?build=20261005.3";
 const BALLOTS_URL="./bu-secoes-oficiais.json";
+const VITORINO_BALLOTS_URL="./bu-vitorino-oficiais.json";
 const BRAND={orange:[255,101,13],black:[11,13,15],dark:[27,32,38],gray:[246,247,249],line:[219,224,229],muted:[103,113,124],green:[21,115,71]};
 const OFFICE_ORDER=["federal","estadual","senador","governador","presidente"];
 const OFFICE_LABEL={federal:"Deputado Federal",estadual:"Deputado Estadual",senador:"Senador",governador:"Governador",presidente:"Presidente"};
@@ -29,10 +30,10 @@ function clean(v){
 function n(v){return Number(v||0)}
 function fmt(v){return n(v).toLocaleString("pt-BR")}
 function sectionNo(v){return String(v??"").padStart(3,"0")}
-function usableBallot(rec){
+function usableBallot(rec,municipio=8478,zona=87){
  if(!rec||rec._queued||[rec.status,rec.cloudStatus].some(s=>s&&s!=="finalizado"))return false;
- if(rec.uf&&rec.uf!=="MA"||rec.zona!=null&&n(rec.zona)!==87)return false;
- if(rec.codigoMunicipio!=null&&n(rec.codigoMunicipio)!==8478)return false;
+ if(rec.uf&&rec.uf!=="MA"||rec.zona!=null&&n(rec.zona)!==n(zona))return false;
+ if(rec.codigoMunicipio!=null&&n(rec.codigoMunicipio)!==n(municipio))return false;
  if(rec.electionYear!=null&&n(rec.electionYear)!==2026||rec.turno!=null&&n(rec.turno)!==1)return false;
  if(rec.dataEleicao&&rec.dataEleicao!=="2026-10-04")return false;
  return OFFICE_ORDER.every(key=>{
@@ -73,6 +74,20 @@ async function orderedBallots(){
  if(missing.length)throw new Error("Não foi possível reunir as 53 seções. Faltam: "+missing.map(sectionNo).join(", ")+". Conecte à internet, atualize o aplicativo e tente novamente.");
  return expected.map(sec=>bySection.get(sec));
 }
+async function orderedVitorinoBallots(){
+ const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),20000);
+ try{
+  const response=await fetch(VITORINO_BALLOTS_URL+"?ts="+Date.now(),{signal:ctrl.signal,cache:"no-store"});
+  if(!response.ok)throw new Error("Base oficial de Vitorino Freire indisponível.");
+  const data=await response.json(),m=data.meta;
+  if(m?.electionYear!==2026||m.turno!==1||m.uf!=="MA"||n(m.codigoMunicipio)!==9539||n(m.zona)!==49||!Array.isArray(data.ballots))throw new Error("Base oficial de Vitorino Freire incompatível.");
+  if(Array.isArray(m.errors)&&m.errors.length)throw new Error("A base por seção de Vitorino Freire está incompleta ("+m.errors.length+" ocorrência(s)).");
+  const rows=data.ballots.filter(rec=>usableBallot(rec,9539,49)).sort((a,b)=>n(a.secao)-n(b.secao));
+  if(!rows.length)throw new Error("Nenhum B.U. válido de Vitorino Freire foi encontrado.");
+  if(rows.length!==data.ballots.length)throw new Error("Há B.U.s de Vitorino Freire com dados incompletos.");
+  return rows;
+ }finally{clearTimeout(timer)}
+}
 function reportAggregate(ballots,key){
  const map=new Map();let valid=0,blank=0,nulls=0,legend=0,outros=0;
  for(const rec of ballots){
@@ -95,16 +110,17 @@ function pageBase(doc,title,subtitle=""){
  if(subtitle){doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.setTextColor(195,202,209);doc.text(clean(subtitle),52,15.2)}
  return 29;
 }
-function addFooterAll(doc){
+function addFooterMunicipality(doc,municipio){
  const total=doc.getNumberOfPages();
  for(let i=1;i<=total;i++){
   doc.setPage(i);
   doc.setDrawColor(...BRAND.line);doc.line(12,199,285,199);
   doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(...BRAND.muted);
-  doc.text("DW Tech • B.U. 2026 • Olho d'Água das Cunhãs - MA",12,204);
+  doc.text("DW Tech • B.U. 2026 • "+clean(municipio),12,204);
   doc.text("Página "+i+" de "+total,285,204,{align:"right"});
  }
 }
+function addFooterAll(doc){addFooterMunicipality(doc,"Olho d'Água das Cunhãs - MA")}
 function roundedInfo(doc,x,y,w,label,value){
  doc.setFillColor(...BRAND.gray);doc.setDrawColor(...BRAND.line);doc.roundedRect(x,y,w,16,2,2,"FD");
  doc.setFont("helvetica","bold");doc.setFontSize(6.5);doc.setTextColor(...BRAND.muted);doc.text(clean(label).toUpperCase(),x+4,y+5);
@@ -130,6 +146,27 @@ function cover(doc,ballots){
  doc.setTextColor(255,255,255);doc.setFontSize(11);doc.text(new Date().toLocaleString("pt-BR"),144,171);
  doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(150,158,166);
  doc.text("Relatório gerado diretamente pelo aplicativo DW Tech B.U. 2026.",31,190);
+}
+function coverVitorino(doc,ballots){
+ doc.setFillColor(...BRAND.black);doc.rect(0,0,297,210,"F");
+ doc.setFillColor(...BRAND.orange);doc.rect(0,0,12,210,"F");
+ doc.setDrawColor(...BRAND.orange);doc.setLineWidth(1.1);doc.line(28,42,270,42);
+ doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(30);doc.text("DW",31,30);
+ doc.setTextColor(...BRAND.orange);doc.text("Tech",60,30);
+ doc.setTextColor(255,255,255);doc.setFontSize(26);doc.text("B.U. 2026",31,70);
+ doc.setFontSize(31);doc.text("VITORINO FREIRE",31,91);
+ doc.setTextColor(...BRAND.orange);doc.setFontSize(14);doc.text("RELATÓRIO POR SEÇÃO • TODOS OS CARGOS",31,106);
+ doc.setTextColor(208,214,220);doc.setFont("helvetica","normal");doc.setFontSize(11);
+ doc.text("Vitorino Freire - MA • 49ª Zona Eleitoral",31,124);
+ doc.text("Deputado Federal • Deputado Estadual • Senador • Governador • Presidente",31,134);
+ doc.setFillColor(...BRAND.dark);doc.roundedRect(31,151,98,25,3,3,"F");
+ doc.setFillColor(...BRAND.dark);doc.roundedRect(137,151,98,25,3,3,"F");
+ doc.setFont("helvetica","bold");doc.setTextColor(...BRAND.orange);doc.setFontSize(8);doc.text("B.U.s NO ARQUIVO",38,160);
+ doc.setTextColor(255,255,255);doc.setFontSize(19);doc.text(String(ballots.length),38,171);
+ doc.setFontSize(8);doc.setTextColor(...BRAND.orange);doc.text("GERADO EM",144,160);
+ doc.setTextColor(255,255,255);doc.setFontSize(11);doc.text(new Date().toLocaleString("pt-BR"),144,171);
+ doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(150,158,166);
+ doc.text("Fonte: Boletins de Urna oficiais do Tribunal Superior Eleitoral.",31,190);
 }
 function backCover(doc){
  doc.addPage();
@@ -252,6 +289,39 @@ function generalSummary(doc,ballots){
   y+=13;
  }
 }
+function generalSummaryVitorino(doc,ballots){
+ doc.addPage();let y=pageBase(doc,"RESUMO GERAL • VITORINO FREIRE","Consolidação dos "+ballots.length+" B.U.s oficiais por seção");
+ const apt=ballots.reduce((s,r)=>s+n(r.aptos),0),comp=ballots.reduce((s,r)=>s+n(r.comparecimento),0);
+ roundedInfo(doc,12,y,64,"B.U.s no PDF",String(ballots.length));
+ roundedInfo(doc,80,y,64,"Aptos",fmt(apt));
+ roundedInfo(doc,148,y,64,"Comparecimento",fmt(comp));
+ roundedInfo(doc,216,y,69,"Faltosos",fmt(Math.max(0,apt-comp)));
+ y+=24;
+ doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(...BRAND.black);doc.text("Resultado consolidado por cargo",12,y+5);y+=10;
+ for(const k of OFFICE_ORDER){
+  const a=reportAggregate(ballots,k);
+  const den=n(a.valid)+(k==="federal"||k==="estadual"?n(a.legend):0);
+  if(y>168){doc.addPage();y=pageBase(doc,"RESUMO VITORINO • CONTINUAÇÃO","Consolidação por cargo")}
+  doc.setFillColor(...BRAND.dark);doc.roundedRect(12,y,273,9,2,2,"F");
+  doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(255,255,255);doc.text(clean(OFFICE_LABEL[k]).toUpperCase(),16,y+6);y+=12;
+  const rows=(a.rows||[]).filter(x=>n(x.votos)>0);
+  for(const x of rows){
+   if(y>188){doc.addPage();y=pageBase(doc,"RESUMO VITORINO • "+OFFICE_LABEL[k],"Continuação")}
+   const pct=den?n(x.votos)/den*100:0;
+   doc.setDrawColor(...BRAND.line);doc.line(12,y+6.2,285,y+6.2);
+   doc.setFont("helvetica","bold");doc.setFontSize(7.8);doc.setTextColor(...BRAND.orange);doc.text(clean(x.numero||"-"),16,y+4.2);
+   doc.setFont("helvetica","normal");doc.setTextColor(...BRAND.black);doc.text(clean(x.nome||"-"),42,y+4.2,{maxWidth:155});
+   doc.setTextColor(...BRAND.muted);doc.text(clean(x.partido||"-"),205,y+4.2,{maxWidth:28});
+   doc.setFont("helvetica","bold");doc.setTextColor(...BRAND.black);doc.text(fmt(x.votos)+" • "+pct.toFixed(2)+"%",280,y+4.2,{align:"right"});
+   y+=6.3;
+  }
+  if(y>184){doc.addPage();y=pageBase(doc,"RESUMO VITORINO • "+OFFICE_LABEL[k],"Continuação")}
+  doc.setFillColor(...BRAND.gray);doc.roundedRect(12,y,273,9,1.5,1.5,"F");
+  doc.setFont("helvetica","bold");doc.setFontSize(7);doc.setTextColor(...BRAND.muted);
+  doc.text("Válidos: "+fmt(den)+"   •   Brancos: "+fmt(a.blank)+"   •   Nulos: "+fmt(a.nulls)+(n(a.legend)?"   •   Legenda: "+fmt(a.legend):"")+(n(a.outros)?"   •   Outros: "+fmt(a.outros):""),16,y+5.9);
+  y+=13;
+ }
+}
 function createDoc(JsPDF){return new JsPDF({orientation:"landscape",unit:"mm",format:"a4",compress:true})}
 async function downloadGeneral(){
  const btns=document.querySelectorAll(".dw-pdf-general");btns.forEach(b=>{b.disabled=true;b.dataset.old=b.textContent;b.textContent="Conferindo 53 seções..."});
@@ -287,6 +357,40 @@ async function downloadIndividual(id){
   doc.save("BU_2026_DWTech_Secao_"+sectionNo(rec.secao)+".pdf");
  }catch(e){console.error(e);alert("Não foi possível gerar o PDF individual: "+(e.message||e))}
 }
+async function downloadVitorinoGeneral(){
+ const btns=document.querySelectorAll("#vitorino button[onclick*='downloadVitorinoGeneralBUPdf']");btns.forEach(b=>{b.disabled=true;b.dataset.old=b.textContent;b.textContent="Conferindo B.U.s..."});
+ try{
+  const ballots=await orderedVitorinoBallots();
+  btns.forEach(b=>b.textContent="Gerando PDF • "+ballots.length+" B.U.s...");
+  const JsPDF=await ensurePdf(),doc=createDoc(JsPDF);
+  coverVitorino(doc,ballots);
+  generalSummaryVitorino(doc,ballots);
+  for(const rec of ballots)drawSection(doc,rec,true);
+  backCover(doc);addFooterMunicipality(doc,"Vitorino Freire - MA • 49ª Zona Eleitoral");
+  doc.save("BU_2026_DWTech_Vitorino_Freire_Secao_por_Secao.pdf");
+ }catch(e){console.error(e);alert("Não foi possível gerar o PDF de Vitorino Freire: "+(e.message||e))}
+ finally{btns.forEach(b=>{b.disabled=false;b.textContent=b.dataset.old||"📄 PDF geral por seção"})}
+}
+async function downloadVitorinoIndividual(section){
+ try{
+  const ballots=await orderedVitorinoBallots(),rec=ballots.find(x=>n(x.secao)===n(section));
+  if(!rec)throw new Error("B.U. da seção "+sectionNo(section)+" não encontrado.");
+  const JsPDF=await ensurePdf(),doc=createDoc(JsPDF);
+  doc.setFillColor(...BRAND.black);doc.rect(0,0,297,210,"F");
+  doc.setFillColor(...BRAND.orange);doc.rect(0,0,10,210,"F");
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(28);doc.text("DW",30,38);
+  doc.setTextColor(...BRAND.orange);doc.text("Tech",58,38);
+  doc.setTextColor(255,255,255);doc.setFontSize(24);doc.text("VITORINO FREIRE • SEÇÃO "+sectionNo(rec.secao),30,73);
+  doc.setTextColor(208,214,220);doc.setFont("helvetica","normal");doc.setFontSize(12);doc.text(clean(rec.local||""),30,91,{maxWidth:235});
+  doc.setFontSize(9);doc.text("49ª Zona Eleitoral • Vitorino Freire - MA",30,104,{maxWidth:235});
+  doc.setDrawColor(...BRAND.orange);doc.line(30,119,235,119);
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(11);
+  doc.text("Urna: "+clean(rec.urna||"-")+"   •   Aptos: "+fmt(rec.aptos)+"   •   Comparecimento: "+fmt(rec.comparecimento),30,137);
+  drawSection(doc,rec,true);
+  backCover(doc);addFooterMunicipality(doc,"Vitorino Freire - MA • Seção "+sectionNo(rec.secao));
+  doc.save("BU_2026_Vitorino_Freire_Secao_"+sectionNo(rec.secao)+".pdf");
+ }catch(e){console.error(e);alert("Não foi possível gerar o PDF desta seção: "+(e.message||e))}
+}
 function injectGeneralButtons(){
  const ap=document.querySelector("#apurados .card .head");
  if(ap&&!ap.querySelector(".dw-pdf-general")){
@@ -321,5 +425,7 @@ function patchRender(){
 function boot(){injectGeneralButtons();patchRender();injectRowButtons();setTimeout(()=>{injectGeneralButtons();injectRowButtons()},1200)}
 window.downloadGeneralBUPdf=downloadGeneral;
 window.downloadIndividualBUPdf=downloadIndividual;
+window.downloadVitorinoGeneralBUPdf=downloadVitorinoGeneral;
+window.downloadVitorinoIndividualBUPdf=downloadVitorinoIndividual;
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();
