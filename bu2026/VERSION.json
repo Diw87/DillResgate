@@ -1,6 +1,6 @@
 {
   "name": "DW Tech • B.U. 2026",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "channel": "production",
   "architecture": "GitHub Pages + Supabase",
   "features": {
@@ -21,9 +21,12 @@
     "pdf_engine_local": true,
     "pdf_all_53_sections": true,
     "vitorino_freire_results": true,
-    "vitorino_freire_visitor": true
+    "vitorino_freire_visitor": true,
+    "vitorino_bu_section_by_section": true,
+    "vitorino_pdf_general": true,
+    "vitorino_pdf_individual": true
   },
   "released_at": "2026-10-06",
-  "build": "20261006.3",
+  "build": "20261006.4",
   "update_policy": "check_on_open_and_force_latest"
 }
