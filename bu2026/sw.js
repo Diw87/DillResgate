@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v39-vitorino-freire";
+const CACHE_VERSION="dwtech-bu2026-v40-vitorino-visitor";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
