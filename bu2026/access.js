@@ -63,7 +63,7 @@ function patchNavigation(){
  if(typeof window.showMain==="function"&&!window.__accessShowMainPatched){
   const base=window.showMain;window.__accessShowMainPatched=true;
   window.showMain=function(id,btn){
-   const visitorViews=new Set(["resultados","vitorino"]);
+   const visitorViews=new Set(["resultados","vitorino","segundo-turno"]);
    if(mode==="visitor"&&!visitorViews.has(id)){
     id="resultados";btn=document.querySelectorAll(".tab")[2];
    }
