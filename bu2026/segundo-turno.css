@@ -1,0 +1,34 @@
+/* DW Tech • painel exclusivo de 2º turno presidencial */
+.t2-wrap{display:grid;gap:15px}
+.t2-hero{padding:22px 24px;border-radius:13px;background:linear-gradient(115deg,#080a0d 0%,#1c252f 100%);color:#fff;border-bottom:5px solid #ff650d;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.t2-hero .t2-tag{color:#ff8f4a;text-transform:uppercase;font-size:10px;letter-spacing:2px;font-weight:900}
+.t2-hero h2{margin:5px 0 4px;font-size:clamp(21px,3vw,31px);line-height:1.15}
+.t2-hero p{margin:0;color:#c6cdd3;font-size:12px}
+.t2-actions{display:flex;flex-wrap:wrap;gap:8px}.t2-actions button{white-space:nowrap}
+.t2-note{padding:14px 16px;background:#fff5ed;border:1px solid #ffccb0;border-left:5px solid #ff650d;border-radius:10px;color:#783b14;font-weight:750;font-size:13px;line-height:1.5}
+.t2-areas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.t2-area{background:white;border:2px solid #e4e7ec;border-radius:11px;padding:14px;text-align:left;display:grid;gap:7px;color:#20262d;min-width:0}
+.t2-area:hover{border-color:#ffb17d}.t2-area.selected{border-color:#ff650d;background:#fff7f1}
+.t2-area span{font-size:11px;font-weight:950;letter-spacing:.4px}.t2-area strong{font-size:26px;line-height:1}.t2-area small{font-size:11px;color:#69737e}
+.t2-detail{background:#fff;border:1px solid #dfe5eb;border-radius:12px;padding:17px;box-shadow:0 8px 26px rgba(16,24,40,.07)}
+.t2-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.t2-heading h3{margin:0;font-size:17px}
+.t2-summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin-bottom:15px}
+.t2-stat{border:1px solid #e4e7ec;background:#fafbfc;border-radius:9px;padding:11px;min-width:0}
+.t2-stat span{font-size:10px;text-transform:uppercase;color:#69737e;font-weight:900;display:block;min-height:24px}
+.t2-stat strong{font-size:18px;color:#141b24;display:block;overflow-wrap:anywhere}
+.t2-candidates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.t2-candidate{border:1px solid #e1e6ed;border-radius:12px;padding:19px;background:#fff}
+.t2-candidate-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.t2-number{display:inline-flex;padding:7px 12px;border-radius:8px;background:#20252c;color:#fff;font-size:20px;font-weight:950}
+.t2-position{font-size:11px;color:#65717c;font-weight:850}.t2-candidate h3{font-size:19px;margin:13px 0 3px;min-height:24px}
+.t2-candidate p{margin:0 0 15px;color:#65717c;font-size:12px;font-weight:700}
+.t2-percent{font-size:clamp(26px,3.7vw,38px);color:#141b24}
+.t2-progress{height:10px;border-radius:999px;background:#eaedf0;margin:9px 0;overflow:hidden}
+.t2-progress i{display:block;height:100%;background:#ff650d;border-radius:999px}
+.t2-candidate:nth-child(2) .t2-progress i{background:#333f4d}
+.t2-vote-count{font-size:12px;color:#68717c;font-weight:800}.t2-empty{grid-column:1/-1;padding:35px;text-align:center;color:#68717c;border:1px dashed #dce2e9;border-radius:10px}
+.t2-foot{font-size:11px;color:#707884;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.t2-foot a{color:#b94d0a;font-weight:800;text-decoration:underline}
+@media(max-width:1150px){.t2-summary{grid-template-columns:repeat(3,minmax(0,1fr))}.t2-areas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.t2-hero{padding:17px}.t2-detail{padding:12px}.t2-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.t2-candidates{grid-template-columns:1fr}.t2-candidate{padding:14px}.t2-area{padding:10px}.t2-area strong{font-size:22px}}
