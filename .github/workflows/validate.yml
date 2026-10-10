@@ -37,6 +37,7 @@ jobs:
           node --check bu2026/qr-scanner.js
           node --check bu2026/pwa.js
           node --check bu2026/sw.js
+          node --check bu2026/segundo-turno.js
           $html = Get-Content bu2026/index.html -Raw
           $matches = [regex]::Matches($html, '<script(?:\s[^>]*)?>([\s\S]*?)</script>', 'IgnoreCase')
           $inline = ($matches | ForEach-Object { $_.Groups[1].Value }) -join "`n"
@@ -46,6 +47,7 @@ jobs:
           node --check $tmpInline
           python -m py_compile bu2026/sync_tse.py
           python -m py_compile bu2026/sync_resultados_tse.py
+          python -m py_compile bu2026/sync_segundo_turno.py
 
       - name: Verificar arquivos essenciais
         shell: pwsh
