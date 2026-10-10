@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v42-vitorino-bus-completos";
+const CACHE_VERSION="dwtech-bu2026-v43-presidencial-2turno";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -17,6 +17,8 @@ const SHELL=[
   "./pdf-export.js",
   "./vitorino-bu.js",
   "./vitorino-bu.css",
+  "./segundo-turno.css",
+  "./segundo-turno.js",
   "./bu-secoes-oficiais.json",
   "./jspdf.umd.min.js",
   "./jsQR.js",
@@ -88,7 +90,7 @@ self.addEventListener("fetch",event=>{
     return;
   }
 
-  if(url.pathname.endsWith("/candidatos.json") || url.pathname.endsWith("/resultados-oficiais.json")){
+  if(url.pathname.endsWith("/candidatos.json") || url.pathname.endsWith("/resultados-oficiais.json") || url.pathname.endsWith("/resultados-segundo-turno.json")){
     event.respondWith(networkFirst(request));
     return;
   }
