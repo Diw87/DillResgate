@@ -32,7 +32,9 @@ function showAccessFromHistory(){
  }
 }
 function restoreView(view){
- if(!VALID_VIEWS.has(view))view="resultados";
+ // O histórico não pode reabrir outras abas quando o acesso é Visitante.
+ if(window.BUAccess?.mode==="visitor")view="segundo-turno";
+ else if(!VALID_VIEWS.has(view))view="resultados";
  handlingPop=true;
  try{
   window.showMain?.(view,tabFor(view));
