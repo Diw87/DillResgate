@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v46-status-atualizacao";
+const CACHE_VERSION="dwtech-bu2026-v47-countdown-presidencial";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
