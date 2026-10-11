@@ -46,7 +46,7 @@ function enterMode(next){
  document.body.classList.add(mode==="visitor"?"access-visitor":"access-fiscal");
  gate()?.classList.add("hidden");setModeBadge();ensureSwitch();
  if(mode==="visitor"){
-   setTimeout(()=>{try{showMain("resultados",document.querySelectorAll(".tab")[2])}catch{}},0);
+   setTimeout(()=>{try{showMain("segundo-turno",document.querySelectorAll(".tab")[4])}catch{}},0);
  }else{
    setTimeout(()=>{try{showMain("novo",document.querySelectorAll(".tab")[0])}catch{}},0);
  }
@@ -63,9 +63,9 @@ function patchNavigation(){
  if(typeof window.showMain==="function"&&!window.__accessShowMainPatched){
   const base=window.showMain;window.__accessShowMainPatched=true;
   window.showMain=function(id,btn){
-   const visitorViews=new Set(["resultados","vitorino","segundo-turno"]);
-   if(mode==="visitor"&&!visitorViews.has(id)){
-    id="resultados";btn=document.querySelectorAll(".tab")[2];
+   // Visitante: qualquer rota antiga, atalho ou navegação volta ao 2º turno.
+   if(mode==="visitor"&&id!=="segundo-turno"){
+    id="segundo-turno";btn=document.querySelectorAll(".tab")[4];
    }
    return base(id,btn);
   };
