@@ -32,20 +32,20 @@ linear-gradient(145deg,#0a0d10,#20262d);color:#fff;border-right:4px solid #ff650
 .access-mode-badge{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:5px 8px;border-radius:999px;border:1px solid #4b545e;background:#151a1f;color:#d5dbe1;font-size:9px;font-weight:900;letter-spacing:.5px;text-transform:uppercase}
 .access-mode-badge.visitor{border-color:#ffb47e;color:#ffb47e}.access-mode-badge.fiscal{border-color:#78db9d;color:#78db9d}
 .access-switch{width:100%;display:flex;align-items:center;gap:10px;background:transparent;color:#f0f3f5;border:1px solid #3b434c;border-radius:8px;padding:10px 12px;margin:4px 0;font-size:12px;font-weight:800;cursor:pointer}.access-switch:hover{background:#2b3239}
+/* Acesso visitante • somente o painel presidencial do segundo turno */
 body.access-visitor .visitor-hide{display:none!important}
-body.access-visitor #novo,
-body.access-visitor #apurados,
-body.access-visitor #candidatos{display:none!important}
-body.access-visitor .dw-sidebar [data-target="novo"],
-body.access-visitor .dw-sidebar [data-target="apurados"],
-body.access-visitor .dw-sidebar [data-target="candidatos"],
+/* Outras páginas continuam intactas para o acesso fiscal. */
+body.access-visitor main>.section:not(#segundo-turno){display:none!important}
+body.access-visitor main>.hero,
+body.access-visitor main>.tabs,
+body.access-visitor main>.notice{display:none!important}
+/* Mantém a navegação única de 2º turno e a ação Trocar acesso. */
+body.access-visitor .dw-sidebar .side-link[data-target]:not([data-target="segundo-turno"]),
 body.access-visitor .dw-sidebar .qr-scan-btn,
 body.access-visitor .dw-sidebar #installAppSide,
 body.access-visitor .dw-sidebar button[onclick*="refreshCandidates"],
 body.access-visitor .dw-sidebar button[onclick*="exportCSV"],
 body.access-visitor .dw-sidebar button[onclick*="backupJSON"]{display:none!important}
-body.access-visitor .tabs .tab:nth-child(1),
-body.access-visitor .tabs .tab:nth-child(2){display:none!important}
 body.access-visitor .hero h2:after{content:" • VISITANTE";color:#ff650d;font-size:.55em}
 @media(max-width:780px){
  .access-shell{grid-template-columns:1fr}.access-brand{min-height:260px;padding:24px;border-right:0;border-bottom:4px solid #ff650d}.access-brand-copy h1{font-size:28px}.access-panel{padding:24px}.fiscal-login .row{grid-template-columns:1fr}
