@@ -10,6 +10,7 @@ const AREAS=[
  {id:"vf",key:"presidente_vf",name:"Vitorino Freire",short:"VITORINO FREIRE",url:BASE+"/ma/ma09539-c0001-e006258-u.json"}
 ];
 let selected="br",results={},finalists=[],updated=0,inFlight=null,timer=null;
+let manualRefreshing=false,lastConsultation=0;
 const $=id=>document.getElementById(id);
 const n=v=>Number(v)||0;
 const decimal=v=>Number(String(v??0).replace(",","."))||0;
@@ -89,25 +90,37 @@ async function fetchJson(url,timeoutMs=12000){
  try{const res=await fetch(url+(url.includes("?")?"&":"?")+"_="+Date.now(),{cache:"no-store",signal:controller.signal});if(!res.ok)throw Error("HTTP "+res.status);return await res.json();}
  finally{clearTimeout(t);}
 }
-async function loadFinalists(){
- if(finalists.length)return;
+async function loadFinalists(force=false){
+ if(finalists.length&&!force)return true;
  try{
   const source=await fetchJson("./resultados-oficiais.json",10000);
   const all=source?.results?.presidente_br?.candidatos||[];
-  const selected=all.filter(c=>/2\s*[º°o]?\s*turno/i.test(c.situacao||"")).slice(0,2);
-  if(selected.length===2)finalists=selected.map(c=>({numero:c.numero,nome:c.nome,partido:c.partido}));
- }catch{}
- render();
+  const qualifying=all.filter(c=>/2\s*[º°o]?\s*turno/i.test(c.situacao||"")).slice(0,2);
+  if(qualifying.length===2)finalists=qualifying.map(c=>({numero:c.numero,nome:c.nome,partido:c.partido}));
+  lastConsultation=Date.now();
+  return true;
+ }catch(error){
+  console.warn("Consulta à base de candidatos indisponível:",error);
+  return false;
+ }finally{
+  render();
+ }
 }
 async function fetchResults(force=false){
  if(inFlight)return inFlight;
- if(!hasReleased()){await loadFinalists();render();return;}
- if(!force&&Date.now()-updated<25000){render();return;}
+ if(!hasReleased()){
+  const ok=await loadFinalists(force);
+  render();
+  return {ok,published:false,changed:false};
+ }
+ if(!force&&Date.now()-updated<25000){render();return {ok:true,published:Object.values(results).some(officialReady),changed:false};}
  inFlight=(async()=>{
   const fetched={};
   const calls=[fetchJson("./resultados-segundo-turno.json",11000).catch(()=>null),
                ...AREAS.map(a=>fetchJson(a.url).catch(()=>null))];
   const data=await Promise.all(calls);
+  const reachable=data.some(x=>x&&typeof x==="object");
+  if(!reachable)return {ok:false,published:Object.values(results).some(officialReady),changed:false};
   const snapshot=data[0]?.results||{};
   for(const a of AREAS){
    const r=snapshot[a.key];
@@ -117,12 +130,64 @@ async function fetchResults(force=false){
    const normalized=normalize(a.key,data[i+1],a.url);
    if(normalized&&officialReady(normalized))fetched[a.key]=normalized;
   });
-  results=fetched;
-  updated=Date.now();
+  const previous=JSON.stringify(results);
+  // Se as fontes não publicaram novo arquivo, preserva a última apuração válida.
+  if(Object.keys(fetched).length)results={...results,...fetched};
+  const changed=JSON.stringify(results)!==previous;
+  updated=lastConsultation=Date.now();
   if(!Object.values(results).some(officialReady))await loadFinalists();
   render();
+  return {ok:true,published:Object.values(results).some(officialReady),changed};
  })().finally(()=>inFlight=null);
  return inFlight;
+}
+
+function consultationTime(){
+ return new Date(lastConsultation).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+}
+function paintConsultationTime(){
+ const elem=$("turno2LastCheck");
+ if(elem)elem.textContent=lastConsultation?"Última consulta: "+consultationTime():"Última consulta: ainda não realizada";
+}
+function refreshFeedback(state,message){
+ const button=$("turno2RefreshBtn"),label=$("turno2RefreshLabel"),feedback=$("turno2RefreshFeedback");
+ if(button){
+  button.disabled=state==="loading";
+  button.classList.toggle("is-loading",state==="loading");
+  button.setAttribute("aria-busy",String(state==="loading"));
+ }
+ if(label)label.textContent=state==="loading"?"Consultando TSE...":"Atualizar TSE";
+ if(feedback){
+  feedback.dataset.state=state;
+  feedback.textContent=message;
+ }
+ paintConsultationTime();
+}
+async function refreshManually(){
+ if(manualRefreshing)return;
+ manualRefreshing=true;
+ const started=Date.now();
+ refreshFeedback("loading","Consultando os dados oficiais...");
+ try{
+  if(!navigator.onLine)throw new Error("Dispositivo sem conexão com a internet.");
+  const outcome=await fetchResults(true);
+  // Tempo mínimo para tornar a animação perceptível mesmo numa resposta muito rápida.
+  const remaining=550-(Date.now()-started);
+  if(remaining>0)await new Promise(resolve=>setTimeout(resolve,remaining));
+  if(!outcome?.ok)throw new Error("Não foi possível acessar os arquivos do TSE.");
+  let message;
+  if(!hasReleased())message="✓ Consulta concluída às "+consultationTime()+". A apuração do 2º turno ainda não começou.";
+  else if(!outcome.published)message="✓ Consulta concluída às "+consultationTime()+". Aguardando a divulgação oficial dos votos.";
+  else if(outcome.changed)message="✓ Dados recebidos às "+consultationTime()+". Apuração atualizada!";
+  else message="✓ Consulta concluída às "+consultationTime()+". Nenhuma alteração nos resultados.";
+  refreshFeedback("success",message);
+ }catch(error){
+  console.warn("Não foi possível atualizar a apuração:",error);
+  refreshFeedback("error","Não foi possível consultar o TSE. Confira sua conexão e tente novamente.");
+ }finally{
+  manualRefreshing=false;
+  paintConsultationTime();
+ }
 }
 
 /* Visão limpa para TV/telão, com alternativa para navegadores sem Fullscreen API. */
@@ -180,12 +245,13 @@ function init(){
  document.addEventListener("keydown",event=>{if(event.key==="Escape")closeFullscreenFallback();});
  render();
  updateFullscreenButton();
+ paintConsultationTime();
  timer=setInterval(()=>{
   if(document.visibilityState==="visible"&&$("segundo-turno")?.classList.contains("active")&&navigator.onLine)fetchResults(false);
  },30000);
  window.addEventListener("online",()=>{if($("segundo-turno")?.classList.contains("active"))fetchResults(true)});
  if($("segundo-turno")?.classList.contains("active"))activate();
 }
-window.BUSecondRound={activate,refresh:()=>fetchResults(true),select,toggleFullscreen,get results(){return {...results}}};
+window.BUSecondRound={activate,refresh:refreshManually,select,toggleFullscreen,get results(){return {...results}}};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
