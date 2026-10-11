@@ -124,16 +124,68 @@ async function fetchResults(force=false){
  })().finally(()=>inFlight=null);
  return inFlight;
 }
+
+/* Visão limpa para TV/telão, com alternativa para navegadores sem Fullscreen API. */
+function fullscreenHost(){return $("segundo-turno");}
+function fullscreenActive(){
+ const host=fullscreenHost();
+ return !!host&&(document.fullscreenElement===host||host.classList.contains("t2-fullscreen-fallback"));
+}
+function updateFullscreenButton(){
+ const button=$("turno2FullscreenBtn");
+ if(!button)return;
+ const active=fullscreenActive();
+ button.textContent=active?"↙ Sair da tela cheia":"⛶ Tela cheia";
+ button.setAttribute("aria-pressed",String(active));
+ button.setAttribute("aria-label",active?"Sair da tela cheia":"Exibir apuração em tela cheia");
+}
+function closeFullscreenFallback(){
+ const host=fullscreenHost();
+ if(!host?.classList.contains("t2-fullscreen-fallback"))return;
+ host.classList.remove("t2-fullscreen-fallback");
+ document.body.classList.remove("t2-fullscreen-open");
+ updateFullscreenButton();
+}
+async function toggleFullscreen(){
+ const host=fullscreenHost();
+ if(!host)return;
+ if(host.classList.contains("t2-fullscreen-fallback")){
+  closeFullscreenFallback();
+  return;
+ }
+ if(document.fullscreenElement===host){
+  try{await document.exitFullscreen();}catch(error){console.warn("Não foi possível sair da tela cheia.",error);}
+  updateFullscreenButton();
+  return;
+ }
+ if(typeof host.requestFullscreen==="function"){
+  try{
+   await host.requestFullscreen({navigationUI:"hide"});
+   updateFullscreenButton();
+   return;
+  }catch(error){
+   console.warn("Modo nativo indisponível; usando modo telão.",error);
+  }
+ }
+ // Safari no iPhone e outros ambientes podem não aceitar fullscreen de elementos.
+ host.classList.add("t2-fullscreen-fallback");
+ document.body.classList.add("t2-fullscreen-open");
+ updateFullscreenButton();
+}
 function activate(){render();fetchResults(false);}
 function select(id){if(!AREAS.some(a=>a.id===id))return;selected=id;render();if(hasReleased()&&Date.now()-updated>25000)fetchResults();}
 function init(){
+ document.addEventListener("fullscreenchange",updateFullscreenButton);
+ document.addEventListener("webkitfullscreenchange",updateFullscreenButton);
+ document.addEventListener("keydown",event=>{if(event.key==="Escape")closeFullscreenFallback();});
  render();
+ updateFullscreenButton();
  timer=setInterval(()=>{
   if(document.visibilityState==="visible"&&$("segundo-turno")?.classList.contains("active")&&navigator.onLine)fetchResults(false);
  },30000);
  window.addEventListener("online",()=>{if($("segundo-turno")?.classList.contains("active"))fetchResults(true)});
  if($("segundo-turno")?.classList.contains("active"))activate();
 }
-window.BUSecondRound={activate,refresh:()=>fetchResults(true),select,get results(){return {...results}}};
+window.BUSecondRound={activate,refresh:()=>fetchResults(true),select,toggleFullscreen,get results(){return {...results}}};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
