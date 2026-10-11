@@ -38,6 +38,7 @@ jobs:
           node --check bu2026/pwa.js
           node --check bu2026/sw.js
           node --check bu2026/segundo-turno.js
+          node --check bu2026/central-apuracao.js
           $html = Get-Content bu2026/index.html -Raw
           $matches = [regex]::Matches($html, '<script(?:\s[^>]*)?>([\s\S]*?)</script>', 'IgnoreCase')
           $inline = ($matches | ForEach-Object { $_.Groups[1].Value }) -join "`n"

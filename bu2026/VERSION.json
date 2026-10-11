@@ -1,6 +1,6 @@
 {
   "name": "DW Tech • B.U. 2026",
-  "version": "1.2.5",
+  "version": "1.3.0",
   "channel": "production",
   "architecture": "GitHub Pages + Supabase",
   "features": {
@@ -39,9 +39,16 @@
     "segundo_turno_contagem_regressiva": true,
     "segundo_turno_contagem_regressiva_tela_cheia": true,
     "whatsapp_social_preview": true,
-    "open_graph_share_image": true
+    "open_graph_share_image": true,
+    "segundo_turno_mapa_27_ufs": true,
+    "segundo_turno_modo_tv_rotativo": true,
+    "segundo_turno_painel_nacional": true,
+    "segundo_turno_pdf_nacional_estadual_municipal": true,
+    "segundo_turno_pdfs_por_uf": true,
+    "segundo_turno_status_fonte_dados": true,
+    "segundo_turno_compartilhamento_botao": true
   },
   "released_at": "2026-10-10",
-  "build": "20261010.6",
+  "build": "20261010.7",
   "update_policy": "check_on_open_and_force_latest"
 }

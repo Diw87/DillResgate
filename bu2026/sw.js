@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v48-social-preview";
+const CACHE_VERSION="dwtech-bu2026-v49-central-apuracao";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -19,6 +19,8 @@ const SHELL=[
   "./vitorino-bu.css",
   "./segundo-turno.css",
   "./segundo-turno.js",
+  "./central-apuracao.js",
+  "./central-apuracao.css",
   "./bu-secoes-oficiais.json",
   "./jspdf.umd.min.js",
   "./jsQR.js",

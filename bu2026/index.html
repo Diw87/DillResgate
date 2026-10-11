@@ -396,6 +396,7 @@ tbody tr:hover{background:#fff4ec}
 <link rel="stylesheet" href="./access.css?build=20261010.3">
 <link rel="stylesheet" href="./vitorino-bu.css?build=20261006.5">
 <link rel="stylesheet" href="./segundo-turno.css?build=20261010.5">
+<link rel="stylesheet" href="./central-apuracao.css?build=20261010.7">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -490,7 +491,7 @@ tbody tr:hover{background:#fff4ec}
   <div class="t2-wrap">
     <div class="t2-hero">
       <div><span class="t2-tag">DW Tech • eleições 2026</span><h2>2º TURNO • PRESIDENTE DA REPÚBLICA</h2><p>25 de outubro de 2026 • dados oficiais do TSE • eleição 6258</p></div>
-      <div class="t2-actions"><button id="turno2RefreshBtn" class="primary t2-refresh-btn" type="button" onclick="BUSecondRound.refresh()" aria-busy="false"><span class="t2-refresh-icon" aria-hidden="true">↻</span><span id="turno2RefreshLabel">Atualizar TSE</span></button><button id="turno2FullscreenBtn" class="t2-fullscreen-btn" type="button" onclick="BUSecondRound.toggleFullscreen()" aria-pressed="false" aria-label="Exibir apuração em tela cheia">⛶ Tela cheia</button></div>
+      <div class="t2-actions"><button id="turno2RefreshBtn" class="primary t2-refresh-btn" type="button" onclick="BUSecondRound.refresh()" aria-busy="false"><span class="t2-refresh-icon" aria-hidden="true">↻</span><span id="turno2RefreshLabel">Atualizar TSE</span></button><button id="turno2FullscreenBtn" class="t2-fullscreen-btn" type="button" onclick="BUSecondRound.toggleFullscreen()" aria-pressed="false" aria-label="Exibir apuração em tela cheia">⛶ Tela cheia</button><button id="t2TVBtn" type="button" onclick="BUCentral.toggleTV()" aria-pressed="false">▶ Modo TV automático</button><button id="t2ShareBtn" type="button" onclick="BUCentral.share()">↗ Compartilhar</button></div>
     </div>
     <div id="turno2Countdown" class="t2-countdown" data-stage="countdown" role="timer" aria-live="off" aria-label="Contagem regressiva para a divulgação da apuração do segundo turno presidencial">
       <div class="t2-countdown-heading">
@@ -506,12 +507,38 @@ tbody tr:hover{background:#fff4ec}
       </div>
     </div>
     <div class="t2-refresh-info"><span id="turno2RefreshFeedback" class="t2-refresh-feedback" data-state="idle" role="status" aria-live="polite" aria-atomic="true">Toque em Atualizar TSE para consultar os dados.</span><span id="turno2LastCheck" class="t2-last-check">Última consulta: ainda não realizada</span></div>
+    <div id="t2NationalPulse" class="t2-live-strip" aria-live="polite"></div>
     <div id="turno2Status" class="t2-note" role="status" aria-live="polite">Aguardando divulgação oficial do segundo turno.</div>
     <div id="turno2Areas" class="t2-areas" aria-label="Selecione a abrangência da apuração"></div>
     <div class="t2-detail">
       <div class="t2-heading"><h3 id="turno2Headline">Apuração para presidente • Brasil + exterior</h3><span class="source">Exclusivo 2º turno</span></div>
       <div id="turno2Summary" class="t2-summary"></div>
       <div id="turno2Candidates" class="t2-candidates"></div>
+    </div>
+    <div id="t2DataQuality" class="t2-data-quality" role="status" aria-live="polite">Consultando fonte oficial…</div>
+    <div class="t2-map-card">
+      <div class="t2-central-head"><div><h3>Mapa eleitoral por estado</h3><p>Representação esquemática das 27 UFs. Cores mostram o candidato à frente somente após confirmação oficial.</p></div><div class="t2-central-tools"><button id="t2StateRefresh" type="button" onclick="BUCentral.refresh()">↻ Atualizar mapa</button></div></div>
+      <div class="t2-map-layout">
+        <div><div id="t2Map" class="t2-map" role="group" aria-label="Mapa interativo do Brasil por unidade da federação"></div><div id="t2MapLegend" class="t2-map-legend"></div></div>
+        <aside id="t2UFDetail" class="t2-map-aside" aria-live="polite"></aside>
+      </div>
+    </div>
+    <div class="t2-report-card">
+      <div class="t2-central-head"><div><h3>Relatórios eleitorais em PDF</h3><p>Nacional, estadual e municipal • somente votos oficiais do segundo turno</p></div><span id="t2TVStatus" class="t2-tv-status"></span></div>
+      <div class="t2-reports-row">
+        <select id="t2ReportSelect" aria-label="Abrangência do relatório">
+          <option value="presidente_br">Brasil • relatório nacional</option>
+          <option value="estados">Brasil • resultados por UF</option>
+          <option value="presidente_ma">Maranhão • relatório estadual</option>
+          <option value="presidente_odc">Olho d'Água das Cunhãs • municipal</option>
+          <option value="presidente_vf">Vitorino Freire • municipal</option>
+          <option value="uf">Estado selecionado no mapa</option>
+        </select>
+        <button id="t2ReportBtn" type="button" class="primary" onclick="BUCentral.report()">📄 Gerar relatório PDF</button>
+      </div>
+      <p id="t2ReportMessage" class="t2-report-message" role="status" aria-live="polite"></p>
+      <p class="t2-report-footnote">Os relatórios por seção já cadastrados do <b>1º turno</b> continuam disponíveis no acesso fiscal, nas abas B.U.s e Vitorino Freire. Dados por seção do 2º turno dependem dos respectivos boletins oficiais; não são substituídos por totais municipais.</p>
+      <p id="t2ShareMessage" class="t2-report-message" role="status"></p>
     </div>
     <div class="t2-foot"><span id="turno2Updated">Fonte: Tribunal Superior Eleitoral • eleição 6258</span><a id="turno2Source" href="https://resultados.tse.jus.br/oficial/app/index.html" target="_blank" rel="noopener noreferrer">Conferir fonte oficial ↗</a></div>
   </div>
@@ -977,5 +1004,6 @@ async function openResultsWindow(targetWindow=null,autoPrint=false){
 <script src="./vitorino-bu.js?build=20261006.5"></script>
 <script src="./segundo-turno.js?build=20261010.5"></script>
 <script src="./pdf-export.js?build=20261006.5"></script>
+<script src="./central-apuracao.js?build=20261010.7"></script>
 </body>
 </html>

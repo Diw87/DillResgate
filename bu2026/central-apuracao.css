@@ -1,0 +1,42 @@
+/* Central DW Tech • mapa esquemático, TV, transparência e PDFs */
+.t2-live-strip{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-radius:13px;padding:14px 18px;background:linear-gradient(110deg,#11171f,#27323d);color:#fff;border-left:5px solid #ff650d}
+.t2-live-pill{background:#fa6c21;color:#fff;font-size:10px;font-weight:950;border-radius:20px;padding:6px 10px;letter-spacing:.5px}
+.t2-live-strip>strong{font-size:14px}.t2-live-strip>small,.t2-live-source{color:#c2ced9;font-size:10px}
+.t2-live-candidate{display:grid;gap:3px;min-width:120px;flex:1}.t2-live-candidate b{font-size:12px}.t2-live-candidate strong{font-size:23px;color:#fff}.t2-live-candidate small{font-size:10px;color:#c7d1da}
+.t2-central-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:15px}
+.t2-central-head h3{font-size:18px;margin:0;color:#17212d}.t2-central-head p{font-size:11px;color:#65727e;margin:4px 0 0}
+.t2-central-tools{display:flex;gap:8px;flex-wrap:wrap}
+.t2-central-tools button,.t2-actions #t2TVBtn,.t2-actions #t2ShareBtn{cursor:pointer;border-radius:9px;background:#fff;color:#20252d;border:1px solid #d7dfe7;font-weight:850;padding:10px 13px;font-size:12px}
+.t2-actions #t2TVBtn{background:#ff650d;color:#fff;border-color:#ff650d}
+.t2-actions #t2TVBtn[aria-pressed="true"]{background:#117451;border-color:#117451}
+.t2-map-card,.t2-report-card{padding:20px;background:#fff;border:1px solid #dee4eb;border-radius:13px;box-shadow:0 8px 24px rgba(20,28,36,.05)}
+.t2-map-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(225px,.85fr);align-items:center;gap:16px}
+.t2-map{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));grid-template-rows:repeat(12,minmax(26px,1fr));gap:3px;min-height:350px}
+.t2-uf{border:1px solid #cdd6df;border-radius:6px;background:#ebeff3;box-shadow:0 2px 5px rgba(0,0,0,.08);color:#526174;font-size:11px;font-weight:950;cursor:pointer;padding:2px;min-width:0}
+.t2-uf.first{background:#ff650d;color:#fff;border-color:#e05c0e}.t2-uf.second{background:#334b65;color:#fff;border-color:#293e55}
+.t2-uf.active{outline:3px solid #171a1e;outline-offset:1px;z-index:1}
+.t2-uf:focus-visible{outline:3px solid #141c24;outline-offset:2px}
+.t2-map-legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:10px;font-weight:800;margin:7px 0 0;color:#4c5967}
+.t2-key{width:12px;height:12px;display:inline-block;border-radius:3px;background:#e5eaf0;border:1px solid #bec8d2;margin-left:5px}
+.t2-key.first{background:#ff650d;border-color:#ff650d}.t2-key.second{background:#334b65;border-color:#334b65}
+.t2-map-aside{background:#f8f9fb;padding:17px;border:1px solid #e1e6ee;border-radius:11px;min-width:0}
+.t2-map-aside h4{font-size:20px;color:#171d25;margin:0 0 8px}.t2-map-aside h4 small{font-size:12px;color:#65727e}
+.t2-map-aside a{color:#b54908;font-size:11px;font-weight:900;overflow-wrap:anywhere}
+.t2-muted{color:#657380;font-size:11px;line-height:1.5}
+.t2-uf-line{display:flex;gap:7px;justify-content:space-between;font-size:12px;font-weight:800;margin:13px 0 5px}
+.t2-uf-line b{white-space:nowrap}.t2-uf-track{height:8px;background:#e2e8ef;border-radius:7px;overflow:hidden}
+.t2-uf-track i{display:block;height:100%;border-radius:7px}
+.t2-uf-track i.first{background:#ff650d}.t2-uf-track i.second{background:#334b65}
+.t2-map-aside>small{color:#657380;font-size:10px}
+.t2-data-quality{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#f7f8fa;color:#4c5866;border:1px solid #dfe4ea;padding:10px 13px;border-radius:9px;font-size:11px;font-weight:750}
+.t2-health-dot{width:9px;height:9px;background:#20a36e;border-radius:50%;flex:0 0 auto}
+.t2-health-dot.error{background:#d92d20}.t2-health-dot.pending{background:#f79009}
+.t2-reports-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.t2-report-card select{flex:1;min-width:180px;max-width:360px;font-size:13px;padding:10px;border:1px solid #cbd3de;border-radius:9px;background:#fff}
+.t2-report-card .primary{padding:11px 16px}.t2-report-message{font-size:11px;font-weight:800;color:#5d6572}
+.t2-report-footnote{margin-top:12px;font-size:11px;color:#65727e;line-height:1.5}
+.t2-tv-status{font-size:11px;color:#74db9a;font-weight:800}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-card,#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-report-card{max-width:1900px}
+@media(max-width:800px){.t2-map-layout{grid-template-columns:1fr}.t2-map{max-width:650px;width:100%;margin:auto;min-height:320px}.t2-map-card,.t2-report-card{padding:12px}}
+@media(max-width:390px){.t2-map{grid-template-rows:repeat(12,26px);gap:2px}.t2-uf{font-size:9px}.t2-live-candidate strong{font-size:19px}}
+@media(prefers-reduced-motion:no-preference){.t2-uf{transition:background .4s,color .4s,transform .15s}.t2-uf:hover{transform:scale(1.08)}}
