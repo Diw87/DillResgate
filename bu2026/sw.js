@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v43-presidencial-2turno";
+const CACHE_VERSION="dwtech-bu2026-v44-presidencial-tela-cheia";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
