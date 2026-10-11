@@ -376,7 +376,7 @@ tbody tr:hover{background:#fff4ec}
 <link rel="stylesheet" href="./cloud.css?build=20261005.1">
 <link rel="stylesheet" href="./access.css?build=20261010.3">
 <link rel="stylesheet" href="./vitorino-bu.css?build=20261006.5">
-<link rel="stylesheet" href="./segundo-turno.css?build=20261010.4">
+<link rel="stylesheet" href="./segundo-turno.css?build=20261010.5">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -472,6 +472,19 @@ tbody tr:hover{background:#fff4ec}
     <div class="t2-hero">
       <div><span class="t2-tag">DW Tech • eleições 2026</span><h2>2º TURNO • PRESIDENTE DA REPÚBLICA</h2><p>25 de outubro de 2026 • dados oficiais do TSE • eleição 6258</p></div>
       <div class="t2-actions"><button id="turno2RefreshBtn" class="primary t2-refresh-btn" type="button" onclick="BUSecondRound.refresh()" aria-busy="false"><span class="t2-refresh-icon" aria-hidden="true">↻</span><span id="turno2RefreshLabel">Atualizar TSE</span></button><button id="turno2FullscreenBtn" class="t2-fullscreen-btn" type="button" onclick="BUSecondRound.toggleFullscreen()" aria-pressed="false" aria-label="Exibir apuração em tela cheia">⛶ Tela cheia</button></div>
+    </div>
+    <div id="turno2Countdown" class="t2-countdown" data-stage="countdown" role="timer" aria-live="off" aria-label="Contagem regressiva para a divulgação da apuração do segundo turno presidencial">
+      <div class="t2-countdown-heading">
+        <span class="t2-countdown-eyebrow"><span class="t2-countdown-dot"></span> ELEIÇÕES 2026 • SEGUNDO TURNO</span>
+        <h3 id="turno2CountdownTitle">Falta para o início da divulgação dos resultados</h3>
+        <p id="turno2CountdownMessage">Domingo, 25 de outubro de 2026 • 17h de Brasília</p>
+      </div>
+      <div class="t2-countdown-grid" aria-label="Dias, horas, minutos e segundos restantes">
+        <div class="t2-countdown-unit"><strong id="turno2CountDays">00</strong><span>DIAS</span></div>
+        <div class="t2-countdown-unit"><strong id="turno2CountHours">00</strong><span>HORAS</span></div>
+        <div class="t2-countdown-unit"><strong id="turno2CountMinutes">00</strong><span>MINUTOS</span></div>
+        <div class="t2-countdown-unit"><strong id="turno2CountSeconds">00</strong><span>SEGUNDOS</span></div>
+      </div>
     </div>
     <div class="t2-refresh-info"><span id="turno2RefreshFeedback" class="t2-refresh-feedback" data-state="idle" role="status" aria-live="polite" aria-atomic="true">Toque em Atualizar TSE para consultar os dados.</span><span id="turno2LastCheck" class="t2-last-check">Última consulta: ainda não realizada</span></div>
     <div id="turno2Status" class="t2-note" role="status" aria-live="polite">Aguardando divulgação oficial do segundo turno.</div>
@@ -943,7 +956,7 @@ async function openResultsWindow(targetWindow=null,autoPrint=false){
 <script src="./access.js?build=20261010.3"></script>
 <script src="./navigation.js?build=20261010.3"></script>
 <script src="./vitorino-bu.js?build=20261006.5"></script>
-<script src="./segundo-turno.js?build=20261010.4"></script>
+<script src="./segundo-turno.js?build=20261010.5"></script>
 <script src="./pdf-export.js?build=20261006.5"></script>
 </body>
 </html>
