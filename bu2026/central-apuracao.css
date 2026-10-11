@@ -40,3 +40,34 @@
 @media(max-width:800px){.t2-map-layout{grid-template-columns:1fr}.t2-map{max-width:650px;width:100%;margin:auto;min-height:320px}.t2-map-card,.t2-report-card{padding:12px}}
 @media(max-width:390px){.t2-map{grid-template-rows:repeat(12,26px);gap:2px}.t2-uf{font-size:9px}.t2-live-candidate strong{font-size:19px}}
 @media(prefers-reduced-motion:no-preference){.t2-uf{transition:background .4s,color .4s,transform .15s}.t2-uf:hover{transform:scale(1.08)}}
+
+
+/* Mapa real do Brasil com geometria vetorial simplificada do IBGE. */
+.t2-map{
+ display:flex;position:relative;align-items:center;justify-content:center;
+ width:100%;min-height:350px;max-height:580px;padding:8px;
+ background:radial-gradient(circle at 55% 48%,#eaf4fa,#f8fbfd);
+ border:1px solid #dbe7ee;border-radius:12px;overflow:hidden;box-sizing:border-box;
+}
+.t2-map-controls{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.t2-map-controls select{flex:1;min-width:158px;max-width:300px;min-height:36px;background:#fff;color:#202b39;border:1px solid #d3dde6;border-radius:8px;font-size:11px;font-weight:800;padding:7px}
+.t2-zoom-controls{display:flex;align-items:center;gap:5px}
+.t2-zoom-controls button{height:35px;min-width:35px;background:#fff;border:1px solid #d4dce5;border-radius:8px;color:#263341;font-size:17px;font-weight:900;cursor:pointer}
+.t2-zoom-controls button:hover{border-color:#ff650d;background:#fff4ea}
+.t2-zoom-controls output{font-size:10px;font-weight:900;min-width:40px;text-align:center;color:#617084}
+.t2-map .br-map-svg{display:block;width:100%;height:auto;aspect-ratio:620/618;max-height:550px;min-height:0;overflow:visible;flex:0 1 auto}
+.t2-map .br-map-state{fill:#dfe7ee;stroke:#fff;stroke-width:1.1;stroke-linejoin:round;cursor:pointer;transition:fill .3s,stroke .15s}
+.t2-map .br-map-state.first,.t2-map .br-map-hotspot.first{fill:#ff650d}
+.t2-map .br-map-state.second,.t2-map .br-map-hotspot.second{fill:#334b65}
+.t2-map .br-map-state:hover,.t2-map .br-map-state.active{stroke:#17212b;stroke-width:2.4}
+.t2-map .br-map-state:focus-visible,.t2-map .br-map-hotspot:focus-visible{outline:none;stroke:#17212b;stroke-width:3}
+.t2-map .br-map-label{fill:#33465c;stroke:#ffffffa8;stroke-width:2.5;stroke-linejoin:round;paint-order:stroke;pointer-events:none;font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:13px;font-weight:950}
+.t2-map .br-map-label.first,.t2-map .br-map-label.second{fill:#fff;stroke:#17212b5c;stroke-width:2}
+.t2-map .br-map-label-small{fill:#fff;stroke:#192536;stroke-width:1.7;font-size:8px}
+.t2-map .br-map-hotspot{fill:#889cae;stroke:#fff;stroke-width:2;cursor:pointer}
+.t2-map .br-map-hotspot.active{stroke:#17212b;stroke-width:3}
+.t2-map .br-map-state[aria-pressed="true"]{filter:drop-shadow(0 1px 2px #16233066)}
+.t2-map-card .t2-muted a{color:#ab430a;text-decoration:underline}
+@media(max-width:800px){.t2-map{min-height:265px;max-height:490px;padding:4px}.t2-map .br-map-svg{max-height:475px}}
+@media(max-width:420px){.t2-map{min-height:230px;max-height:365px}.t2-map .br-map-svg{max-height:348px}.t2-map-controls select{min-width:126px}.t2-map .br-map-label{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.t2-map .br-map-state{transition:none}}
