@@ -29,6 +29,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Gerar capa para compartilhamento no WhatsApp
+        run: |
+          python3 -m pip install --quiet Pillow
+          python3 bu2026/generate_og_image.py
+          test -s bu2026/preview-whatsapp.jpg
+
       - name: Atualizar base oficial de candidatos 2026
         run: python3 bu2026/sync_tse.py
 
