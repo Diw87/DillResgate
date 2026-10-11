@@ -243,7 +243,7 @@ function reportInfo(pdf,key,y){
  const uf=key.replace("presidente_","").toUpperCase();
  const label=names[key]||UF.find(x=>x[0]===uf)?.[1]||key;
  const r=validReport(key);if(!hasVotes(r))return y;
- if(y>245){pdf.addPage();y=20;}
+ if(y>210){pdf.addPage();y=20;}
  pdf.setFillColor(244,246,248);pdf.roundedRect(12,y-5,186,13,2,2,"F");
  pdf.setFont("helvetica","bold");pdf.setFontSize(13);pdf.setTextColor(25,30,35);
  pdf.text(clean(label),16,y+4);y+=17;
