@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v49-central-apuracao";
+const CACHE_VERSION="dwtech-bu2026-v50-real-map";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -21,6 +21,7 @@ const SHELL=[
   "./segundo-turno.js",
   "./central-apuracao.js",
   "./central-apuracao.css",
+  "./brasil-estados.svg",
   "./bu-secoes-oficiais.json",
   "./jspdf.umd.min.js",
   "./jsQR.js",

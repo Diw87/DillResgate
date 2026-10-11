@@ -39,6 +39,9 @@ jobs:
           node --check bu2026/sw.js
           node --check bu2026/segundo-turno.js
           node --check bu2026/central-apuracao.js
+          $mapa = Get-Content bu2026/brasil-estados.svg -Raw
+          if (([regex]::Matches($mapa, '<path class="br-map-state')).Count -ne 27) { throw "Mapa do Brasil deve conter 27 geometrias estaduais" }
+          if ($mapa.Length -gt 85000) { throw "Mapa SVG excedeu limite leve de 85 KB" }
           $html = Get-Content bu2026/index.html -Raw
           $matches = [regex]::Matches($html, '<script(?:\s[^>]*)?>([\s\S]*?)</script>', 'IgnoreCase')
           $inline = ($matches | ForEach-Object { $_.Groups[1].Value }) -join "`n"
