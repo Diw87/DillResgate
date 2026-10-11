@@ -72,3 +72,17 @@ body.t2-fullscreen-open{overflow:hidden}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-hero h2{font-size:22px}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-candidate{padding:14px}
 }
+
+/* Consulta ao TSE: estado perceptível sem confundir consulta com votos divulgados. */
+.t2-refresh-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-width:152px;transition:opacity .18s}
+.t2-refresh-btn:disabled{cursor:progress;opacity:.82}
+.t2-refresh-icon{display:inline-block;font-size:21px;font-weight:900;line-height:.85;transform-origin:center center}
+.t2-refresh-btn.is-loading .t2-refresh-icon{animation:t2-refresh-spin .75s linear infinite}
+@keyframes t2-refresh-spin{to{transform:rotate(360deg)}}
+.t2-refresh-info{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px 16px;padding:11px 15px;background:#fff;border:1px solid #dce2e8;border-radius:9px;font-size:12px}
+.t2-refresh-feedback{font-weight:850;color:#475467}
+.t2-refresh-feedback[data-state="loading"]{color:#a84409}
+.t2-refresh-feedback[data-state="success"]{color:#067647}
+.t2-refresh-feedback[data-state="error"]{color:#b42318}
+.t2-last-check{color:#667085;font-weight:700;font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:reduce){.t2-refresh-btn.is-loading .t2-refresh-icon{animation-duration:2s}}
