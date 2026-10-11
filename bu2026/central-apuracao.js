@@ -50,24 +50,80 @@ function candidateClass(c){
  if(!top.length)return "pending";
  return String(c?.numero)===String(top[0]?.numero)?"first":String(c?.numero)===String(top[1]?.numero)?"second":"pending";
 }
+
+/* SVG real dos estados, com precisão vetorial e nenhum pacote pesado. */
+let mapReady=false,mapLoading=false,mapZoom=1;
+function paintMapStates(){
+ const svg=document.querySelector("#t2Map svg");if(!svg)return;
+ for(const element of svg.querySelectorAll("[data-uf]")){
+  const uf=element.getAttribute("data-uf");
+  const r=getData("presidente_"+uf.toLowerCase()),winner=hasVotes(r)?orderedCandidates(r)[0]:null;
+  const kind=winner?candidateClass(winner):"pending";
+  element.classList.remove("first","second","pending","active");
+  element.classList.add(kind);
+  if(uf===selectedUF)element.classList.add("active");
+  element.setAttribute("aria-pressed",String(uf===selectedUF));
+  const title=element.querySelector("title"),name=UF.find(v=>v[0]===uf)?.[1]||uf;
+  if(title)title.textContent=name+" • "+(winner?winner.nome+": "+pct(winner.percentual).toFixed(2).replace(".",",")+"%":"Aguardando apuração");
+ }
+ for(const label of svg.querySelectorAll("[data-label]")){
+  const uf=label.getAttribute("data-label"),r=getData("presidente_"+uf.toLowerCase());
+  const win=hasVotes(r)?orderedCandidates(r)[0]:null;
+  label.classList.remove("first","second","pending");label.classList.add(win?candidateClass(win):"pending");
+ }
+}
+function updateMapView(){
+ const svg=document.querySelector("#t2Map svg");if(!svg)return;
+ const base=(svg.dataset.baseViewBox||"0 0 620 618").split(" ").map(Number);
+ const [ox,oy,ow,oh]=base,w=ow/mapZoom,h=oh/mapZoom;
+ const focus=svg.querySelector('path[data-uf="'+selectedUF+'"]');
+ let cx=ox+ow/2,cy=oy+oh/2;
+ if(mapZoom>1&&focus){const b=focus.getBBox();cx=b.x+b.width/2;cy=b.y+b.height/2;}
+ const x=Math.max(ox,Math.min(ox+ow-w,cx-w/2)),y=Math.max(oy,Math.min(oy+oh-h,cy-h/2));
+ svg.setAttribute("viewBox",[x,y,w,h].map(v=>v.toFixed(2)).join(" "));
+ const label=$("t2MapZoom");if(label)label.textContent=Math.round(mapZoom*100)+"%";
+}
+function zoomMap(factor){mapZoom=Math.max(1,Math.min(4,Math.round(mapZoom*factor*100)/100));updateMapView();}
+function resetMapZoom(){mapZoom=1;updateMapView();}
+async function loadMap(){
+ const target=$("t2Map");if(!target||mapLoading||mapReady)return;
+ mapLoading=true;target.textContent="Carregando mapa geográfico...";
+ try{
+  const response=await fetch("./brasil-estados.svg",{cache:"force-cache"});
+  if(!response.ok)throw Error("Não foi possível carregar o mapa.");
+  const doc=new DOMParser().parseFromString(await response.text(),"image/svg+xml");
+  const svg=doc.documentElement;
+  if(svg.tagName.toLowerCase()!=="svg"||svg.querySelectorAll("path.br-map-state").length!==27)throw Error("Arquivo SVG inválido.");
+  const node=document.importNode(svg,true);node.dataset.baseViewBox=node.getAttribute("viewBox");
+  target.replaceChildren(node);
+  target.addEventListener("click",event=>{
+   const el=event.target.closest?.("[data-uf]");if(el&&target.contains(el))selectUF(el.getAttribute("data-uf"));
+  });
+  target.addEventListener("keydown",event=>{
+   if(event.key!=="Enter"&&event.key!==" ")return;
+   const el=event.target.closest?.("[data-uf]");
+   if(el&&target.contains(el)){event.preventDefault();selectUF(el.getAttribute("data-uf"));}
+  });
+  mapReady=true;paintMapStates();updateMapView();
+ }catch(error){
+  console.warn("Mapa vetorial indisponível:",error);
+  target.innerHTML='<p class="t2-muted">Mapa indisponível. Use a lista de estados acima para consultar os resultados.</p>';
+ }finally{mapLoading=false;}
+}
 function mapHtml(){
- const leaders=finalists();
- const legend=$("t2MapLegend");
+ const leaders=finalists(),legend=$("t2MapLegend");
  if(legend)legend.innerHTML=leaders.length===2?
   '<span class="t2-key first"></span>'+esc(leaders[0].nome)+
   '<span class="t2-key second"></span>'+esc(leaders[1].nome)+
   '<span class="t2-key pending"></span>Sem dados':
   '<span class="t2-key pending"></span>Aguardando divulgação oficial';
- const target=$("t2Map");
- if(!target)return;
- target.innerHTML=UF.map(([uf,name,row,col])=>{
-  const r=getData("presidente_"+uf.toLowerCase()),leader=hasVotes(r)?orderedCandidates(r)[0]:null;
-  const kind=leader?candidateClass(leader):"pending";
-  const description=leader?leader.nome+" — "+pct(leader.percentual).toFixed(2).replace(".",",")+"%":"Aguardando apuração";
-  return '<button type="button" class="t2-uf '+kind+(uf===selectedUF?" active":"")+'" style="grid-row:'+row+';grid-column:'+col+'" '+
-   'data-uf="'+uf+'" title="'+esc(name+": "+description)+'" aria-pressed="'+(uf===selectedUF)+'" '+
-   'aria-label="'+esc(name+". "+description)+'" onclick="BUCentral.selectUF(\''+uf+'\')">'+uf+'</button>';
- }).join("");
+ const picker=$("t2StatePicker");
+ if(picker){
+  if(!picker.options.length)picker.innerHTML=UF.slice().sort((a,b)=>a[1].localeCompare(b[1],"pt-BR")).map(([uf,name])=>
+   '<option value="'+uf+'">'+esc(name)+" ("+uf+")</option>").join("");
+  if(picker.value!==selectedUF)picker.value=selectedUF;
+ }
+ if(mapReady)paintMapStates();else if(!mapLoading)loadMap();
  detailUF();
 }
 function detailUF(){
@@ -168,7 +224,7 @@ async function refresh(){
 }
 function selectUF(uf){
  if(!UF.some(x=>x[0]===uf))return;
- selectedUF=uf;paint();refreshState(uf);
+ selectedUF=uf;paint();if(mapZoom>1)updateMapView();refreshState(uf);
 }
 function refreshAll(){
  refresh();
@@ -306,6 +362,6 @@ function init(){
  window.addEventListener("offline",connection);
  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){paint();refresh();}});
 }
-window.BUCentral={selectUF,refresh:refreshAll,share,toggleTV,report,get stateResults(){return {...stateData}}};
+window.BUCentral={selectUF,zoomMap,resetMapZoom,refresh:refreshAll,share,toggleTV,report,get stateResults(){return {...stateData}}};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
