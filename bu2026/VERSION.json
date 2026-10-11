@@ -1,6 +1,6 @@
 {
   "name": "DW Tech • B.U. 2026",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "channel": "production",
   "architecture": "GitHub Pages + Supabase",
   "features": {
@@ -31,9 +31,11 @@
     "segundo_turno_brasil_maranhao_odc_vitorino": true,
     "segundo_turno_atualizacao_30s": true,
     "segundo_turno_tela_cheia": true,
-    "segundo_turno_modo_telao": true
+    "segundo_turno_modo_telao": true,
+    "visitor_exclusive_second_round": true,
+    "fiscal_all_tabs_preserved": true
   },
   "released_at": "2026-10-10",
-  "build": "20261010.2",
+  "build": "20261010.3",
   "update_policy": "check_on_open_and_force_latest"
 }
