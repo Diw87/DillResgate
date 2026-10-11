@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v45-visitante-segundo-turno";
+const CACHE_VERSION="dwtech-bu2026-v46-status-atualizacao";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
