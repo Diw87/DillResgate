@@ -9,7 +9,7 @@ const AREAS=[
  {id:"odc",key:"presidente_odc",name:"Olho d’Água das Cunhãs",short:"OLHO D’ÁGUA",url:BASE+"/ma/ma08478-c0001-e006258-u.json"},
  {id:"vf",key:"presidente_vf",name:"Vitorino Freire",short:"VITORINO FREIRE",url:BASE+"/ma/ma09539-c0001-e006258-u.json"}
 ];
-let selected="br",results={},finalists=[],updated=0,inFlight=null,timer=null;
+let selected="br",results={},finalists=[],updated=0,inFlight=null,timer=null,countdownTimer=null,countdownFinished=false;
 let manualRefreshing=false,lastConsultation=0;
 const $=id=>document.getElementById(id);
 const n=v=>Number(v)||0;
@@ -17,6 +17,57 @@ const decimal=v=>Number(String(v??0).replace(",","."))||0;
 const fmt=v=>n(v).toLocaleString("pt-BR");
 const esc=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
 const hasReleased=()=>Date.now()>=RELEASE;
+
+/* Relógio do segundo turno: 25/10/2026 às 17h de Brasília (UTC-03). */
+function countdownParts(now=Date.now()){
+ const remaining=Math.max(0,Math.ceil((RELEASE-now)/1000));
+ return {
+  remaining,
+  days:Math.floor(remaining/86400),
+  hours:Math.floor(remaining%86400/3600),
+  minutes:Math.floor(remaining%3600/60),
+  seconds:remaining%60
+ };
+}
+function renderCountdown(now=Date.now()){
+ const root=$("turno2Countdown");
+ if(!root)return;
+ const c=countdownParts(now);
+ const pad=n=>String(n).padStart(2,"0");
+ const values=[
+  ["Days",c.days],["Hours",c.hours],["Minutes",c.minutes],["Seconds",c.seconds]
+ ];
+ if(c.remaining>0){
+  root.hidden=false;
+  root.dataset.stage="countdown";
+  const title=$("turno2CountdownTitle");
+  if(title)title.textContent="Falta para o início da divulgação dos resultados";
+  const status=$("turno2CountdownMessage");
+  if(status)status.textContent="Domingo, 25 de outubro de 2026 • 17h de Brasília";
+  const parts={Days:c.days,Hours:c.hours,Minutes:c.minutes,Seconds:c.seconds};
+  for(const [label,value] of Object.entries(parts)){
+   const el=$("turno2Count"+label);
+   if(el)el.textContent=label==="Days"?String(value):pad(value);
+  }
+  countdownFinished=false;
+ }else{
+  root.dataset.stage="released";
+  const title=$("turno2CountdownTitle");
+  if(title)title.textContent="Chegou o horário previsto para a divulgação!";
+  const status=$("turno2CountdownMessage");
+  if(status)status.textContent="Consulte os resultados oficiais do TSE. A publicação pode ocorrer gradualmente.";
+  for(const [label] of values){
+   const el=$("turno2Count"+label);
+   if(el)el.textContent="00";
+  }
+  if(!countdownFinished){
+   countdownFinished=true;
+   // Assim que o horário chega, atualiza a apuração ao invés de exibir dados estimados.
+   if(navigator.onLine&&root.closest(".section")?.classList.contains("active"))fetchResults(true);
+  }
+ }
+}
+
 function officialReady(r){
  return !!r&&r.fase!=="s"&&r.divulgacao!=="n"&&n(r.secoes?.totalizadas)>0&&
         (r.candidatos||[]).some(c=>n(c.votos)>0)&&hasReleased();
@@ -237,7 +288,7 @@ async function toggleFullscreen(){
  document.body.classList.add("t2-fullscreen-open");
  updateFullscreenButton();
 }
-function activate(){render();fetchResults(false);}
+function activate(){render();renderCountdown();fetchResults(false);}
 function select(id){if(!AREAS.some(a=>a.id===id))return;selected=id;render();if(hasReleased()&&Date.now()-updated>25000)fetchResults();}
 function init(){
  document.addEventListener("fullscreenchange",updateFullscreenButton);
@@ -246,6 +297,9 @@ function init(){
  render();
  updateFullscreenButton();
  paintConsultationTime();
+ renderCountdown();
+ countdownTimer=setInterval(()=>renderCountdown(),1000);
+ document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")renderCountdown();});
  timer=setInterval(()=>{
   if(document.visibilityState==="visible"&&$("segundo-turno")?.classList.contains("active")&&navigator.onLine)fetchResults(false);
  },30000);
