@@ -1,7 +1,7 @@
 (()=>{"use strict";
 let deferredPrompt=null;
 let registration=null;
-const APP_BUILD="20261010.2";
+const APP_BUILD="20261010.3";
 const BUILD_KEY="BU2026_APP_BUILD";
 const $=id=>document.getElementById(id);
 const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
@@ -89,7 +89,7 @@ async function checkBuild(){
 async function registerSW(){
   if(!("serviceWorker"in navigator)){checkBuild();return}
   try{
-    registration=await navigator.serviceWorker.register("./sw.js?build=20261010.2",{scope:"./",updateViaCache:"none"});
+    registration=await navigator.serviceWorker.register("./sw.js?build=20261010.3",{scope:"./",updateViaCache:"none"});
     if(registration.waiting)registration.waiting.postMessage({type:"SKIP_WAITING"});
     registration.addEventListener("updatefound",()=>{
       const worker=registration.installing;
@@ -104,8 +104,8 @@ async function registerSW(){
     navigator.serviceWorker.addEventListener("controllerchange",()=>{
       if(reloading)return;
       reloading=true;
-      if(!sessionStorage.getItem("BU2026_SW_RELOAD_20261010.2")){
-        sessionStorage.setItem("BU2026_SW_RELOAD_20261010.2","1");
+      if(!sessionStorage.getItem("BU2026_SW_RELOAD_20261010.3")){
+        sessionStorage.setItem("BU2026_SW_RELOAD_20261010.3","1");
         location.reload();
       }
     });
