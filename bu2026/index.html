@@ -507,15 +507,6 @@ tbody tr:hover{background:#fff4ec}
       </div>
     </div>
     <div class="t2-refresh-info"><span id="turno2RefreshFeedback" class="t2-refresh-feedback" data-state="idle" role="status" aria-live="polite" aria-atomic="true">Toque em Atualizar TSE para consultar os dados.</span><span id="turno2LastCheck" class="t2-last-check">Última consulta: ainda não realizada</span></div>
-    <div id="t2NationalPulse" class="t2-live-strip" aria-live="polite"></div>
-    <div id="turno2Status" class="t2-note" role="status" aria-live="polite">Aguardando divulgação oficial do segundo turno.</div>
-    <div id="turno2Areas" class="t2-areas" aria-label="Selecione a abrangência da apuração"></div>
-    <div class="t2-detail">
-      <div class="t2-heading"><h3 id="turno2Headline">Apuração para presidente • Brasil + exterior</h3><span class="source">Exclusivo 2º turno</span></div>
-      <div id="turno2Summary" class="t2-summary"></div>
-      <div id="turno2Candidates" class="t2-candidates"></div>
-    </div>
-    <div id="t2DataQuality" class="t2-data-quality" role="status" aria-live="polite">Consultando fonte oficial…</div>
     <div class="t2-map-card">
       <div class="t2-central-head"><div><div class="t2-map-eyebrow">PAINEL ELEITORAL • DW TECH</div><h3>Brasil, estado por estado</h3><p>Mapa interativo com resultados oficiais. Escolha um estado para consultar seus municípios.</p></div><div class="t2-central-tools"><div class="t2-map-period" role="group" aria-label="Turno exibido somente no mapa"><button id="t2MapFirstBtn" type="button" onclick="BUCentral.selectMapMode('first')">1º turno • teste</button><button id="t2MapSecondBtn" type="button" onclick="BUCentral.selectMapMode('second')">2º turno</button></div><button id="t2StateRefresh" type="button" onclick="BUCentral.refresh()">↻ Atualizar mapa</button></div></div>
       <div id="t2MapContext" class="t2-map-context" role="status">Carregando resultados oficiais do mapa...</div>
@@ -545,6 +536,15 @@ tbody tr:hover{background:#fff4ec}
         </aside>
       </div>
     </div>
+    <div id="t2NationalPulse" class="t2-live-strip" aria-live="polite"></div>
+    <div id="turno2Status" class="t2-note" role="status" aria-live="polite">Aguardando divulgação oficial do segundo turno.</div>
+    <details class="t2-regional-details"><summary>Consultar outras abrangências do 2º turno <span>Brasil, estados e municípios</span></summary><div id="turno2Areas" class="t2-areas" aria-label="Selecione a abrangência da apuração"></div></details>
+    <div class="t2-detail">
+      <div class="t2-heading"><h3 id="turno2Headline">Apuração para presidente • Brasil + exterior</h3><span class="source">Exclusivo 2º turno</span></div>
+      <div id="turno2Summary" class="t2-summary"></div>
+      <div id="turno2Candidates" class="t2-candidates"></div>
+    </div>
+    <div id="t2DataQuality" class="t2-data-quality" role="status" aria-live="polite">Consultando fonte oficial…</div>
     <div class="t2-report-card">
       <div class="t2-central-head"><div><h3>Relatórios eleitorais em PDF</h3><p>Nacional, estadual e municipal • somente votos oficiais do segundo turno</p></div><span id="t2TVStatus" class="t2-tv-status"></span></div>
       <div class="t2-reports-row">
