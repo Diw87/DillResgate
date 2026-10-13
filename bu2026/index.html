@@ -396,7 +396,7 @@ tbody tr:hover{background:#fff4ec}
 <link rel="stylesheet" href="./access.css?build=20261010.3">
 <link rel="stylesheet" href="./vitorino-bu.css?build=20261006.5">
 <link rel="stylesheet" href="./segundo-turno.css?build=20261012.1">
-<link rel="stylesheet" href="./central-apuracao.css?build=20261012.1">
+<link rel="stylesheet" href="./central-apuracao.css?build=20261013.1">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -517,7 +517,8 @@ tbody tr:hover{background:#fff4ec}
     </div>
     <div id="t2DataQuality" class="t2-data-quality" role="status" aria-live="polite">Consultando fonte oficial…</div>
     <div class="t2-map-card">
-      <div class="t2-central-head"><div><h3>Mapa eleitoral por estado</h3><p>Mapa geográfico real das 27 unidades da federação. Toque em cada estado para ver a apuração.</p></div><div class="t2-central-tools"><button id="t2StateRefresh" type="button" onclick="BUCentral.refresh()">↻ Atualizar mapa</button></div></div>
+      <div class="t2-central-head"><div><div class="t2-map-eyebrow">PAINEL ELEITORAL • DW TECH</div><h3>Brasil, estado por estado</h3><p>Mapa interativo com resultados oficiais. Escolha um estado para consultar seus municípios.</p></div><div class="t2-central-tools"><div class="t2-map-period" role="group" aria-label="Turno exibido somente no mapa"><button id="t2MapFirstBtn" type="button" onclick="BUCentral.selectMapMode('first')">1º turno • teste</button><button id="t2MapSecondBtn" type="button" onclick="BUCentral.selectMapMode('second')">2º turno</button></div><button id="t2StateRefresh" type="button" onclick="BUCentral.refresh()">↻ Atualizar mapa</button></div></div>
+      <div id="t2MapContext" class="t2-map-context" role="status">Carregando resultados oficiais do mapa...</div>
       <div class="t2-map-layout">
         <div>
           <div class="t2-map-controls">
@@ -533,7 +534,15 @@ tbody tr:hover{background:#fff4ec}
           <div id="t2MapLegend" class="t2-map-legend"></div>
           <p class="t2-muted">Malhas geográficas do IBGE • <a href="https://github.com/henriquemalvar/br-geojson" target="_blank" rel="noopener noreferrer">Fonte dos contornos</a> • SVG leve, sem carregamento externo.</p>
         </div>
-        <aside id="t2UFDetail" class="t2-map-aside" aria-live="polite"></aside>
+        <aside class="t2-map-aside" aria-label="Detalhes do estado e município">
+          <div id="t2UFDetail" aria-live="polite"></div>
+          <div id="t2CityControls" class="t2-city-controls" hidden>
+            <label for="t2CitySearch">Consultar cidade do estado</label>
+            <div class="t2-city-searchrow"><input id="t2CitySearch" type="search" list="t2CityDatalist" placeholder="Nome do município" autocomplete="off" aria-describedby="t2CityHelp"><datalist id="t2CityDatalist"></datalist><button type="button" id="t2CityLookupBtn" onclick="BUCentral.lookupCity()">Buscar</button></div>
+            <div id="t2CityHelp" class="t2-city-help">Selecione um estado no mapa.</div>
+            <div id="t2CityResult" aria-live="polite"></div>
+          </div>
+        </aside>
       </div>
     </div>
     <div class="t2-report-card">
@@ -1010,13 +1019,13 @@ async function openResultsWindow(targetWindow=null,autoPrint=false){
 </script>
 <script src="./jsQR.js?build=20261005.1"></script>
 <script src="./qr-scanner.js?build=20261005.1"></script>
-<script src="./pwa.js?build=20261012.1"></script>
+<script src="./pwa.js?build=20261013.1"></script>
 <script src="./cloud.js?build=20261005.1"></script>
 <script src="./access.js?build=20261010.3"></script>
 <script src="./navigation.js?build=20261010.3"></script>
 <script src="./vitorino-bu.js?build=20261006.5"></script>
 <script src="./segundo-turno.js?build=20261012.1"></script>
 <script src="./pdf-export.js?build=20261006.5"></script>
-<script src="./central-apuracao.js?build=20261012.1"></script>
+<script src="./central-apuracao.js?build=20261013.1"></script>
 </body>
 </html>
