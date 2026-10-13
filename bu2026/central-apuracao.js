@@ -83,7 +83,7 @@ async function ensureFirstState(uf,force=false){
    if(!hasFirstVotes(normal))throw Error("Totalização não encontrada");
    firstStates[uf]=normal;
    cacheFirstStates();
-   if(mapMode==="first"){mapIntro();paintMapStates();if(uf===selectedUF)detailUF();else if(!selectedUF)detailUF();}
+   if(mapMode==="first"){mapIntro();paintMapStates();if(uf===selectedUF||!selectedUF)detailUF();connection();}
    return normal;
   }catch(error){
    console.warn("Não foi possível carregar o 1º turno da UF",uf,error.message);
@@ -113,7 +113,7 @@ async function loadFirstStates(force=false){
  })();
  mapIntro();
  try{await firstLoading;}finally{
-  firstLoading=null;mapIntro();paintMapStates();detailUF();
+  firstLoading=null;mapIntro();paintMapStates();detailUF();connection();
  }
 }
 async function loadCityDirectory(){
@@ -217,7 +217,7 @@ function orderedCandidates(r){
 function candidateClass(c){
  // As cores são fixas por candidato (não por colocação na apuração).
  const num=String(c?.numero||"");
- return num==="22"?"first":num==="13"?"second":"pending";
+ return num==="22"?"first":num==="13"?"second":num?"other":"pending";
 }
 
 /* SVG real dos estados, com precisão vetorial e nenhum pacote pesado. */
@@ -344,16 +344,20 @@ function pulse(){
 }
 function connection(){
  const e=$("t2DataQuality");if(!e)return;
- const state=(!navigator.onLine?"Sem conexão":loading?"Consultando dados":failed?"Falha na última consulta":"Conectado");
- const age=generatedAt?new Date(generatedAt).getTime():0;
- const stale=available()&&age&&Date.now()-age>25*60*1000;
+ const first=mapMode==="first",count=Object.values(firstStates).filter(hasFirstVotes).length;
+ const state=!navigator.onLine?"Sem conexão":first
+   ?firstLoading?"Carregando resultados do 1º turno":count?"1º turno • dados oficiais do TSE":"Aguardando resultados do 1º turno"
+   :loading?"Consultando 2º turno":failed?"Falha na última consulta do 2º turno":"Conectado ao TSE";
  const local=lastCheck?new Date(lastCheck).toLocaleTimeString("pt-BR"):"ainda não realizada";
- e.innerHTML='<span class="t2-health-dot '+(!navigator.onLine||failed?"error":loading?"pending":"ok")+'"></span>'+
-  esc(state)+' • Última consulta aos dados estaduais: '+local+
-  (generatedAt?' • Arquivo DW Tech: '+esc(new Date(generatedAt).toLocaleString("pt-BR")):'')+
-  (stale?' • <b>Publicação pode estar atrasada</b>':'')+
-  ' • Fonte: TSE (arquivos publicados pelo portal DW Tech)';
- const btn=$("t2StateRefresh");if(btn){btn.disabled=loading;btn.textContent=loading?"↻ Consultando...":"↻ Atualizar mapa";}
+ e.innerHTML='<span class="t2-health-dot '+(!navigator.onLine?"error":firstLoading||loading?"pending":first&&count?"ok":failed?"error":"ok")+'"></span>'+
+  esc(state)+(first
+    ?" • Uso apenas no mapa eleitoral • "+count+"/27 estados com dados • Eleição 6257"
+    :" • Última consulta: "+local+" • Eleição 6258")+
+  ' • Fonte: Tribunal Superior Eleitoral';
+ const btn=$("t2StateRefresh");if(btn){
+  const busy=first?!!firstLoading:loading;
+  btn.disabled=busy;btn.textContent=busy?"↻ Consultando...":"↻ Atualizar mapa";
+ }
 }
 function paint(){pulse();mapHtml();connection();}
 function normalize(uf,doc,url){
