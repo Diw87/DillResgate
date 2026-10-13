@@ -316,3 +316,19 @@ body.t2-fullscreen-open{overflow:hidden}
   #segundo-turno .t2-area{transition:none}
   #segundo-turno .t2-candidate .t2-progress i{transition:none}
 }
+
+/* O mapa é o destaque; consultas regionais do 2º turno ficam recolhidas. */
+#segundo-turno .t2-regional-details{border:1px solid #e0e8f1;background:#fff;border-radius:11px;overflow:hidden}
+#segundo-turno .t2-regional-details summary{
+ display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
+ gap:7px;list-style:none;cursor:pointer;padding:13px 16px;
+ color:#233a56;font-size:12px;font-weight:900;
+}
+#segundo-turno .t2-regional-details summary::-webkit-details-marker{display:none}
+#segundo-turno .t2-regional-details summary:before{content:"＋";color:#ff650d;margin-right:6px}
+#segundo-turno .t2-regional-details[open] summary:before{content:"−"}
+#segundo-turno .t2-regional-details summary span{font-size:11px;font-weight:700;color:#758399}
+#segundo-turno .t2-regional-details .t2-areas{padding:0 12px 12px;margin:0}
+@media(max-width:600px){
+ #segundo-turno .t2-regional-details summary span{display:block;width:100%}
+}
