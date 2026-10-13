@@ -9,7 +9,15 @@ const AREAS=[
  {id:"odc",key:"presidente_odc",name:"Olho d’Água das Cunhãs",short:"OLHO D’ÁGUA",url:BASE+"/ma/ma08478-c0001-e006258-u.json"},
  {id:"vf",key:"presidente_vf",name:"Vitorino Freire",short:"VITORINO FREIRE",url:BASE+"/ma/ma09539-c0001-e006258-u.json"}
 ];
-let selected="br",results={},finalists=[],updated=0,inFlight=null,timer=null,countdownTimer=null,countdownFinished=false;
+/* Fotos oficiais das candidaturas publicadas pelo TSE para o 2º turno de 2026. */
+const OFFICIAL_PHOTOS={
+ "22":"https://www.tse.jus.br/imagens/imagens/flavio-bolsonaro/@@images/image-200-7092d276831e3453f70c59d07d5c9ae7.png",
+ "13":"https://www.tse.jus.br/imagens/imagens/lula/@@images/image-200-93d51d895f8ebc8900bf3e02c7052bef.png"
+};
+let selected="br",results={},finalists=[
+ {numero:"22",nome:"FLAVIO BOLSONARO",partido:"PL"},
+ {numero:"13",nome:"LULA",partido:"PT"}
+],updated=0,inFlight=null,timer=null,countdownTimer=null,countdownFinished=false;
 let manualRefreshing=false,lastConsultation=0;
 const $=id=>document.getElementById(id);
 const n=v=>Number(v)||0;
@@ -95,13 +103,28 @@ function pickCandidates(r){
  return finalists.map(c=>({...c,votos:null,percentual:null}));
 }
 function cardForCandidate(c,i,hasVotes){
+ const number=String(c.numero||"");
+ const palette=number==="22"?"blue":number==="13"?"red":"neutral";
+ const photo=OFFICIAL_PHOTOS[number]||"";
  const pct=Math.max(0,Math.min(100,decimal(c.percentual)));
- return '<article class="t2-candidate">'+
-  '<div class="t2-candidate-top"><span class="t2-number">'+esc(c.numero||"—")+'</span><span class="t2-position">'+(hasVotes?(i+1)+"º lugar":"Candidato")+'</span></div>'+
-  '<h3>'+esc(c.nome||"Candidato a presidente")+'</h3><p>'+esc(c.partido||"")+'</p>'+
-  '<strong class="t2-percent">'+(hasVotes?pct.toFixed(2).replace(".",",")+"%":"—")+'</strong>'+
-  '<div class="t2-progress" role="img" aria-label="'+esc(hasVotes?"Percentual de votos válidos: "+pct.toFixed(2)+"%":"Aguardando apuração")+'"><i style="width:'+(hasVotes?pct:0)+'%"></i></div>'+
-  '<div class="t2-vote-count">'+(hasVotes?fmt(c.votos)+" votos válidos":"Votos do 2º turno ainda não divulgados")+'</div></article>';
+ const pctText=hasVotes?pct.toFixed(2).replace(".",",")+"%":"—";
+ const label=hasVotes?(i+1)+"º na apuração":"Candidatura oficial";
+ const name=String(c.nome||"Candidato a presidente");
+ const votes=hasVotes?fmt(c.votos)+" votos válidos":"Aguardando votos oficiais do segundo turno";
+ const photoHtml=photo?'<img src="'+esc(photo)+'" alt="Foto oficial: '+esc(name)+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">':"";
+ return '<article class="t2-candidate" data-palette="'+palette+'" aria-label="'+esc(name)+', '+esc(c.partido||"")+'">'+
+  '<div class="t2-candidate-top"><span class="t2-number">'+esc(number||"—")+'</span><span class="t2-position">'+esc(label)+'</span></div>'+
+  '<div class="t2-candidate-profile">'+
+   '<div class="t2-portrait" aria-label="Retrato de '+esc(name)+'"><span aria-hidden="true">'+esc(number||"•")+'</span>'+photoHtml+'</div>'+
+   '<div class="t2-candidate-info"><span class="t2-office">Presidente da República</span><h3>'+esc(name)+'</h3><p>'+esc(c.partido||"")+'</p></div>'+
+  '</div>'+
+  '<div class="t2-candidate-metrics"><div class="t2-metric-label">'+(hasVotes?"Votos válidos":"Resultado do 2º turno")+'</div>'+
+   '<strong class="t2-percent">'+pctText+'</strong>'+
+   '<div class="t2-progress" role="img" aria-label="'+esc(hasVotes?"Percentual de votos válidos: "+pctText:"Votação ainda não divulgada")+'"><i style="width:'+(hasVotes?pct:0)+'%"></i></div>'+
+   '<div class="t2-vote-count">'+votes+'</div>'+
+   '<span class="t2-photo-source">Fotos: Tribunal Superior Eleitoral • Votos: TSE</span>'+
+  '</div>'+
+ '</article>';
 }
 function render(){
  const area=AREAS.find(a=>a.id===selected)||AREAS[0];
@@ -152,7 +175,7 @@ async function loadFinalists(force=false){
   return true;
  }catch(error){
   console.warn("Consulta à base de candidatos indisponível:",error);
-  return false;
+  return finalists.length>0;
  }finally{
   render();
  }
@@ -227,7 +250,7 @@ async function refreshManually(){
   if(remaining>0)await new Promise(resolve=>setTimeout(resolve,remaining));
   if(!outcome?.ok)throw new Error("Não foi possível acessar os arquivos do TSE.");
   let message;
-  if(!hasReleased())message="✓ Consulta concluída às "+consultationTime()+". A apuração do 2º turno ainda não começou.";
+  if(!hasReleased())message="✓ Painel verificado às "+consultationTime()+". O TSE divulgará a votação do segundo turno a partir de 25/10, às 17h (Brasília).";
   else if(!outcome.published)message="✓ Consulta concluída às "+consultationTime()+". Aguardando a divulgação oficial dos votos.";
   else if(outcome.changed)message="✓ Dados recebidos às "+consultationTime()+". Apuração atualizada!";
   else message="✓ Consulta concluída às "+consultationTime()+". Nenhuma alteração nos resultados.";
