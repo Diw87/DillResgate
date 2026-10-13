@@ -174,7 +174,8 @@ async function loadFinalists(force=false){
   lastConsultation=Date.now();
   return true;
  }catch(error){
-  console.warn("Consulta à base de candidatos indisponível:",error);
+  console.info("Base local do 1º turno indisponível; usando as candidaturas oficiais:",error);
+  lastConsultation=Date.now();
   return finalists.length>0;
  }finally{
   render();
