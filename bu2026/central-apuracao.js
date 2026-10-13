@@ -40,15 +40,17 @@ function finalists(){
  const national=getData("presidente_br");
  if(national)return national.candidatos.slice(0,2);
  const any=Object.values(stateData).find(hasVotes);
- return (any?.candidatos||[]).slice(0,2);
+ if(any)return any.candidatos.slice(0,2);
+ // Mapa ainda sem votos: legenda informativa, sem prever vencedores.
+ return [{numero:"22",nome:"FLAVIO BOLSONARO"},{numero:"13",nome:"LULA"}];
 }
 function orderedCandidates(r){
  return (r?.candidatos||[]).slice().sort((a,b)=>n(b.votos)-n(a.votos)).slice(0,2);
 }
 function candidateClass(c){
- const top=finalists();
- if(!top.length)return "pending";
- return String(c?.numero)===String(top[0]?.numero)?"first":String(c?.numero)===String(top[1]?.numero)?"second":"pending";
+ // As cores são fixas por candidato (não por colocação na apuração).
+ const num=String(c?.numero||"");
+ return num==="22"?"first":num==="13"?"second":"pending";
 }
 
 /* SVG real dos estados, com precisão vetorial e nenhum pacote pesado. */
@@ -154,7 +156,7 @@ function pulse(){
  }
  const cs=orderedCandidates(r);
  box.innerHTML='<span class="t2-live-pill">BRASIL • '+pct(r.secoes.percentual).toFixed(2).replace(".",",")+'% DAS SEÇÕES</span>'+
-  cs.map(c=>'<div class="t2-live-candidate"><b>'+esc(c.nome)+'</b><strong>'+pct(c.percentual).toFixed(2).replace(".",",")+'%</strong>'+
+  cs.map(c=>'<div class="t2-live-candidate '+candidateClass(c)+'"><b>'+esc(c.nome)+'</b><strong>'+pct(c.percentual).toFixed(2).replace(".",",")+'%</strong>'+
   '<small>'+fmt(c.votos)+' votos</small></div>').join("")+
   '<small class="t2-live-source">TSE: '+esc([r.geradoEm?.data,r.geradoEm?.hora].filter(Boolean).join(" "))+'</small>';
 }
