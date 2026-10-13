@@ -1,6 +1,6 @@
 {
   "name": "DW Tech • B.U. 2026",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "channel": "production",
   "architecture": "GitHub Pages + Supabase",
   "features": {
@@ -50,9 +50,13 @@
     "mapa_brasil_real_ibge": true,
     "mapa_svg_27_ufs": true,
     "mapa_zoom_interativo": true,
-    "mapa_malha_offline": true
+    "mapa_malha_offline": true,
+    "segundo_turno_fotos_oficiais_tse": true,
+    "segundo_turno_cores_22_azul_13_vermelho": true,
+    "mapa_cores_fixas_por_candidato": true,
+    "cartoes_responsivos_nova_interface": true
   },
-  "released_at": "2026-10-10",
-  "build": "20261010.8",
+  "released_at": "2026-10-12",
+  "build": "20261012.1",
   "update_policy": "check_on_open_and_force_latest"
 }
