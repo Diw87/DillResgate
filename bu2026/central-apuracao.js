@@ -226,18 +226,18 @@ function paintMapStates(){
  const svg=document.querySelector("#t2Map svg");if(!svg)return;
  for(const element of svg.querySelectorAll("[data-uf]")){
   const uf=element.getAttribute("data-uf");
-  const r=getData("presidente_"+uf.toLowerCase()),winner=hasVotes(r)?orderedCandidates(r)[0]:null;
+  const r=getMapData(uf),winner=hasMapVotes(r)?orderedCandidates(r)[0]:null;
   const kind=winner?candidateClass(winner):"pending";
   element.classList.remove("first","second","pending","active");
   element.classList.add(kind);
   if(uf===selectedUF)element.classList.add("active");
   element.setAttribute("aria-pressed",String(uf===selectedUF));
   const title=element.querySelector("title"),name=UF.find(v=>v[0]===uf)?.[1]||uf;
-  if(title)title.textContent=name+" • "+(winner?winner.nome+": "+pct(winner.percentual).toFixed(2).replace(".",",")+"%":"Aguardando apuração");
+  if(title)title.textContent=name+" • "+(winner?winner.nome+": "+pct(winner.percentual).toFixed(2).replace(".",",")+"%":"Aguardando resultados")+(mapMode==="first"?" • 1º turno":" • 2º turno");
  }
  for(const label of svg.querySelectorAll("[data-label]")){
-  const uf=label.getAttribute("data-label"),r=getData("presidente_"+uf.toLowerCase());
-  const win=hasVotes(r)?orderedCandidates(r)[0]:null;
+  const uf=label.getAttribute("data-label"),r=getMapData(uf);
+  const win=hasMapVotes(r)?orderedCandidates(r)[0]:null;
   label.classList.remove("first","second","pending");label.classList.add(win?candidateClass(win):"pending");
  }
 }
@@ -280,16 +280,21 @@ async function loadMap(){
  }finally{mapLoading=false;}
 }
 function mapHtml(){
- const leaders=finalists(),legend=$("t2MapLegend");
- if(legend)legend.innerHTML=leaders.length===2?
-  '<span class="t2-key first"></span>'+esc(leaders[0].nome)+
-  '<span class="t2-key second"></span>'+esc(leaders[1].nome)+
-  '<span class="t2-key pending"></span>Sem dados':
-  '<span class="t2-key pending"></span>Aguardando divulgação oficial';
+ mapIntro();
+ const legend=$("t2MapLegend");
+ if(legend){
+  legend.innerHTML='<span class="t2-key first"></span>Flávio Bolsonaro (22)'+
+   '<span class="t2-key second"></span>Lula (13)'+
+   '<span class="t2-key other"></span>Outro candidato'+
+   '<span class="t2-key pending"></span>Sem dados';
+ }
  const picker=$("t2StatePicker");
  if(picker){
-  if(!picker.options.length)picker.innerHTML=UF.slice().sort((a,b)=>a[1].localeCompare(b[1],"pt-BR")).map(([uf,name])=>
-   '<option value="'+uf+'">'+esc(name)+" ("+uf+")</option>").join("");
+  if(!picker.options.length){
+   picker.innerHTML='<option value="">Selecione um estado</option>'+
+    UF.slice().sort((a,b)=>a[1].localeCompare(b[1],"pt-BR")).map(([uf,name])=>
+    '<option value="'+uf+'">'+esc(name)+" ("+uf+")</option>").join("");
+  }
   if(picker.value!==selectedUF)picker.value=selectedUF;
  }
  if(mapReady)paintMapStates();else if(!mapLoading)loadMap();
@@ -297,22 +302,32 @@ function mapHtml(){
 }
 function detailUF(){
  const box=$("t2UFDetail");if(!box)return;
- const row=UF.find(x=>x[0]===selectedUF),name=row?.[1]||"Estado";
- const r=getData("presidente_"+selectedUF.toLowerCase());
- const title='<h4>'+esc(name)+' <small>('+esc(selectedUF)+')</small></h4>';
- if(!hasVotes(r)){
-  box.innerHTML=title+'<p class="t2-muted">Sem votos oficiais do segundo turno divulgados para esta UF.</p>'+
-   '<a href="'+officialLink(selectedUF)+'" target="_blank" rel="noopener noreferrer">Consultar arquivo oficial ↗</a>';
+ if(!selectedUF){
+  box.innerHTML='<div class="t2-map-default"><span class="t2-map-default-icon">⌖</span><h4>Brasil inteiro</h4>'+
+    '<p>Selecione qualquer estado no mapa ou na lista para ver a votação e pesquisar seus municípios.</p></div>';
+  updateCityControls();
   return;
  }
- const candidates=orderedCandidates(r);
- box.innerHTML=title+'<p class="t2-muted">'+esc(fmt(r.secoes.totalizadas)+" de "+fmt(r.secoes.total)+" seções")+
-  ' • '+pct(r.secoes.percentual).toFixed(2).replace(".",",")+'% apuradas</p>'+
-  candidates.map(c=>'<div class="t2-uf-line"><span>'+esc(c.nome)+'</span><b>'+pct(c.percentual).toFixed(2).replace(".",",")+'%</b></div>'+
-   '<div class="t2-uf-track"><i class="'+candidateClass(c)+'" style="width:'+Math.max(0,Math.min(100,pct(c.percentual)))+'%"></i></div>'+
-   '<small>'+fmt(c.votos)+' votos</small>').join("")+
-  '<p class="t2-muted">Arquivo TSE: '+esc([r.geradoEm?.data,r.geradoEm?.hora].filter(Boolean).join(" ")||"horário não informado")+'</p>'+
-  '<a href="'+officialLink(selectedUF)+'" target="_blank" rel="noopener noreferrer">Conferir fonte oficial ↗</a>';
+ const row=UF.find(x=>x[0]===selectedUF),name=row?.[1]||"Estado";
+ const r=getMapData(selectedUF);
+ const first=mapMode==="first";
+ const label=first?"1º TURNO • TESTE":"2º TURNO";
+ const title='<div class="t2-detail-heading"><span>'+label+'</span><h4>'+esc(name)+' <small>('+esc(selectedUF)+')</small></h4></div>';
+ if(!hasMapVotes(r)){
+  box.innerHTML=title+'<p class="t2-muted">'+(first?"Carregando votação oficial do 1º turno para este estado...":"Sem votos oficiais do 2º turno divulgados para esta UF.")+'</p>'+
+   '<a href="'+(first?officialFirstLink(selectedUF):officialLink(selectedUF))+'" target="_blank" rel="noopener noreferrer">Consultar arquivo oficial ↗</a>';
+ }else{
+  const candidates=orderedCandidates(r);
+  box.innerHTML=title+'<p class="t2-muted">'+esc(fmt(r.secoes.totalizadas)+" de "+fmt(r.secoes.total)+" seções")+
+   ' • '+pct(r.secoes.percentual).toFixed(2).replace(".",",")+'% apuradas</p>'+
+   candidates.map(c=>'<div class="t2-uf-line"><span>'+esc(c.nome)+' ('+esc(c.numero)+')</span><b>'+pct(c.percentual).toFixed(2).replace(".",",")+'%</b></div>'+
+    '<div class="t2-uf-track"><i class="'+candidateClass(c)+'" style="width:'+Math.max(0,Math.min(100,pct(c.percentual)))+'%"></i></div>'+
+    '<small>'+fmt(c.votos)+' votos</small>').join("")+
+   '<p class="t2-muted">Arquivo TSE: '+esc([r.geradoEm?.data,r.geradoEm?.hora].filter(Boolean).join(" ")||"horário não informado")+'</p>'+
+   '<a href="'+(first?officialFirstLink(selectedUF):officialLink(selectedUF))+'" target="_blank" rel="noopener noreferrer">Conferir resultado no TSE ↗</a>';
+ }
+ updateCityControls();
+ renderCityResult();
 }
 function pulse(){
  const box=$("t2NationalPulse");if(!box)return;
@@ -392,12 +407,26 @@ async function refresh(){
  finally{loading=false;paint();}
 }
 function selectUF(uf){
- if(!UF.some(x=>x[0]===uf))return;
- selectedUF=uf;paint();if(mapZoom>1)updateMapView();refreshState(uf);
+ if(uf&&!UF.some(x=>x[0]===uf))return;
+ const changed=selectedUF!==uf;
+ selectedUF=uf;if(changed)resetCity();
+ paint();if(mapZoom>1)updateMapView();
+ if(!uf)return;
+ if(mapMode==="first"){
+  ensureFirstState(uf);
+  if(!cityDirectory)loadCityDirectory().catch(error=>{
+   const help=$("t2CityHelp");if(help)help.textContent="Não foi possível carregar os municípios. Tente novamente.";
+   console.info("Consulta ao catálogo municipal indisponível:",error.message);
+  });
+  else updateCityControls();
+ }else refreshState(uf);
 }
 function refreshAll(){
- refresh();
- if(available())window.BUSecondRound?.refresh();
+ if(mapMode==="first")loadFirstStates(true);
+ else{
+  refresh();
+  if(available())window.BUSecondRound?.refresh();
+ }
 }
 async function share(){
  const url="https://diw87.github.io/DillResgate/bu2026/";
@@ -524,13 +553,13 @@ async function report(){
 }
 function init(){
  if(started)return;started=true;
- tvButton();paint();refresh();
- setInterval(()=>{if(document.visibilityState==="visible"){paint();if(navigator.onLine)refresh();}},30000);
+ loadFirstCache();tvButton();paint();loadFirstStates();if(available())refresh();
+ setInterval(()=>{if(document.visibilityState==="visible"){paint();if(navigator.onLine&&available()&&mapMode==="second")refresh();}},30000);
  setInterval(()=>{if(document.visibilityState==="visible")pulse();},5000);
- window.addEventListener("online",()=>refresh());
+ window.addEventListener("online",()=>{if(mapMode==="first")loadFirstStates();else refresh();});
  window.addEventListener("offline",connection);
- document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){paint();refresh();}});
+ document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){paint();if(mapMode==="second"&&available())refresh();}});
 }
-window.BUCentral={selectUF,zoomMap,resetMapZoom,refresh:refreshAll,share,toggleTV,report,get stateResults(){return {...stateData}}};
+window.BUCentral={selectUF,selectMapMode,lookupCity,zoomMap,resetMapZoom,refresh:refreshAll,share,toggleTV,report,get stateResults(){return {...stateData}},get firstRoundStates(){return {...firstStates}}};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
