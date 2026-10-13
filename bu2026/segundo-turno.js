@@ -9,10 +9,14 @@ const AREAS=[
  {id:"odc",key:"presidente_odc",name:"Olho d’Água das Cunhãs",short:"OLHO D’ÁGUA",url:BASE+"/ma/ma08478-c0001-e006258-u.json"},
  {id:"vf",key:"presidente_vf",name:"Vitorino Freire",short:"VITORINO FREIRE",url:BASE+"/ma/ma09539-c0001-e006258-u.json"}
 ];
-/* Fotos oficiais das candidaturas publicadas pelo TSE para o 2º turno de 2026. */
+/* Retratos de arquivo com licença aberta, em miniatura para carregamento rápido. */
 const OFFICIAL_PHOTOS={
- "22":"https://www.tse.jus.br/imagens/imagens/flavio-bolsonaro/@@images/image-200-7092d276831e3453f70c59d07d5c9ae7.png",
- "13":"https://www.tse.jus.br/imagens/imagens/lula/@@images/image-200-93d51d895f8ebc8900bf3e02c7052bef.png"
+ "22":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Foto_oficial_do_senador_Fl%C3%A1vio_Bolsonaro_%28v._AgSen%29.jpg/250px-Foto_oficial_do_senador_Fl%C3%A1vio_Bolsonaro_%28v._AgSen%29.jpg",
+ "13":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28recortada%29.jpg/250px-Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28recortada%29.jpg"
+};
+const PHOTO_CREDITS={
+ "22":{by:"Agência Senado",license:"CC BY-SA 4.0",page:"https://commons.wikimedia.org/wiki/File:Foto_oficial_do_senador_Fl%C3%A1vio_Bolsonaro_(v._AgSen).jpg"},
+ "13":{by:"Ricardo Stuckert/PR",license:"CC BY 2.0",page:"https://commons.wikimedia.org/wiki/File:Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_(recortada).jpg"}
 };
 let selected="br",results={},finalists=[
  {numero:"22",nome:"FLAVIO BOLSONARO",partido:"PL"},
@@ -106,6 +110,7 @@ function cardForCandidate(c,i,hasVotes){
  const number=String(c.numero||"");
  const palette=number==="22"?"blue":number==="13"?"red":"neutral";
  const photo=OFFICIAL_PHOTOS[number]||"";
+ const credit=PHOTO_CREDITS[number];
  const pct=Math.max(0,Math.min(100,decimal(c.percentual)));
  const pctText=hasVotes?pct.toFixed(2).replace(".",",")+"%":"—";
  const label=hasVotes?(i+1)+"º na apuração":"Candidatura oficial";
@@ -122,7 +127,7 @@ function cardForCandidate(c,i,hasVotes){
    '<strong class="t2-percent">'+pctText+'</strong>'+
    '<div class="t2-progress" role="img" aria-label="'+esc(hasVotes?"Percentual de votos válidos: "+pctText:"Votação ainda não divulgada")+'"><i style="width:'+(hasVotes?pct:0)+'%"></i></div>'+
    '<div class="t2-vote-count">'+votes+'</div>'+
-   '<span class="t2-photo-source">Fotos: Tribunal Superior Eleitoral • Votos: TSE</span>'+
+   '<span class="t2-photo-source">Foto: '+(credit?'<a href="'+esc(credit.page)+'" target="_blank" rel="noopener noreferrer">'+esc(credit.by)+'</a> · '+esc(credit.license):'arquivo')+' • Apuração: TSE</span>'+
   '</div>'+
  '</article>';
 }
