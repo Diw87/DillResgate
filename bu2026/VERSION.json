@@ -51,10 +51,10 @@
     "mapa_svg_27_ufs": true,
     "mapa_zoom_interativo": true,
     "mapa_malha_offline": true,
-    "segundo_turno_fotos_oficiais_tse": true,
     "segundo_turno_cores_22_azul_13_vermelho": true,
     "mapa_cores_fixas_por_candidato": true,
-    "cartoes_responsivos_nova_interface": true
+    "cartoes_responsivos_nova_interface": true,
+    "segundo_turno_retratos_creditados": true
   },
   "released_at": "2026-10-12",
   "build": "20261012.1",
