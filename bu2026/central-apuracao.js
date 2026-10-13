@@ -3,6 +3,8 @@
 "use strict";
 const BASE="https://resultados.tse.jus.br/oficial/ele2026/6258/dados";
 const RELEASE=Date.UTC(2026,9,25,20,0,0);
+const FIRST_BASE="https://resultados.tse.jus.br/oficial/ele2026/6257";
+const FIRST_CONFIG=FIRST_BASE+"/config/mun-e006257-cm.json";
 const UF=[
  ["AC","Acre",4,1],["AM","Amazonas",3,2],["RR","Roraima",1,3],["RO","Rondônia",5,2],
  ["PA","Pará",3,4],["AP","Amapá",2,5],["TO","Tocantins",5,5],["MA","Maranhão",4,6],
@@ -24,7 +26,13 @@ const available=()=>Date.now()>=RELEASE;
 const hasVotes=r=>available()&&r&&r.fase!=="s"&&r.divulgacao!=="n"&&n(r.secoes?.totalizadas)>0&&
  Array.isArray(r.candidatos)&&r.candidatos.some(c=>n(c.votos)>0);
 const officialLink=uf=>BASE+"/"+uf.toLowerCase()+"/"+uf.toLowerCase()+"-c0001-e006258-u.json";
-let stateData={},selectedUF="MA",generatedAt="",lastCheck=0,failed=false,loading=false,started=false;
+const officialFirstLink=uf=>FIRST_BASE+"/dados/"+uf.toLowerCase()+"/"+uf.toLowerCase()+"-c0001-e006257-u.json";
+const officialFirstCityLink=(uf,cityCode)=>FIRST_BASE+"/dados/"+uf.toLowerCase()+"/"+uf.toLowerCase()+cityCode+"-c0001-e006257-u.json";
+const hasFirstVotes=r=>!!r&&r.fase==="o"&&r.divulgacao==="s"&&n(r.secoes?.totalizadas)>0&&Array.isArray(r.candidatos)&&r.candidatos.some(c=>n(c.votos)>0);
+let stateData={},selectedUF="",generatedAt="",lastCheck=0,failed=false,loading=false,started=false;
+let mapMode="first",firstStates={},firstStatePromises={},firstLoading=null,firstFailures=0;
+let cityDirectory=null,cityDirectoryPromise=null,selectedCity=null,selectedCityResult=null,cityLoading=false;
+const FIRST_CACHE_KEY="dwtech-bu2026-map-first-6257-v1";
 let tv=false,tvTimer=null,tvIndex=0,tvOwnFullscreen=false,scrollTick=0;
 function allResults(){return window.BUSecondRound?.results||{};}
 function getData(key){
@@ -35,6 +43,165 @@ function getData(key){
   return a>=b?live:snap;
  }
  return hasVotes(live)?live:hasVotes(snap)?snap:null;
+}
+
+function getMapData(uf){
+ return mapMode==="first"?firstStates[uf]||null:getData("presidente_"+uf.toLowerCase());
+}
+function hasMapVotes(r){return mapMode==="first"?hasFirstVotes(r):hasVotes(r);}
+function mapIntro(){
+ const info=$("t2MapContext"),first=$("t2MapFirstBtn"),second=$("t2MapSecondBtn");
+ if(first){first.classList.toggle("active",mapMode==="first");first.setAttribute("aria-pressed",String(mapMode==="first"));}
+ if(second){second.classList.toggle("active",mapMode==="second");second.setAttribute("aria-pressed",String(mapMode==="second"));}
+ const count=Object.values(firstStates).filter(hasFirstVotes).length;
+ if(info)info.textContent=mapMode==="first"
+  ?"MODO TESTE • 1º TURNO DE 2026 • "+count+" de 27 estados com dados oficiais"+(firstLoading?" • carregando...":"")+" • Sem relação com os votos do 2º turno"
+  :"2º TURNO DE 2026 • "+(available()?"Apuração oficial do TSE, conforme divulgação":"Aguardando 25/10/2026, às 17h de Brasília");
+}
+function cacheFirstStates(){
+ try{localStorage.setItem(FIRST_CACHE_KEY,JSON.stringify({election:6257,states:firstStates}));}catch{}
+}
+function loadFirstCache(){
+ try{
+  const saved=JSON.parse(localStorage.getItem(FIRST_CACHE_KEY)||"null");
+  if(saved?.election!==6257||!saved.states)return;
+  for(const [uf,value] of Object.entries(saved.states)){
+   if(UF.some(x=>x[0]===uf)&&hasFirstVotes(value))firstStates[uf]=value;
+  }
+ }catch{}
+}
+async function ensureFirstState(uf,force=false){
+ if(!UF.some(x=>x[0]===uf))return null;
+ if(firstStatePromises[uf])return firstStatePromises[uf];
+ if(!force&&hasFirstVotes(firstStates[uf]))return firstStates[uf];
+ const url=officialFirstLink(uf);
+ const work=(async()=>{
+  try{
+   const raw=await json(url);
+   if(String(raw?.ele)!=="6257"||String(raw?.t)!=="1"||String(raw?.cdabr).toLowerCase()!==uf.toLowerCase())throw Error("Eleição ou UF inválida");
+   const normal=normalize(uf,raw,url);
+   if(!hasFirstVotes(normal))throw Error("Totalização não encontrada");
+   firstStates[uf]=normal;
+   cacheFirstStates();
+   if(mapMode==="first"){mapIntro();paintMapStates();if(uf===selectedUF)detailUF();else if(!selectedUF)detailUF();}
+   return normal;
+  }catch(error){
+   console.warn("Não foi possível carregar o 1º turno da UF",uf,error.message);
+   firstFailures++;
+   return firstStates[uf]||null;
+  }finally{delete firstStatePromises[uf];}
+ })();
+ firstStatePromises[uf]=work;
+ return work;
+}
+async function loadFirstStates(force=false){
+ if(firstLoading)return firstLoading;
+ if(!navigator.onLine){mapIntro();return;}
+ const states=UF.map(x=>x[0]).filter(uf=>force||!hasFirstVotes(firstStates[uf]));
+ if(!states.length){mapIntro();return;}
+ firstFailures=0;
+ firstLoading=(async()=>{
+  let at=0;
+  const workers=Array.from({length:6},async()=>{
+   for(;;){
+    const index=at++;
+    if(index>=states.length)return;
+    await ensureFirstState(states[index],force);
+   }
+  });
+  await Promise.all(workers);
+ })();
+ mapIntro();
+ try{await firstLoading;}finally{
+  firstLoading=null;mapIntro();paintMapStates();detailUF();
+ }
+}
+async function loadCityDirectory(){
+ if(cityDirectory)return cityDirectory;
+ if(cityDirectoryPromise)return cityDirectoryPromise;
+ cityDirectoryPromise=(async()=>{
+  const response=await json(FIRST_CONFIG);
+  if(!Array.isArray(response?.abr))throw Error("Relação de municípios inválida");
+  const byUF={};
+  for(const reg of response.abr){
+   const uf=String(reg.cd||"").toUpperCase();
+   if(!UF.some(x=>x[0]===uf))continue;
+   byUF[uf]=(reg.mu||[]).filter(m=>/^\d{5}$/.test(String(m.cd||""))).map(m=>({name:String(m.nm||""),code:String(m.cd)}))
+     .sort((a,b)=>a.name.localeCompare(b.name,"pt-BR"));
+  }
+  cityDirectory=byUF;
+  return byUF;
+ })();
+ try{return await cityDirectoryPromise;}
+ finally{cityDirectoryPromise=null;updateCityControls();}
+}
+function cityKey(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toUpperCase();}
+function updateCityControls(){
+ const controls=$("t2CityControls"),input=$("t2CitySearch"),list=$("t2CityDatalist"),help=$("t2CityHelp");
+ if(!controls)return;
+ const isVisible=mapMode==="first"&&!!selectedUF;
+ controls.hidden=!isVisible;
+ if(!isVisible)return;
+ const cities=cityDirectory?.[selectedUF]||[];
+ if(input)input.disabled=!cities.length||cityLoading;
+ if(list)list.innerHTML=cities.map(c=>'<option value="'+esc(c.name)+'"></option>').join("");
+ if(help)help.textContent=cityLoading?"Buscando apuração municipal..."
+  :cities.length?cities.length+" municípios disponíveis. Digite e escolha uma cidade."
+  :cityDirectoryPromise?"Carregando lista oficial de municípios...":"Carregando cidades do estado...";
+}
+function resetCity(){
+ selectedCity=null;selectedCityResult=null;
+ const input=$("t2CitySearch"),result=$("t2CityResult");
+ if(input)input.value="";
+ if(result)result.innerHTML="";
+ updateCityControls();
+}
+function renderCityResult(){
+ const box=$("t2CityResult");
+ if(!box||!selectedCity||mapMode!=="first"){if(box)box.innerHTML="";return;}
+ const r=selectedCityResult;
+ if(!hasFirstVotes(r)){box.innerHTML='<div class="t2-city-note">Aguardando consulta do município.</div>';return;}
+ box.innerHTML='<div class="t2-city-result-head"><span>1º TURNO • MUNICÍPIO</span><h4>'+esc(selectedCity.name)+'</h4>'+
+  '<small>'+esc(fmt(r.secoes.totalizadas))+' seções totalizadas • fonte TSE</small></div>'+
+  orderedCandidates(r).map(c=>
+   '<div class="t2-uf-line"><span>'+esc(c.nome)+' ('+esc(c.numero)+')</span><b>'+pct(c.percentual).toFixed(2).replace(".",",")+'%</b></div>'+
+   '<div class="t2-uf-track"><i class="'+candidateClass(c)+'" style="width:'+Math.max(0,Math.min(100,pct(c.percentual)))+'%"></i></div>'+
+   '<small>'+fmt(c.votos)+' votos</small>').join("")+
+  '<a class="t2-city-source" href="'+esc(r.sourceUrl)+'" target="_blank" rel="noopener noreferrer">Conferir resultado no TSE ↗</a>';
+}
+async function lookupCity(){
+ if(mapMode!=="first"||!selectedUF)return;
+ const input=$("t2CitySearch"),help=$("t2CityHelp");
+ if(!cityDirectory){try{await loadCityDirectory();}catch{if(help)help.textContent="Não foi possível carregar os municípios do TSE.";return;}}
+ const requested=cityKey(input?.value);
+ const options=cityDirectory?.[selectedUF]||[];
+ const city=options.find(x=>cityKey(x.name)===requested);
+ if(!city){if(help)help.textContent="Escolha o nome completo de uma cidade na lista.";return;}
+ const uf=selectedUF;
+ selectedCity=city;selectedCityResult=null;cityLoading=true;updateCityControls();
+ if(help)help.textContent="Consultando "+city.name+" no TSE...";
+ try{
+  const url=officialFirstCityLink(uf,city.code);
+  const raw=await json(url);
+  if(uf!==selectedUF||String(raw?.ele)!=="6257"||String(raw?.t)!=="1"||String(raw?.cdabr)!==city.code)throw Error("Cidade ou turno incompatível");
+  const data=normalize(uf,raw,url);
+  if(!hasFirstVotes(data))throw Error("Nenhum resultado oficial disponível");
+  data.abrangencia=city.name;
+  selectedCityResult=data;
+  renderCityResult();
+  if(help)help.textContent="Resultado oficial de "+city.name+" • 1º turno de 2026";
+ }catch(err){
+  if(uf===selectedUF){
+   if(help)help.textContent="Não foi possível consultar a cidade. Verifique sua conexão e tente novamente.";
+   const box=$("t2CityResult");if(box)box.innerHTML="";
+  }
+ }finally{cityLoading=false;updateCityControls();}
+}
+function selectMapMode(mode){
+ if(mode!=="first"&&mode!=="second")return;
+ mapMode=mode;resetCity();mapIntro();mapHtml();
+ if(mode==="first")loadFirstStates();
+ else if(available())refresh();
 }
 function finalists(){
  const national=getData("presidente_br");
