@@ -9,13 +9,13 @@ const AREAS=[
  {id:"odc",key:"presidente_odc",name:"Olho d’Água das Cunhãs",short:"OLHO D’ÁGUA",url:BASE+"/ma/ma08478-c0001-e006258-u.json"},
  {id:"vf",key:"presidente_vf",name:"Vitorino Freire",short:"VITORINO FREIRE",url:BASE+"/ma/ma09539-c0001-e006258-u.json"}
 ];
-/* Retratos de arquivo com licença aberta, em miniatura para carregamento rápido. */
+/* Fotos de arquivo com crédito aos autores, em miniatura para carregamento rápido. */
 const OFFICIAL_PHOTOS={
  "22":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Foto_oficial_do_senador_Fl%C3%A1vio_Bolsonaro_%28v._AgSen%29.jpg/250px-Foto_oficial_do_senador_Fl%C3%A1vio_Bolsonaro_%28v._AgSen%29.jpg",
  "13":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28recortada%29.jpg/250px-Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28recortada%29.jpg"
 };
 const PHOTO_CREDITS={
- "22":{by:"Agência Senado",license:"CC BY-SA 4.0",page:"https://commons.wikimedia.org/wiki/File:Foto_oficial_do_senador_Fl%C3%A1vio_Bolsonaro_(v._AgSen).jpg"},
+ "22":{by:"Agência Senado",license:"uso com atribuição",page:"https://commons.wikimedia.org/wiki/File:Foto_oficial_do_senador_Fl%C3%A1vio_Bolsonaro_(v._AgSen).jpg"},
  "13":{by:"Ricardo Stuckert/PR",license:"CC BY 2.0",page:"https://commons.wikimedia.org/wiki/File:Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_(recortada).jpg"}
 };
 let selected="br",results={},finalists=[
