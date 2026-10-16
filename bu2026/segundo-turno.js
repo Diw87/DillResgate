@@ -21,8 +21,8 @@ const PHOTO_CREDITS={
  "13":{by:"TSE • foto cadastrada na urna 2026",license:"Registro eleitoral",page:TSE_URNA_PHOTOS["13"]}
 };
 let selected="br",results={},finalists=[
- {numero:"22",nome:"FLAVIO BOLSONARO",partido:"PL"},
- {numero:"13",nome:"LULA",partido:"PT"}
+ {numero:"13",nome:"LULA",partido:"PT"},
+ {numero:"22",nome:"FLAVIO BOLSONARO",partido:"PL"}
 ],updated=0,inFlight=null,timer=null,countdownTimer=null,countdownFinished=false;
 let manualRefreshing=false,lastConsultation=0;
 const $=id=>document.getElementById(id);
@@ -104,18 +104,20 @@ function normalize(key,doc,url){
   eleitores:{total:n(e.te),comparecimento:n(e.c),abstencao:n(e.a)},
   votos:{validos:n(v.vv),brancos:n(v.vb),nulos:n(v.tvn)},candidatos:candidates,sourceUrl:url};
 }
+// Ordenação apenas visual: a classificação real continua determinada pelos votos.
+function byNumber(a,b){return (Number(a.numero)||999)-(Number(b.numero)||999);}
 function pickCandidates(r){
- if(officialReady(r))return (r.candidatos||[]).slice(0,2);
- return finalists.map(c=>({...c,votos:null,percentual:null}));
+ if(officialReady(r))return (r.candidatos||[]).slice().sort((a,b)=>n(b.votos)-n(a.votos)).slice(0,2).sort(byNumber);
+ return finalists.map(c=>({...c,votos:null,percentual:null})).sort(byNumber);
 }
-function cardForCandidate(c,i,hasVotes){
+function cardForCandidate(c,i,hasVotes,rank){
  const number=String(c.numero||"");
  const palette=number==="22"?"blue":number==="13"?"red":"neutral";
  const photo=TSE_URNA_PHOTOS[number]||"";
  const credit=PHOTO_CREDITS[number];
  const pct=Math.max(0,Math.min(100,decimal(c.percentual)));
  const pctText=hasVotes?pct.toFixed(2).replace(".",",")+"%":"—";
- const label=hasVotes?(i+1)+"º na apuração":"Candidatura oficial";
+ const label=hasVotes&&rank?rank+"º na apuração":"Candidatura oficial";
  const name=String(c.nome||"Candidato a presidente");
  const votes=hasVotes?fmt(c.votos)+" votos válidos":"Aguardando votos oficiais do segundo turno";
  const photoHtml=photo?'<img src="'+esc(photo)+'" alt="Foto cadastrada na urna eletrônica: '+esc(name)+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">':"";
@@ -160,7 +162,8 @@ function render(){
   ["Comparecimento",ready?fmt(r.eleitores.comparecimento):dash]
  ].map(([label,value])=>'<div class="t2-stat"><span>'+label+'</span><strong>'+value+'</strong></div>').join("");
  const listed=pickCandidates(r);
- candidates.innerHTML=listed.length?listed.map((c,i)=>cardForCandidate(c,i,ready)).join(""):
+ const ranked=ready?(r.candidatos||[]).slice().sort((a,b)=>n(b.votos)-n(a.votos)):[];
+ candidates.innerHTML=listed.length?listed.map((c,i)=>cardForCandidate(c,i,ready,ranked.findIndex(x=>String(x.numero)===String(c.numero))+1)).join(""):
   '<div class="t2-empty">Os dois candidatos classificados aparecem aqui após a leitura da base oficial. A votação do 2º turno permanece separada do 1º turno.</div>';
  const timestamp=ready?[r.geradoEm?.data,r.geradoEm?.hora].filter(Boolean).join(" "):"—";
  if(time)time.textContent="Fonte: Tribunal Superior Eleitoral • eleição 6258 • Atualização TSE: "+timestamp;
@@ -177,7 +180,7 @@ async function loadFinalists(force=false){
   const source=await fetchJson("./resultados-oficiais.json",10000);
   const all=source?.results?.presidente_br?.candidatos||[];
   const qualifying=all.filter(c=>/2\s*[º°o]?\s*turno/i.test(c.situacao||"")).slice(0,2);
-  if(qualifying.length===2)finalists=qualifying.map(c=>({numero:c.numero,nome:c.nome,partido:c.partido}));
+  if(qualifying.length===2)finalists=qualifying.map(c=>({numero:c.numero,nome:c.nome,partido:c.partido})).sort(byNumber);
   lastConsultation=Date.now();
   return true;
  }catch(error){
