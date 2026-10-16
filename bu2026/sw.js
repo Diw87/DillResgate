@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v52-map-first-round";
+const CACHE_VERSION="dwtech-bu2026-v53-fotos-urna-tse";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
