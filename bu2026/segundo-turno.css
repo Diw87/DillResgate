@@ -332,3 +332,7 @@ body.t2-fullscreen-open{overflow:hidden}
 @media(max-width:600px){
  #segundo-turno .t2-regional-details summary span{display:block;width:100%}
 }
+
+/* Fotografias oficiais de urna: enquadramento completo, incluindo o chapéu. */
+#segundo-turno .t2-portrait{background:#fff;border-color:#e4e9f0}
+#segundo-turno .t2-portrait img{object-fit:contain;object-position:center center;background:#fff}
