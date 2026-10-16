@@ -163,7 +163,7 @@ function renderCityResult(){
  if(!hasFirstVotes(r)){box.innerHTML='<div class="t2-city-note">Aguardando consulta do município.</div>';return;}
  box.innerHTML='<div class="t2-city-result-head"><span>1º TURNO • MUNICÍPIO</span><h4>'+esc(selectedCity.name)+'</h4>'+
   '<small>'+esc(fmt(r.secoes.totalizadas))+' seções totalizadas • fonte TSE</small></div>'+
-  orderedCandidates(r).map(c=>
+  numberedCandidates(r).map(c=>
    '<div class="t2-uf-line"><span>'+esc(c.nome)+' ('+esc(c.numero)+')</span><b>'+pct(c.percentual).toFixed(2).replace(".",",")+'%</b></div>'+
    '<div class="t2-uf-track"><i class="'+candidateClass(c)+'" style="width:'+Math.max(0,Math.min(100,pct(c.percentual)))+'%"></i></div>'+
    '<small>'+fmt(c.votos)+' votos</small>').join("")+
@@ -209,10 +209,15 @@ function finalists(){
  const any=Object.values(stateData).find(hasVotes);
  if(any)return any.candidatos.slice(0,2);
  // Mapa ainda sem votos: legenda informativa, sem prever vencedores.
- return [{numero:"22",nome:"FLAVIO BOLSONARO"},{numero:"13",nome:"LULA"}];
+ return [{numero:"13",nome:"LULA"},{numero:"22",nome:"FLAVIO BOLSONARO"}];
 }
 function orderedCandidates(r){
+ // Ordenação por votos usada APENAS para identificar corretamente o vencedor.
  return (r?.candidatos||[]).slice().sort((a,b)=>n(b.votos)-n(a.votos)).slice(0,2);
+}
+function numberedCandidates(r){
+ // Apresentação em ordem de número (13, 22), sem alterar os votos ou o vencedor.
+ return orderedCandidates(r).sort((a,b)=>(Number(a.numero)||999)-(Number(b.numero)||999));
 }
 function candidateClass(c){
  // As cores são fixas por candidato (não por colocação na apuração).
@@ -283,8 +288,8 @@ function mapHtml(){
  mapIntro();
  const legend=$("t2MapLegend");
  if(legend){
-  legend.innerHTML='<span class="t2-key first"></span>Flávio Bolsonaro (22)'+
-   '<span class="t2-key second"></span>Lula (13)'+
+  legend.innerHTML='<span class="t2-key second"></span>Lula (13)'+
+   '<span class="t2-key first"></span>Flávio Bolsonaro (22)'+
    '<span class="t2-key other"></span>Outro candidato'+
    '<span class="t2-key pending"></span>Sem dados';
  }
@@ -317,7 +322,7 @@ function detailUF(){
   box.innerHTML=title+'<p class="t2-muted">'+(first?"Carregando votação oficial do 1º turno para este estado...":"Sem votos oficiais do 2º turno divulgados para esta UF.")+'</p>'+
    '<a href="'+(first?officialFirstLink(selectedUF):officialLink(selectedUF))+'" target="_blank" rel="noopener noreferrer">Consultar arquivo oficial ↗</a>';
  }else{
-  const candidates=orderedCandidates(r);
+  const candidates=numberedCandidates(r);
   box.innerHTML=title+'<p class="t2-muted">'+esc(fmt(r.secoes.totalizadas)+" de "+fmt(r.secoes.total)+" seções")+
    ' • '+pct(r.secoes.percentual).toFixed(2).replace(".",",")+'% apuradas</p>'+
    candidates.map(c=>'<div class="t2-uf-line"><span>'+esc(c.nome)+' ('+esc(c.numero)+')</span><b>'+pct(c.percentual).toFixed(2).replace(".",",")+'%</b></div>'+
@@ -336,7 +341,7 @@ function pulse(){
   box.innerHTML='<span class="t2-live-pill">BRASIL • 2º TURNO</span><strong>Aguardando os dados oficiais da votação</strong><small>25 de outubro, a partir das 17h (Brasília)</small>';
   return;
  }
- const cs=orderedCandidates(r);
+ const cs=numberedCandidates(r);
  box.innerHTML='<span class="t2-live-pill">BRASIL • '+pct(r.secoes.percentual).toFixed(2).replace(".",",")+'% DAS SEÇÕES</span>'+
   cs.map(c=>'<div class="t2-live-candidate '+candidateClass(c)+'"><b>'+esc(c.nome)+'</b><strong>'+pct(c.percentual).toFixed(2).replace(".",",")+'%</strong>'+
   '<small>'+fmt(c.votos)+' votos</small></div>').join("")+
@@ -508,9 +513,11 @@ function reportInfo(pdf,key,y){
  pdf.setFont("helvetica","normal");pdf.setFontSize(9);
  pdf.text(clean("Secoes apuradas: "+fmt(r.secoes.totalizadas)+" / "+fmt(r.secoes.total)+" ("+pct(r.secoes.percentual).toFixed(2)+"%)"),16,y);y+=7;
  pdf.text(clean("Votos validos: "+fmt(r.votos?.validos)+" | Brancos: "+fmt(r.votos?.brancos)+" | Nulos: "+fmt(r.votos?.nulos)),16,y);y+=9;
- const cs=orderedCandidates(r);
- for(const [i,c] of cs.entries()){
-  pdf.setFillColor(i===0?255:66,i===0?101:83,i===0?13:101);
+ const cs=numberedCandidates(r);
+ for(const c of cs){
+  if(String(c.numero)==="13")pdf.setFillColor(206,48,69);
+  else if(String(c.numero)==="22")pdf.setFillColor(23,105,204);
+  else pdf.setFillColor(137,117,187);
   pdf.roundedRect(16,y-4,4,7,1,1,"F");
   pdf.setFont("helvetica","bold");pdf.setFontSize(10);pdf.setTextColor(22,28,34);
   pdf.text(clean(c.nome)+" ("+clean(c.numero)+")",23,y);
