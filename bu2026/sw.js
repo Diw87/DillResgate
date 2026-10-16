@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v54-ordem-numerica";
+const CACHE_VERSION="dwtech-bu2026-v55-mapa-abaixo-candidatos";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
