@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v55-mapa-abaixo-candidatos";
+const CACHE_VERSION="dwtech-bu2026-v56-municipios-interativos";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -20,6 +20,7 @@ const SHELL=[
   "./segundo-turno.css",
   "./segundo-turno.js",
   "./central-apuracao.js",
+  "./mapa-municipios.js",
   "./central-apuracao.css",
   "./brasil-estados.svg",
   "./bu-secoes-oficiais.json",
