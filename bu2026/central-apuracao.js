@@ -450,7 +450,7 @@ function selectUF(uf){
  selectedUF=uf;if(changed)resetCity();
  mapZoom=1;
  window.BUMunicipios?.show(uf);
- paint();
+ paint();updateMapView();
  const zoom=$("t2MapZoom");if(zoom)zoom.textContent="100%";
  if(!uf)return;
  if(mapMode==="first")ensureFirstState(uf);
