@@ -28,6 +28,7 @@ const hasVotes=r=>available()&&r&&r.fase!=="s"&&r.divulgacao!=="n"&&n(r.secoes?.
 const officialLink=uf=>BASE+"/"+uf.toLowerCase()+"/"+uf.toLowerCase()+"-c0001-e006258-u.json";
 const officialFirstLink=uf=>FIRST_BASE+"/dados/"+uf.toLowerCase()+"/"+uf.toLowerCase()+"-c0001-e006257-u.json";
 const officialFirstCityLink=(uf,cityCode)=>FIRST_BASE+"/dados/"+uf.toLowerCase()+"/"+uf.toLowerCase()+cityCode+"-c0001-e006257-u.json";
+const officialSecondCityLink=(uf,cityCode)=>BASE+"/"+uf.toLowerCase()+"/"+uf.toLowerCase()+cityCode+"-c0001-e006258-u.json";
 const hasFirstVotes=r=>!!r&&r.fase==="o"&&r.divulgacao==="s"&&n(r.secoes?.totalizadas)>0&&Array.isArray(r.candidatos)&&r.candidatos.some(c=>n(c.votos)>0);
 let stateData={},selectedUF="",generatedAt="",lastCheck=0,failed=false,loading=false,started=false;
 let mapMode="first",firstStates={},firstStatePromises={},firstLoading=null,firstFailures=0;
@@ -126,7 +127,7 @@ async function loadCityDirectory(){
   for(const reg of response.abr){
    const uf=String(reg.cd||"").toUpperCase();
    if(!UF.some(x=>x[0]===uf))continue;
-   byUF[uf]=(reg.mu||[]).filter(m=>/^\d{5}$/.test(String(m.cd||""))).map(m=>({name:String(m.nm||""),code:String(m.cd)}))
+   byUF[uf]=(reg.mu||[]).filter(m=>/^\d{5}$/.test(String(m.cd||""))).map(m=>({name:String(m.nm||""),code:String(m.cd),ibge:String(m.cdi||"")}))
      .sort((a,b)=>a.name.localeCompare(b.name,"pt-BR"));
   }
   cityDirectory=byUF;
@@ -139,7 +140,7 @@ function cityKey(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036
 function updateCityControls(){
  const controls=$("t2CityControls"),input=$("t2CitySearch"),list=$("t2CityDatalist"),help=$("t2CityHelp");
  if(!controls)return;
- const isVisible=mapMode==="first"&&!!selectedUF;
+ const isVisible=!!selectedUF;
  controls.hidden=!isVisible;
  if(!isVisible)return;
  const cities=cityDirectory?.[selectedUF]||[];
@@ -151,17 +152,23 @@ function updateCityControls(){
 }
 function resetCity(){
  selectedCity=null;selectedCityResult=null;
+ window.BUMunicipios?.highlight(null);
  const input=$("t2CitySearch"),result=$("t2CityResult");
  if(input)input.value="";
  if(result)result.innerHTML="";
  updateCityControls();
 }
 function renderCityResult(){
- const box=$("t2CityResult");
- if(!box||!selectedCity||mapMode!=="first"){if(box)box.innerHTML="";return;}
- const r=selectedCityResult;
- if(!hasFirstVotes(r)){box.innerHTML='<div class="t2-city-note">Aguardando consulta do município.</div>';return;}
- box.innerHTML='<div class="t2-city-result-head"><span>1º TURNO • MUNICÍPIO</span><h4>'+esc(selectedCity.name)+'</h4>'+
+ const box=$("t2CityResult");if(!box)return;
+ if(!selectedCity){box.innerHTML="";return;}
+ const first=mapMode==="first",r=selectedCityResult,label=first?"1º TURNO":"2º TURNO";
+ const valid=first?hasFirstVotes(r):hasVotes(r);
+ if(!valid){
+  box.innerHTML='<div class="t2-city-result-head"><span>'+label+' • MUNICÍPIO</span><h4>'+esc(selectedCity.name)+'</h4></div>'+
+   '<p class="t2-city-note">'+(!first&&!available()?"O 2º turno ainda não aconteceu. Os votos serão exibidos após a divulgação do TSE.":"Aguardando votação oficial deste município.")+'</p>';
+  return;
+ }
+ box.innerHTML='<div class="t2-city-result-head"><span>'+label+' • MUNICÍPIO</span><h4>'+esc(selectedCity.name)+'</h4>'+
   '<small>'+esc(fmt(r.secoes.totalizadas))+' seções totalizadas • fonte TSE</small></div>'+
   numberedCandidates(r).map(c=>
    '<div class="t2-uf-line"><span>'+esc(c.nome)+' ('+esc(c.numero)+')</span><b>'+pct(c.percentual).toFixed(2).replace(".",",")+'%</b></div>'+
@@ -170,32 +177,53 @@ function renderCityResult(){
   '<a class="t2-city-source" href="'+esc(r.sourceUrl)+'" target="_blank" rel="noopener noreferrer">Conferir resultado no TSE ↗</a>';
 }
 async function lookupCity(){
- if(mapMode!=="first"||!selectedUF)return;
+ if(!selectedUF)return false;
  const input=$("t2CitySearch"),help=$("t2CityHelp");
- if(!cityDirectory){try{await loadCityDirectory();}catch{if(help)help.textContent="Não foi possível carregar os municípios do TSE.";return;}}
- const requested=cityKey(input?.value);
- const options=cityDirectory?.[selectedUF]||[];
+ if(!cityDirectory){try{await loadCityDirectory();}catch{if(help)help.textContent="Não foi possível carregar os municípios do TSE.";return false;}}
+ const requested=cityKey(input?.value),options=cityDirectory?.[selectedUF]||[];
  const city=options.find(x=>cityKey(x.name)===requested);
- if(!city){if(help)help.textContent="Escolha o nome completo de uma cidade na lista.";return;}
- const uf=selectedUF;
- selectedCity=city;selectedCityResult=null;cityLoading=true;updateCityControls();
+ if(!city){if(help)help.textContent="Escolha o nome completo de uma cidade na lista.";return false;}
+ const uf=selectedUF,mode=mapMode,first=mode==="first";
+ selectedCity=city;selectedCityResult=null;
+ window.BUMunicipios?.highlight(city.ibge);
+ if(!first&&!available()){
+  renderCityResult();
+  if(help)help.textContent="2º turno • votação ainda não divulgada para "+city.name;
+  return true;
+ }
+ cityLoading=true;updateCityControls();
  if(help)help.textContent="Consultando "+city.name+" no TSE...";
  try{
-  const url=officialFirstCityLink(uf,city.code);
+  const url=first?officialFirstCityLink(uf,city.code):officialSecondCityLink(uf,city.code);
   const raw=await json(url);
-  if(uf!==selectedUF||String(raw?.ele)!=="6257"||String(raw?.t)!=="1"||String(raw?.cdabr)!==city.code)throw Error("Cidade ou turno incompatível");
-  const data=normalize(uf,raw,url);
-  if(!hasFirstVotes(data))throw Error("Nenhum resultado oficial disponível");
+  if(uf!==selectedUF||mode!==mapMode||String(raw?.ele)!==(first?"6257":"6258")||
+     String(raw?.t)!==(first?"1":"2")||String(raw?.cdabr)!==city.code)throw Error("Cidade ou turno incompatível");
+  const data=normalize(uf,raw,url),valid=first?hasFirstVotes(data):hasVotes(data);
+  if(!valid)throw Error("Ainda não há dados oficiais para este município");
   data.abrangencia=city.name;
   selectedCityResult=data;
   renderCityResult();
-  if(help)help.textContent="Resultado oficial de "+city.name+" • 1º turno de 2026";
+  const winner=orderedCandidates(data)[0];
+  window.BUMunicipios?.highlight(city.ibge,winner?.numero);
+  if(help)help.textContent="Resultado oficial de "+city.name+" • "+(first?"1º":"2º")+" turno de 2026";
+  return true;
  }catch(err){
-  if(uf===selectedUF){
-   if(help)help.textContent="Não foi possível consultar a cidade. Verifique sua conexão e tente novamente.";
-   const box=$("t2CityResult");if(box)box.innerHTML="";
+  if(uf===selectedUF&&mode===mapMode){
+   if(help)help.textContent="Resultado desta cidade indisponível. Verifique sua conexão e tente novamente.";
+   renderCityResult();
   }
+  return false;
  }finally{cityLoading=false;updateCityControls();}
+}
+async function selectCityByIBGE(id){
+ if(!selectedUF||!id)return false;
+ try{
+  const list=await loadCityDirectory(),cities=list?.[selectedUF]||[];
+  const city=cities.find(c=>c.ibge===String(id));
+  if(!city)return false;
+  const input=$("t2CitySearch");if(input)input.value=city.name;
+  return await lookupCity();
+ }catch(e){console.info("Falha ao relacionar município IBGE e TSE",e);return false;}
 }
 function selectMapMode(mode){
  if(mode!=="first"&&mode!=="second")return;
@@ -269,7 +297,8 @@ async function loadMap(){
   const svg=doc.documentElement;
   if(svg.tagName.toLowerCase()!=="svg"||svg.querySelectorAll("path.br-map-state").length!==27)throw Error("Arquivo SVG inválido.");
   const node=document.importNode(svg,true);node.dataset.baseViewBox=node.getAttribute("viewBox");
-  target.replaceChildren(node);
+  window.BUMunicipios?.setCountryNode(node);
+  if(!window.BUMunicipios?.isOpen())target.replaceChildren(node);
   target.addEventListener("click",event=>{
    const el=event.target.closest?.("[data-uf]");if(el&&target.contains(el))selectUF(el.getAttribute("data-uf"));
   });
@@ -419,16 +448,18 @@ function selectUF(uf){
  if(uf&&!UF.some(x=>x[0]===uf))return;
  const changed=selectedUF!==uf;
  selectedUF=uf;if(changed)resetCity();
- paint();if(mapZoom>1)updateMapView();
+ mapZoom=1;
+ window.BUMunicipios?.show(uf);
+ paint();
+ const zoom=$("t2MapZoom");if(zoom)zoom.textContent="100%";
  if(!uf)return;
- if(mapMode==="first"){
-  ensureFirstState(uf);
-  if(!cityDirectory)loadCityDirectory().catch(error=>{
-   const help=$("t2CityHelp");if(help)help.textContent="Não foi possível carregar os municípios. Tente novamente.";
-   console.info("Consulta ao catálogo municipal indisponível:",error.message);
-  });
-  else updateCityControls();
- }else refreshState(uf);
+ if(mapMode==="first")ensureFirstState(uf);
+ else refreshState(uf);
+ if(!cityDirectory)loadCityDirectory().catch(error=>{
+  const help=$("t2CityHelp");if(help)help.textContent="Não foi possível carregar os municípios. Tente novamente.";
+  console.info("Consulta ao catálogo municipal indisponível:",error.message);
+ });
+ else updateCityControls();
 }
 function refreshAll(){
  if(mapMode==="first")loadFirstStates(true);
@@ -571,6 +602,6 @@ function init(){
  window.addEventListener("offline",connection);
  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){paint();if(mapMode==="second"&&available())refresh();}});
 }
-window.BUCentral={selectUF,selectMapMode,lookupCity,zoomMap,resetMapZoom,refresh:refreshAll,share,toggleTV,report,get stateResults(){return {...stateData}},get firstRoundStates(){return {...firstStates}}};
+window.BUCentral={selectUF,selectMapMode,lookupCity,selectCityByIBGE,zoomMap,resetMapZoom,refresh:refreshAll,share,toggleTV,report,get stateResults(){return {...stateData}},get firstRoundStates(){return {...firstStates}}};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
