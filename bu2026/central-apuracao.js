@@ -228,6 +228,7 @@ async function selectCityByIBGE(id){
 function selectMapMode(mode){
  if(mode!=="first"&&mode!=="second")return;
  mapMode=mode;resetCity();mapIntro();mapHtml();
+ window.BUMunicipios?.refreshColors();
  if(mode==="first")loadFirstStates();
  else if(available())refresh();
 }
@@ -462,6 +463,7 @@ function selectUF(uf){
  else updateCityControls();
 }
 function refreshAll(){
+ window.BUMunicipios?.refreshColors(true);
  if(mapMode==="first")loadFirstStates(true);
  else{
   refresh();
@@ -602,6 +604,6 @@ function init(){
  window.addEventListener("offline",connection);
  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){paint();if(mapMode==="second"&&available())refresh();}});
 }
-window.BUCentral={selectUF,selectMapMode,lookupCity,selectCityByIBGE,zoomMap,resetMapZoom,refresh:refreshAll,share,toggleTV,report,get stateResults(){return {...stateData}},get firstRoundStates(){return {...firstStates}}};
+window.BUCentral={selectUF,selectMapMode,lookupCity,selectCityByIBGE,zoomMap,resetMapZoom,refresh:refreshAll,share,toggleTV,report,getCityDirectory:async uf=>(await loadCityDirectory())[uf]||[],get currentMapMode(){return mapMode;},get stateResults(){return {...stateData}},get firstRoundStates(){return {...firstStates}}};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
