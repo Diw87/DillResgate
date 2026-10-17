@@ -80,7 +80,11 @@ function createMap(json,uf){
  svg.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(e);}});
  svg.addEventListener("pointerover",e=>{
   const p=e.target.closest?.("path[data-ibge]");
-  if(p)status("Cidade: "+p.dataset.city+" • clique para consultar a votação.");
+  if(p){
+   const record=cacheEntries(uf,currentElection()).items[p.dataset.ibge];
+   if(record)status(p.dataset.city+" • "+record.name+" ("+record.number+") "+record.percent.toFixed(2).replace(".",",")+"% • "+record.votes.toLocaleString("pt-BR")+" votos");
+   else status("Cidade: "+p.dataset.city+" • resultado ainda não disponível • clique para consultar.");
+  }
  });
  svg.addEventListener("pointerout",e=>{
   const p=e.target.closest?.("path[data-ibge]");
