@@ -396,7 +396,7 @@ tbody tr:hover{background:#fff4ec}
 <link rel="stylesheet" href="./access.css?build=20261010.3">
 <link rel="stylesheet" href="./vitorino-bu.css?build=20261006.5">
 <link rel="stylesheet" href="./segundo-turno.css?build=20261016.1">
-<link rel="stylesheet" href="./central-apuracao.css?build=20261013.1">
+<link rel="stylesheet" href="./central-apuracao.css?build=20261016.4">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -521,6 +521,7 @@ tbody tr:hover{background:#fff4ec}
       <div class="t2-map-layout">
         <div>
           <div class="t2-map-controls">
+            <button id="t2MapBack" type="button" class="t2-map-back" onclick="BUCentral.selectUF('')" hidden aria-label="Voltar ao mapa do Brasil">← Brasil</button>
             <select id="t2StatePicker" aria-label="Selecione um estado do mapa" onchange="BUCentral.selectUF(this.value)"></select>
             <div class="t2-zoom-controls">
               <button type="button" onclick="BUCentral.zoomMap(1.3)" aria-label="Aproximar mapa">+</button>
@@ -529,9 +530,11 @@ tbody tr:hover{background:#fff4ec}
               <output id="t2MapZoom" aria-label="Zoom atual">100%</output>
             </div>
           </div>
-          <div id="t2Map" class="t2-map" role="group" aria-label="Mapa geográfico real e interativo dos estados brasileiros"></div>
+          <div id="t2MapScope" class="t2-map-scope" role="status" aria-live="polite">Selecione um estado para abrir o mapa de todos os seus municípios.</div>
+          <div id="t2Map" class="t2-map" role="group" aria-label="Mapa geográfico interativo do Brasil e dos municípios por estado"></div>
+          <div id="t2MunicipalLegend" class="t2-municipal-legend" hidden>Contornos municipais • selecione uma cidade para ver os votos do TSE. Áreas claras não indicam vencedor.</div>
           <div id="t2MapLegend" class="t2-map-legend"></div>
-          <p class="t2-muted">Malhas geográficas do IBGE • <a href="https://github.com/henriquemalvar/br-geojson" target="_blank" rel="noopener noreferrer">Fonte dos contornos</a> • SVG leve, sem carregamento externo.</p>
+          <p class="t2-muted">Mapa nacional: contornos do IBGE • Municípios: <a href="https://github.com/tbrugz/geodata-br" target="_blank" rel="noopener noreferrer">Geodata BR / IBGE (CC0)</a>, carregados por estado. As cores representam vencedores somente onde existem dados oficiais.</p>
         </div>
         <aside class="t2-map-aside" aria-label="Detalhes do estado e município">
           <div id="t2UFDetail" aria-live="polite"></div>
@@ -1019,13 +1022,14 @@ async function openResultsWindow(targetWindow=null,autoPrint=false){
 </script>
 <script src="./jsQR.js?build=20261005.1"></script>
 <script src="./qr-scanner.js?build=20261005.1"></script>
-<script src="./pwa.js?build=20261016.3"></script>
+<script src="./pwa.js?build=20261016.4"></script>
 <script src="./cloud.js?build=20261005.1"></script>
 <script src="./access.js?build=20261010.3"></script>
 <script src="./navigation.js?build=20261010.3"></script>
 <script src="./vitorino-bu.js?build=20261006.5"></script>
 <script src="./segundo-turno.js?build=20261016.2"></script>
 <script src="./pdf-export.js?build=20261006.5"></script>
-<script src="./central-apuracao.js?build=20261016.2"></script>
+<script src="./mapa-municipios.js?build=20261016.4"></script>
+<script src="./central-apuracao.js?build=20261016.4"></script>
 </body>
 </html>
