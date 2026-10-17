@@ -5,7 +5,10 @@
 const $=id=>document.getElementById(id),NS="http://www.w3.org/2000/svg";
 const UF_ID={AC:12,AL:27,AP:16,AM:13,BA:29,CE:23,DF:53,ES:32,GO:52,MA:21,MT:51,MS:50,MG:31,PA:15,PB:25,PR:41,PE:26,PI:22,RJ:33,RN:24,RS:43,RO:11,RR:14,SC:42,SP:35,SE:28,TO:17};
 const cache=new Map();
-let country=null,openUF="",sequence=0,svgCity=null,cityID="";
+let country=null,openUF="",sequence=0,colorSequence=0,svgCity=null,cityID="";
+const WINNER_CACHE_PREFIX="dwtech-bu2026-city-winners-v2-";
+const maps=new Map();
+const RELEASE=Date.UTC(2026,9,25,20,0,0);
 const isOpen=()=>!!openUF;
 function status(s){const n=$("t2MapScope");if(n)n.textContent=s;}
 function controls(){
@@ -15,7 +18,7 @@ function controls(){
 }
 function setCountryNode(node){country=node;}
 function goBrazil(){
- openUF="";sequence++;cityID="";svgCity=null;
+ openUF="";sequence++;colorSequence++;cityID="";svgCity=null;
  const target=$("t2Map");if(target){delete target.dataset.scope;if(country)target.replaceChildren(country);}
  controls();status("Brasil inteiro • toque em um estado para visualizar todas as suas cidades.");
 }
@@ -107,6 +110,147 @@ async function geometry(uf){
  }
  throw lastError||Error("Malha indisponível");
 }
+
+const n=v=>Number(v)||0;
+const decimal=v=>Number(String(v??"").replace(",","."))||0;
+function currentElection(){return window.BUCentral?.currentMapMode==="second"?"6258":"6257";}
+function storeKey(uf,election){return WINNER_CACHE_PREFIX+election+"-"+uf;}
+function cacheEntries(uf,election){
+ const key=storeKey(uf,election);
+ if(maps.has(key))return maps.get(key);
+ let cached={items:{},updated:0,complete:false};
+ try{
+  const value=JSON.parse(localStorage.getItem(key)||"null");
+  if(value?.items&&typeof value.items==="object"){
+   cached={items:value.items,updated:n(value.updated),complete:!!value.complete};
+  }
+ }catch{}
+ maps.set(key,cached);
+ return cached;
+}
+function saveEntries(uf,election,entries){
+ entries.updated=Date.now();
+ try{localStorage.setItem(storeKey(uf,election),JSON.stringify(entries));}catch{}
+}
+function winnerOf(doc,election,cityCode){
+ if(!doc||String(doc.ele)!==election||String(doc.t)!==(election==="6257"?"1":"2")||
+    String(doc.cdabr)!==cityCode||doc.f!=="o"||doc.dv!=="s"||n(doc.s?.st)<1)return null;
+ const results=[];
+ for(const office of doc.carg||[]){
+  if(String(office.cd)!=="1")continue;
+  for(const agr of office.agr||[])for(const party of agr.par||[])for(const candidate of party.cand||[]){
+   const votes=n(candidate.vap);
+   if(votes>0)results.push({number:String(candidate.n),name:String(candidate.nmu||candidate.nm||""),votes,percent:decimal(candidate.pvap)});
+  }
+ }
+ results.sort((a,b)=>b.votes-a.votes);
+ return results.length?results[0]:null;
+}
+function setWinner(path,winner){
+ if(!path)return;
+ path.classList.remove("has-first","has-second","has-other","winner-known");
+ const title=path.querySelector("title");
+ const name=path.dataset.city||"Município";
+ if(!winner){
+  if(title)title.textContent=name+" • sem resultado municipal confirmado";
+  path.setAttribute("aria-label",name+" • sem resultado confirmado");
+  return;
+ }
+ const kind=winner.number==="13"?"has-second":winner.number==="22"?"has-first":"has-other";
+ path.classList.add(kind,"winner-known");
+ const detail=name+" • "+winner.name+" ("+winner.number+") "+winner.percent.toFixed(2).replace(".",",")+"% • "+winner.votes.toLocaleString("pt-BR")+" votos";
+ if(title)title.textContent=detail;
+ path.setAttribute("aria-label",detail);
+}
+function countPainted(svg){
+ return svg.querySelectorAll("path.winner-known").length;
+}
+function updateProgress(uf,svg,scanned,total,pending){
+ if(svg!==svgCity||uf!==openUF)return;
+ const painted=countPainted(svg);
+ const missing=Math.max(0,total-painted);
+ status(pending
+  ?uf+": "+scanned+" de "+total+" cidades consultadas • "+painted+" com vencedor confirmado. Cidades sem dados ficam cinza."
+  :uf+": "+painted+" de "+total+" cidades com vencedor confirmado • "+missing+" sem resultado disponível. Clique em qualquer cidade.");
+}
+async function fetchWinner(uf,election,city,signal){
+ const base="https://resultados.tse.jus.br/oficial/ele2026/"+election+"/dados/";
+ const file=uf.toLowerCase()+city.code+"-c0001-e00"+election+"-u.json";
+ const url=base+uf.toLowerCase()+"/"+file;
+ const response=await fetch(url,{cache:election==="6257"?"force-cache":"no-store",signal});
+ if(!response.ok)throw Error("TSE HTTP "+response.status);
+ return winnerOf(await response.json(),election,city.code);
+}
+async function colorMunicipalities(force=false){
+ if(!openUF||!svgCity)return;
+ const uf=openUF,svg=svgCity,election=currentElection(),generation=++colorSequence;
+ for(const path of svg.querySelectorAll("path[data-ibge]"))setWinner(path,null);
+ if(election==="6258"&&Date.now()<RELEASE){
+  status("2º turno • aguardando a divulgação oficial de 25/10/2026. Municípios permanecem sem cor de vencedor.");
+  return;
+ }
+ const cached=cacheEntries(uf,election);
+ const age=Date.now()-cached.updated;
+ const snapshotValid=!force&&cached.complete&&(election==="6257"||age<120000);
+ const allPaths=[...svg.querySelectorAll("path[data-ibge]")];
+ for(const p of allPaths)setWinner(p,cached.items[p.dataset.ibge]||null);
+ if(snapshotValid){
+  updateProgress(uf,svg,allPaths.length,allPaths.length,false);
+  return;
+ }
+ let directory=[];
+ try{
+  status("Carregando os municípios oficiais do TSE para pintar o mapa...");
+  directory=await window.BUCentral.getCityDirectory(uf);
+ }catch(error){
+  status("A lista oficial do TSE está indisponível. Consulte as cidades individualmente.");
+  return;
+ }
+ if(generation!==colorSequence||svg!==svgCity||uf!==openUF)return;
+ const byIbge=new Map(directory.filter(c=>c.ibge&&c.code).map(c=>[c.ibge,c]));
+ const tasks=allPaths.map(path=>({path,city:byIbge.get(path.dataset.ibge)})).filter(item=>item.city);
+ const total=tasks.length;
+ let at=0,scanned=0,errors=0;
+ const refreshCache=election==="6258"&&age>120000||force;
+ // Preservar dados já verificados do primeiro turno e retomar consultas interrompidas.
+ const queue=tasks.filter(x=>refreshCache||!Object.prototype.hasOwnProperty.call(cached.items,x.path.dataset.ibge));
+ scanned=total-queue.length;
+ if(!total){status("Os códigos municipais IBGE e TSE não puderam ser associados.");return;}
+ const workers=Array.from({length:8},async()=>{
+  while(generation===colorSequence&&svg===svgCity&&uf===openUF){
+   const idx=at++;
+   if(idx>=queue.length)break;
+   const {path,city}=queue[idx];
+   const controller=new AbortController();
+   const timer=setTimeout(()=>controller.abort(),14000);
+   try{
+    const winner=await fetchWinner(uf,election,city,controller.signal);
+    if(winner)cached.items[path.dataset.ibge]=winner;
+    else delete cached.items[path.dataset.ibge];
+    if(generation===colorSequence&&svg===svgCity)setWinner(path,winner);
+   }catch(error){
+    errors++;
+    // Deixar cinza se TSE estiver indisponível. Nova tentativa no próximo acesso.
+   }finally{
+    clearTimeout(timer);
+    scanned++;
+    if(scanned%12===0&&generation===colorSequence)updateProgress(uf,svg,scanned,total,true);
+    if(scanned%45===0)saveEntries(uf,election,cached);
+   }
+  }
+ });
+ updateProgress(uf,svg,scanned,total,true);
+ await Promise.all(workers);
+ saveEntries(uf,election,cached);
+ if(generation!==colorSequence||svg!==svgCity)return;
+ cached.complete=errors===0&&scanned===total;
+ saveEntries(uf,election,cached);
+ updateProgress(uf,svg,scanned,total,false);
+ if(errors)status(uf+": "+countPainted(svg)+" cidades com vencedor confirmado. "+errors+" consultas não responderam; as demais ficam cinza. Atualize para tentar novamente.");
+}
+function refreshColors(force=false){
+ if(openUF&&svgCity)colorMunicipalities(force).catch(e=>console.warn("Falha na pintura municipal:",e));
+}
 async function show(uf){
  if(!uf||!UF_ID[uf]){goBrazil();return;}
  if(openUF===uf&&svgCity)return;
@@ -119,7 +263,8 @@ async function show(uf){
   if(request!==sequence||openUF!==uf)return;
   const {svg,count}=createMap(json,uf);
   svgCity=svg;target.dataset.scope="municipios";target.replaceChildren(svg);
-  status(count+" municípios no mapa de "+uf+" • clique em qualquer cidade.");
+  status(count+" municípios no mapa de "+uf+" • conferindo vencedores oficiais...");
+  refreshColors();
   const zoom=$("t2MapZoom");if(zoom)zoom.textContent="100%";
  }catch(error){
   if(request!==sequence)return;
@@ -131,16 +276,19 @@ async function show(uf){
 function highlight(ibge,winner){
  cityID=String(ibge||"");
  if(!svgCity)return;
- for(const el of svgCity.querySelectorAll(".is-selected"))el.classList.remove("is-selected","has-first","has-second","has-other");
+ for(const el of svgCity.querySelectorAll(".is-selected"))el.classList.remove("is-selected");
  if(!cityID)return;
- const p=svgCity.querySelector('[data-ibge="'+cityID+'"]');
- if(!p)return;
- p.classList.add("is-selected");
- if(String(winner)==="13")p.classList.add("has-second");
- else if(String(winner)==="22")p.classList.add("has-first");
- else if(winner)p.classList.add("has-other");
+ const path=svgCity.querySelector('[data-ibge="'+cityID+'"]');
+ if(!path)return;
+ path.classList.add("is-selected");
+ const record=cacheEntries(openUF,currentElection()).items[cityID];
+ if(winner&&(!record||String(winner)!==record.number)){
+  // O detalhe consultado diretamente prevalece, sem alterar a cor dos outros municípios.
+  path.classList.remove("has-first","has-second","has-other");
+  path.classList.add(String(winner)==="13"?"has-second":String(winner)==="22"?"has-first":"has-other");
+ }else if(record)setWinner(path,record);
 }
-window.BUMunicipios={show,goBrazil,isOpen,setCountryNode,highlight,
+window.BUMunicipios={show,goBrazil,isOpen,setCountryNode,highlight,refreshColors,
  get count(){return svgCity?.querySelectorAll("[data-ibge]").length||0;},
  get uf(){return openUF;}
 };
