@@ -396,7 +396,7 @@ tbody tr:hover{background:#fff4ec}
 <link rel="stylesheet" href="./access.css?build=20261010.3">
 <link rel="stylesheet" href="./vitorino-bu.css?build=20261006.5">
 <link rel="stylesheet" href="./segundo-turno.css?build=20261016.1">
-<link rel="stylesheet" href="./central-apuracao.css?build=20261016.4">
+<link rel="stylesheet" href="./central-apuracao.css?build=20261016.5">
 </head>
 <body class="access-pending">
 <div id="accessGate" class="access-gate">
@@ -532,7 +532,13 @@ tbody tr:hover{background:#fff4ec}
           </div>
           <div id="t2MapScope" class="t2-map-scope" role="status" aria-live="polite">Selecione um estado para abrir o mapa de todos os seus municípios.</div>
           <div id="t2Map" class="t2-map" role="group" aria-label="Mapa geográfico interativo do Brasil e dos municípios por estado"></div>
-          <div id="t2MunicipalLegend" class="t2-municipal-legend" hidden>Contornos municipais • selecione uma cidade para ver os votos do TSE. Áreas claras não indicam vencedor.</div>
+          <div id="t2MunicipalLegend" class="t2-municipal-legend" hidden aria-label="Legenda das cores por município">
+            <span class="t2-muni-key"><i class="t2-muni-swatch red"></i>Lula • 13</span>
+            <span class="t2-muni-key"><i class="t2-muni-swatch blue"></i>Flávio Bolsonaro • 22</span>
+            <span class="t2-muni-key"><i class="t2-muni-swatch other"></i>Outro vencedor</span>
+            <span class="t2-muni-key"><i class="t2-muni-swatch"></i>Sem dados</span>
+            <small>Cada município assume a cor do candidato mais votado, conforme consulta oficial ao TSE. Os resultados são carregados progressivamente.</small>
+          </div>
           <div id="t2MapLegend" class="t2-map-legend"></div>
           <p class="t2-muted">Mapa nacional: contornos do IBGE • Municípios: <a href="https://github.com/tbrugz/geodata-br" target="_blank" rel="noopener noreferrer">Geodata BR / IBGE (CC0)</a>, carregados por estado. As cores representam vencedores somente onde existem dados oficiais.</p>
         </div>
@@ -1022,14 +1028,14 @@ async function openResultsWindow(targetWindow=null,autoPrint=false){
 </script>
 <script src="./jsQR.js?build=20261005.1"></script>
 <script src="./qr-scanner.js?build=20261005.1"></script>
-<script src="./pwa.js?build=20261016.4"></script>
+<script src="./pwa.js?build=20261016.5"></script>
 <script src="./cloud.js?build=20261005.1"></script>
 <script src="./access.js?build=20261010.3"></script>
 <script src="./navigation.js?build=20261010.3"></script>
 <script src="./vitorino-bu.js?build=20261006.5"></script>
 <script src="./segundo-turno.js?build=20261016.2"></script>
 <script src="./pdf-export.js?build=20261006.5"></script>
-<script src="./mapa-municipios.js?build=20261016.4"></script>
-<script src="./central-apuracao.js?build=20261016.4"></script>
+<script src="./mapa-municipios.js?build=20261016.5"></script>
+<script src="./central-apuracao.js?build=20261016.5"></script>
 </body>
 </html>
