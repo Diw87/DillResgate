@@ -237,3 +237,62 @@
 @media(prefers-reduced-motion:reduce){
  #segundo-turno .t2-map .br-map-state,#segundo-turno .t2-map-period button{transition:none}
 }
+
+
+/* DW Tech 1.3.7 | Municípios vetoriais carregados por estado, sem milhares de objetos no Brasil inicial. */
+#segundo-turno .t2-map-back{
+ display:inline-flex;align-items:center;justify-content:center;
+ border:1px solid #cbd8e7;border-radius:9px;background:#fff;color:#28415e;
+ min-height:37px;white-space:nowrap;padding:8px 12px;font-size:12px;font-weight:900;
+ cursor:pointer;box-shadow:0 2px 7px #162f4b10;
+}
+#segundo-turno .t2-map-back:hover{color:#fff;background:#233f60}
+#segundo-turno .t2-map-back[hidden],#segundo-turno .t2-municipal-legend[hidden]{display:none!important}
+#segundo-turno .t2-map-scope{
+ display:flex;align-items:center;gap:7px;margin:1px 0 10px;
+ color:#4a627d;font-size:11px;font-weight:800;line-height:1.5;
+ min-height:25px;
+}
+#segundo-turno .t2-map-scope::before{
+ content:"⌖";display:grid;place-items:center;width:22px;height:22px;flex:0 0 auto;
+ border-radius:7px;background:#e8f2ff;color:#2b66a8;font-size:16px;
+}
+#segundo-turno .t2-map[data-scope="municipios"]{
+ background:radial-gradient(circle at 48% 44%,#f0f7ff 0%,#f7faff 70%,#fff 100%);
+}
+#segundo-turno .t2-map .t2-muni-svg{
+ display:block;width:100%;height:auto;max-width:100%;max-height:565px;
+ aspect-ratio:820/585;overflow:hidden;flex:0 1 auto;
+ filter:drop-shadow(0 5px 13px rgba(25,51,86,.10));
+ touch-action:pan-y;
+}
+#segundo-turno .t2-map .t2-municipio{
+ fill:#c4d9ec;stroke:#fff;stroke-width:.8;stroke-linecap:round;stroke-linejoin:round;
+ cursor:pointer;transition:fill .12s ease,stroke-width .12s ease;
+}
+#segundo-turno .t2-map .t2-municipio:nth-of-type(even){fill:#b8d2e8}
+#segundo-turno .t2-map .t2-municipio:hover,
+#segundo-turno .t2-map .t2-municipio:focus-visible{
+ fill:#ffba7a;stroke:#233a53;stroke-width:2;outline:none;
+}
+#segundo-turno .t2-map .t2-municipio.is-selected{
+ stroke:#15283e;stroke-width:2.6;fill:#ffa75c;
+}
+#segundo-turno .t2-map .t2-municipio.is-selected.has-second{fill:#ce3045}
+#segundo-turno .t2-map .t2-municipio.is-selected.has-first{fill:#1769cc}
+#segundo-turno .t2-map .t2-municipio.is-selected.has-other{fill:#8975bb}
+#segundo-turno .t2-municipal-legend{
+ margin-top:9px;padding:9px 11px;background:#f5f9fd;border:1px solid #dce8f4;
+ border-radius:9px;color:#576a7e;font-weight:800;font-size:11px;line-height:1.6;
+}
+#segundo-turno .t2-municipal-legend::before{content:"◼";color:#9bbfdb;margin-right:7px}
+#segundo-turno .t2-city-searchrow input{min-width:0}
+@media(max-width:620px){
+ #segundo-turno .t2-map-controls{gap:6px}
+ #segundo-turno .t2-map-back{font-size:11px;padding:8px}
+ #segundo-turno .t2-map .t2-muni-svg{max-height:360px}
+ #segundo-turno .t2-map .t2-municipio{stroke-width:1.1}
+}
+@media(prefers-reduced-motion:reduce){
+ #segundo-turno .t2-map .t2-municipio{transition:none}
+}
