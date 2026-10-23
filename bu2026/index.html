@@ -393,13 +393,13 @@ tbody tr:hover{background:#fff4ec}
 </style>
 <link rel="stylesheet" href="./qr-scanner.css?build=20261005.1">
 <link rel="stylesheet" href="./cloud.css?build=20261005.1">
-<link rel="stylesheet" href="./access.css?build=20261010.3">
+<link rel="stylesheet" href="./access.css?build=20261023.1">
 <link rel="stylesheet" href="./vitorino-bu.css?build=20261006.5">
 <link rel="stylesheet" href="./segundo-turno.css?build=20261016.1">
 <link rel="stylesheet" href="./central-apuracao.css?build=20261016.5">
 </head>
-<body class="access-pending">
-<div id="accessGate" class="access-gate">
+<body class="access-visitor">
+<div id="accessGate" class="access-gate hidden">
   <div class="access-shell">
     <div class="access-brand">
       <div class="access-brand-top">
@@ -413,20 +413,12 @@ tbody tr:hover{background:#fff4ec}
       <div class="access-brand-foot">apuração • tecnologia • acompanhamento em tempo real</div>
     </div>
     <div class="access-panel">
-      <h2>Como deseja acessar?</h2>
-      <p>Escolha o modo de acesso. Visitantes acompanham somente a apuração presidencial do 2º turno; fiscais podem lançar e conferir os B.U.s.</p>
-      <div class="access-choice">
-        <button id="visitorAccessBtn" class="visitor" type="button">
-          <span class="ico">👁</span><span>Entrar como visitante<small>Sem senha • apuração presidencial do 2º turno</small></span>
-        </button>
-        <button id="showFiscalBtn" class="fiscal" type="button">
-          <span class="ico">✓</span><span>Entrar como fiscal<small>Acesso ao lançamento e conferência dos B.U.s</small></span>
-        </button>
-      </div>
+      <h2>Área restrita • Fiscal</h2>
+      <p>Informe as credenciais para lançar e conferir os boletins de urna. O acesso público abre automaticamente na apuração presidencial.</p>
       <div id="fiscalLoginBox" class="fiscal-login">
         <div class="field"><label>Login</label><input id="fiscalUser" autocomplete="username" value="fiscal" placeholder="fiscal"></div>
         <div class="field"><label>Senha de 6 dígitos</label><input id="fiscalPass" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="current-password" placeholder="••••••"></div>
-        <div class="row"><button class="soft" type="button" onclick="document.getElementById('fiscalLoginBox').classList.remove('show')">Voltar</button><button id="fiscalLoginBtn" class="primary" type="button">Entrar como fiscal</button></div>
+        <div class="row"><button class="soft" type="button" onclick="BUAccess.closeFiscalLogin()">Voltar ao visitante</button><button id="fiscalLoginBtn" class="primary" type="button">Entrar como fiscal</button></div>
         <div id="fiscalLoginMsg" class="msg"></div>
       </div>
       <div class="access-developer">Desenvolvido por <b>Dill Wherbeth</b></div>
@@ -1028,9 +1020,9 @@ async function openResultsWindow(targetWindow=null,autoPrint=false){
 </script>
 <script src="./jsQR.js?build=20261005.1"></script>
 <script src="./qr-scanner.js?build=20261005.1"></script>
-<script src="./pwa.js?build=20261016.5"></script>
+<script src="./pwa.js?build=20261023.1"></script>
 <script src="./cloud.js?build=20261005.1"></script>
-<script src="./access.js?build=20261010.3"></script>
+<script src="./access.js?build=20261023.1"></script>
 <script src="./navigation.js?build=20261010.3"></script>
 <script src="./vitorino-bu.js?build=20261006.5"></script>
 <script src="./segundo-turno.js?build=20261016.2"></script>
