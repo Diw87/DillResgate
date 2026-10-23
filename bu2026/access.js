@@ -2,7 +2,7 @@
 const MODE_KEY="BU2026_ACCESS_MODE";
 const FISCAL_USER="fiscal";
 const PASS_HASH="8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92";
-let mode=sessionStorage.getItem(MODE_KEY)||"";
+let mode=sessionStorage.getItem(MODE_KEY)==="fiscal"?"fiscal":"visitor";
 
 const $=id=>document.getElementById(id);
 async function sha256(text){
@@ -18,12 +18,31 @@ function setModeBadge(){
  b.textContent=mode==="fiscal"?"● Modo fiscal":"● Modo visitante";
 }
 function ensureSwitch(){
- const side=document.querySelector(".dw-sidebar");if(!side||$("accessSwitchBtn"))return;
- const btn=document.createElement("button");btn.id="accessSwitchBtn";btn.className="access-switch";btn.innerHTML='<span class="side-icon">⇄</span><span>Trocar acesso</span>';
- btn.onclick=resetAccess;side.insertBefore(btn,side.querySelector(".side-signature"));
+ const side=document.querySelector(".dw-sidebar");if(!side)return;
+ let btn=$("accessSwitchBtn");
+ if(!btn){
+  btn=document.createElement("button");btn.id="accessSwitchBtn";btn.className="access-switch";
+  side.insertBefore(btn,side.querySelector(".side-signature"));
+ }
+ btn.innerHTML=mode==="fiscal"
+  ?'<span class="side-icon">↩</span><span>Sair do modo fiscal</span>'
+  :'<span class="side-icon">🔒</span><span>Área restrita</span>';
+ btn.setAttribute("aria-label",mode==="fiscal"?"Voltar ao acesso visitante":"Abrir login restrito dos fiscais");
+ btn.onclick=()=>mode==="fiscal"?enterMode("visitor"):openFiscalLogin();
 }
-function showFiscalForm(){
- $("fiscalLoginBox")?.classList.add("show");setTimeout(()=>$("fiscalUser")?.focus(),50)
+function openFiscalLogin(){
+ const popup=gate();if(!popup)return;
+ clearError();const pass=$("fiscalPass");if(pass)pass.value="";
+ popup.classList.remove("hidden");
+ popup.setAttribute("role","dialog");
+ popup.setAttribute("aria-modal","true");
+ popup.setAttribute("aria-label","Login da área restrita");
+ $("fiscalLoginBox")?.classList.add("show");
+ setTimeout(()=>$("fiscalUser")?.focus(),0);
+}
+function closeFiscalLogin(){
+ gate()?.classList.add("hidden");$("fiscalLoginBox")?.classList.remove("show");clearError();
+ const pass=$("fiscalPass");if(pass)pass.value="";
 }
 function showError(msg){
  const e=$("fiscalLoginMsg");if(!e)return;e.textContent=msg;e.classList.add("show")
@@ -41,22 +60,23 @@ async function fiscalLogin(){
 }
 function enterVisitor(){enterMode("visitor")}
 function enterMode(next){
- mode=next;sessionStorage.setItem(MODE_KEY,mode);
+ if(next!=="visitor"&&next!=="fiscal")return;
+ mode=next;
+ if(mode==="fiscal")sessionStorage.setItem(MODE_KEY,"fiscal");
+ else sessionStorage.removeItem(MODE_KEY);
  document.body.classList.remove("access-pending","access-visitor","access-fiscal");
  document.body.classList.add(mode==="visitor"?"access-visitor":"access-fiscal");
- gate()?.classList.add("hidden");setModeBadge();ensureSwitch();
- if(mode==="visitor"){
-   setTimeout(()=>{try{showMain("segundo-turno",document.querySelectorAll(".tab")[4])}catch{}},0);
- }else{
-   setTimeout(()=>{try{showMain("novo",document.querySelectorAll(".tab")[0])}catch{}},0);
+ closeFiscalLogin();setModeBadge();ensureSwitch();
+ const view=mode==="visitor"?"segundo-turno":"novo";
+ const tab=mode==="visitor"?4:0;
+ // Não gera navegação duplicada ao voltar para o início pelo botão do aparelho.
+ if(document.querySelector(".section.active")?.id!==view){
+  setTimeout(()=>{try{window.showMain?.(view,document.querySelectorAll(".tab")[tab])}catch{}},0);
  }
 }
 function resetAccess(){
- sessionStorage.removeItem(MODE_KEY);mode="";
- document.body.classList.remove("access-visitor","access-fiscal");
- document.body.classList.add("access-pending");
- gate()?.classList.remove("hidden");
- $("fiscalLoginBox")?.classList.remove("show");clearError();
+ // O modo público é sempre a tela inicial: não existe mais uma escolha de acesso.
+ enterMode("visitor");
 }
 
 function patchNavigation(){
@@ -78,14 +98,12 @@ function patchNavigation(){
 }
 
 function init(){
- $("visitorAccessBtn")?.addEventListener("click",enterVisitor);
- $("showFiscalBtn")?.addEventListener("click",showFiscalForm);
  $("fiscalLoginBtn")?.addEventListener("click",fiscalLogin);
  $("fiscalPass")?.addEventListener("keydown",e=>{if(e.key==="Enter")fiscalLogin()});
+ $("accessGate")?.addEventListener("keydown",e=>{if(e.key==="Escape")closeFiscalLogin()});
  patchNavigation();
- if(mode==="visitor"||mode==="fiscal")enterMode(mode);
- else document.body.classList.add("access-pending");
+ enterMode(mode);
 }
-window.BUAccess={get mode(){return mode},isFiscal:()=>mode==="fiscal",reset:resetAccess};
+window.BUAccess={get mode(){return mode},isFiscal:()=>mode==="fiscal",reset:resetAccess,openFiscalLogin,closeFiscalLogin};
 document.addEventListener("DOMContentLoaded",init);
 })();
