@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v57-cores-cidades";
+const CACHE_VERSION="dwtech-bu2026-v58-visitante-direto";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
