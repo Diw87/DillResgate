@@ -337,3 +337,30 @@ body.t2-fullscreen-open{overflow:hidden}
 /* Fotografias oficiais de urna: enquadramento completo, incluindo o chapéu. */
 #segundo-turno .t2-portrait{background:#fff;border-color:#e4e9f0}
 #segundo-turno .t2-portrait img{object-fit:contain;object-position:center center;background:#fff}
+
+/* Virada nacional: destaque breve somente se Lula ultrapassar o adversário. */
+#segundo-turno .t2-candidate.t2-lula-virada{
+ animation:t2-lula-virada 4.8s ease-out 1;
+}
+#segundo-turno .t2-virada-note{
+ position:relative;z-index:3;margin:12px 0 0;padding:8px 11px;
+ width:fit-content;max-width:100%;
+ border:1px solid #f0b6bf;border-radius:8px;
+ background:#fff0f2;color:#9b2036;font-size:11px;font-weight:950;
+ letter-spacing:.25px;line-height:1.45;
+ animation:t2-virada-entry .35s ease-out 1;
+}
+@keyframes t2-lula-virada{
+ 0%{transform:translateY(0);box-shadow:0 9px 26px rgba(18,31,45,.06)}
+ 12%{transform:translateY(-3px);box-shadow:0 0 0 3px rgba(206,48,69,.19),0 13px 30px rgba(206,48,69,.17)}
+ 40%{transform:translateY(0);box-shadow:0 0 0 2px rgba(206,48,69,.12),0 10px 28px rgba(206,48,69,.1)}
+ 100%{transform:translateY(0);box-shadow:0 9px 26px rgba(18,31,45,.06)}
+}
+@keyframes t2-virada-entry{
+ from{opacity:0;transform:translateY(-5px)}
+ to{opacity:1;transform:translateY(0)}
+}
+@media(prefers-reduced-motion:reduce){
+ #segundo-turno .t2-candidate.t2-lula-virada,
+ #segundo-turno .t2-virada-note{animation:none}
+}
