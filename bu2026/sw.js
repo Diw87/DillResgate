@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v58-visitante-direto";
+const CACHE_VERSION="dwtech-bu2026-v59-visitante-direto-publish-fix";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
