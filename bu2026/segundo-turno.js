@@ -65,6 +65,8 @@ function renderCountdown(now=Date.now()){
   }
   countdownFinished=false;
  }else{
+  // Libera o espaço do painel quando termina a contagem, sem interromper a apuração.
+  root.hidden=true;
   root.dataset.stage="released";
   const title=$("turno2CountdownTitle");
   if(title)title.textContent="Chegou o horário previsto para a divulgação!";
