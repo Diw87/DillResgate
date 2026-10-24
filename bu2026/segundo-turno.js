@@ -25,6 +25,8 @@ let selected="br",results={},finalists=[
  {numero:"22",nome:"FLAVIO BOLSONARO",partido:"PL"}
 ],updated=0,inFlight=null,timer=null,countdownTimer=null,countdownFinished=false;
 let manualRefreshing=false,lastConsultation=0;
+const NATIONAL_LEAD_KEY="dwtech-bu2026-national-leader-6258-v1";
+let nationalLeadState=null,lulaFlashUntil=0,lulaFlashTimer=null;
 const $=id=>document.getElementById(id);
 const n=v=>Number(v)||0;
 const decimal=v=>Number(String(v??0).replace(",","."))||0;
@@ -112,6 +114,52 @@ function pickCandidates(r){
  if(officialReady(r))return (r.candidatos||[]).slice().sort((a,b)=>n(b.votos)-n(a.votos)).slice(0,2).sort(byNumber);
  return finalists.map(c=>({...c,votos:null,percentual:null})).sort(byNumber);
 }
+// Detecta somente virada real do 22 para o 13 na apuração nacional do TSE.
+// O primeiro resultado observado nunca gera animação; empates preservam o último líder.
+function observeNationalLead(){
+ const r=results.presidente_br;
+ if(!officialReady(r))return;
+ const lula=(r.candidatos||[]).find(c=>String(c.numero)==="13");
+ const outro=(r.candidatos||[]).find(c=>String(c.numero)==="22");
+ if(!lula||!outro)return;
+ const lulaVotes=n(lula.votos),otherVotes=n(outro.votos);
+ if(lulaVotes+otherVotes<=0)return;
+ const leader=lulaVotes>otherVotes?"13":otherVotes>lulaVotes?"22":"";
+ const sections=n(r.secoes?.totalizadas),valid=n(r.votos?.validos);
+ let previous=nationalLeadState;
+ if(!previous){
+  try{previous=JSON.parse(localStorage.getItem(NATIONAL_LEAD_KEY)||"null");}catch{}
+ }
+ // Ignora leituras antigas que poderiam simular uma virada falsa.
+ if(previous&&(sections<n(previous.sections)||valid<n(previous.valid)))return;
+ const previousLeader=previous?.lastStrictLeader||"";
+ const changed=!previous||n(previous.lulaVotes)!==lulaVotes||n(previous.otherVotes)!==otherVotes;
+ const next={lastStrictLeader:leader||previousLeader,lulaVotes,otherVotes,sections,valid};
+ nationalLeadState=next;
+ try{localStorage.setItem(NATIONAL_LEAD_KEY,JSON.stringify(next));}catch{}
+ if(previous&&changed&&previousLeader==="22"&&leader==="13"){
+  lulaFlashUntil=Date.now()+4800;
+  if(lulaFlashTimer)clearTimeout(lulaFlashTimer);
+  lulaFlashTimer=setTimeout(()=>{
+   lulaFlashUntil=0;
+   const card=$("turno2Candidates")?.querySelector('.t2-candidate[data-candidate-number="13"]');
+   card?.classList.remove("t2-lula-virada");
+   card?.querySelector(".t2-virada-note")?.remove();
+  },4800);
+ }
+}
+function decorateNationalLead(){
+ if(selected!=="br"||Date.now()>=lulaFlashUntil)return;
+ const card=$("turno2Candidates")?.querySelector('.t2-candidate[data-candidate-number="13"]');
+ if(!card)return;
+ card.classList.add("t2-lula-virada");
+ if(card.querySelector(".t2-virada-note"))return;
+ const note=document.createElement("div");
+ note.className="t2-virada-note";
+ note.setAttribute("role","status");
+ note.textContent="↗ VIRADA NACIONAL • LULA ASSUME A LIDERANÇA";
+ card.querySelector(".t2-candidate-top")?.insertAdjacentElement("afterend",note);
+}
 function cardForCandidate(c,i,hasVotes,rank){
  const number=String(c.numero||"");
  const palette=number==="22"?"blue":number==="13"?"red":"neutral";
@@ -123,7 +171,7 @@ function cardForCandidate(c,i,hasVotes,rank){
  const name=String(c.nome||"Candidato a presidente");
  const votes=hasVotes?fmt(c.votos)+" votos válidos":"Aguardando votos oficiais do segundo turno";
  const photoHtml=photo?'<img src="'+esc(photo)+'" alt="Foto cadastrada na urna eletrônica: '+esc(name)+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">':"";
- return '<article class="t2-candidate" data-palette="'+palette+'" aria-label="'+esc(name)+', '+esc(c.partido||"")+'">'+
+ return '<article class="t2-candidate" data-candidate-number="'+esc(number)+'" data-palette="'+palette+'" aria-label="'+esc(name)+', '+esc(c.partido||"")+'">'+
   '<div class="t2-candidate-top"><span class="t2-number">'+esc(number||"—")+'</span><span class="t2-position">'+esc(label)+'</span></div>'+
   '<div class="t2-candidate-profile">'+
    '<div class="t2-portrait" aria-label="Retrato de '+esc(name)+'"><span aria-hidden="true">'+esc(number||"•")+'</span>'+photoHtml+'</div>'+
@@ -167,6 +215,7 @@ function render(){
  const ranked=ready?(r.candidatos||[]).slice().sort((a,b)=>n(b.votos)-n(a.votos)):[];
  candidates.innerHTML=listed.length?listed.map((c,i)=>cardForCandidate(c,i,ready,ranked.findIndex(x=>String(x.numero)===String(c.numero))+1)).join(""):
   '<div class="t2-empty">Os dois candidatos classificados aparecem aqui após a leitura da base oficial. A votação do 2º turno permanece separada do 1º turno.</div>';
+ decorateNationalLead();
  const timestamp=ready?[r.geradoEm?.data,r.geradoEm?.hora].filter(Boolean).join(" "):"—";
  if(time)time.textContent="Fonte: Tribunal Superior Eleitoral • eleição 6258 • Atualização TSE: "+timestamp;
  const link=$("turno2Source");if(link)link.href=area.url;
@@ -220,6 +269,7 @@ async function fetchResults(force=false){
   const previous=JSON.stringify(results);
   // Se as fontes não publicaram novo arquivo, preserva a última apuração válida.
   if(Object.keys(fetched).length)results={...results,...fetched};
+  observeNationalLead();
   const changed=JSON.stringify(results)!==previous;
   updated=lastConsultation=Date.now();
   if(!Object.values(results).some(officialReady))await loadFinalists();
