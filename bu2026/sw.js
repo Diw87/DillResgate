@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v59-visitante-direto-publish-fix";
+const CACHE_VERSION="dwtech-bu2026-v60-lula-virada-nacional";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
