@@ -101,6 +101,7 @@ body.t2-fullscreen-open{overflow:hidden}
  border-bottom:4px solid #ff650d;
  box-shadow:0 15px 28px rgba(11,13,15,.16)
 }
+#turno2Countdown[hidden]{display:none!important}
 .t2-countdown-eyebrow{display:flex;align-items:center;gap:9px;color:#ff995d;font-weight:900;font-size:10px;letter-spacing:1.8px}
 .t2-countdown-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff650d;box-shadow:0 0 0 5px rgba(255,101,13,.12)}
 .t2-countdown-heading h3{margin:12px 0 9px;font-size:clamp(18px,2.1vw,28px);line-height:1.2}
