@@ -30,27 +30,38 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Gerar capa para compartilhamento no WhatsApp
+        continue-on-error: true
         run: |
           python3 -m pip install --quiet Pillow
           python3 bu2026/generate_og_image.py
           test -s bu2026/preview-whatsapp.jpg
 
       - name: Atualizar base oficial de candidatos 2026
+        if: github.event_name != 'push'
+        continue-on-error: true
         run: python3 bu2026/sync_tse.py
 
       - name: Atualizar resultados oficiais TSE 2026
+        if: github.event_name != 'push'
+        continue-on-error: true
         run: python3 bu2026/sync_resultados_tse.py
 
       - name: Atualizar apuração presidencial do 2º turno
+        if: github.event_name != 'push'
+        continue-on-error: true
         run: python3 bu2026/sync_segundo_turno.py
 
       - name: Preparar leitor oficial de B.U. 2026
+        if: github.event_name != 'push'
+        continue-on-error: true
         run: |
           mkdir -p /tmp/bu-playwright
           npm install --prefix /tmp/bu-playwright playwright@1.55.0
           /tmp/bu-playwright/node_modules/.bin/playwright install --with-deps chromium
 
       - name: Atualizar B.U.s de Vitorino Freire
+        if: github.event_name != 'push'
+        continue-on-error: true
         env:
           NODE_PATH: /tmp/bu-playwright/node_modules
         run: node bu2026/sync_vitorino_bu.js
