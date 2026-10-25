@@ -217,5 +217,5 @@ test('o atalho antigo do Exterior nao toma a tela inicial Brasil e exterior',()=
  const countries=html.indexOf('id="exteriorLocations"');
  const total=html.indexOf('id="exteriorCandidates"');
  assert.ok(countries>0 && countries<total,'países devem aparecer antes dos cartões do total geral');
- assert.match(html,/public-result-tab active[^>]*Brasil \+ exterior/);
+ assert.match(html,/public-result-tab active[^>]*>◉ Brasil \+ exterior/);
 });
