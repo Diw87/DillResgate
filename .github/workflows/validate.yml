@@ -56,6 +56,7 @@ jobs:
           python -m py_compile bu2026/sync_tse.py
           python -m py_compile bu2026/sync_resultados_tse.py
           python -m py_compile bu2026/sync_segundo_turno.py
+          python -m py_compile bu2026/sync_exterior_localidades.py
 
       - name: Verificar arquivos essenciais
         shell: pwsh
