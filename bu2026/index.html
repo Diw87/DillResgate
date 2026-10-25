@@ -29,7 +29,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="B.U. 2026">
-<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+<link rel="icon" type="image/svg+xml" href="./icons/bu-icon.svg?build=20261024.4">
 <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
 <style>
 :root{--bg:#eef3f8;--panel:#fff;--text:#172033;--muted:#667085;--line:#dfe5ec;--primary:#0b4f78;--primary2:#0878b7;--ok:#067647;--warn:#b54708;--danger:#b42318;--blueSoft:#eff8ff;--shadow:0 12px 34px rgba(16,24,40,.08);--radius:16px}
@@ -442,10 +442,19 @@ tbody tr:hover{background:#fff4ec}
  .dw-intro-progress i{transform:scaleX(1)}}
 @media print{#dwIntro{display:none!important}}
 
+
+/* Identidade DW Tech oficial, vetorizada a partir do PNG aprovado. */
+.dw-official-header{display:block;width:min(300px,28vw);max-width:100%;height:auto;object-fit:contain}
+.dw-official-intro{display:block;width:min(650px,86vw);height:auto;max-height:34vh;object-fit:contain;filter:drop-shadow(0 0 22px rgba(255,101,13,.15));animation:dw-intro-emblem 1.5s ease-out both}
+.dw-official-footer{display:block;width:145px;height:auto;max-width:40vw;flex-shrink:0}
+@media(max-width:760px){.dw-official-header{width:clamp(142px,38vw,250px)}.dw-official-footer{width:130px}}
+@media(max-width:390px){.dw-official-header{width:135px}}
+@media(prefers-reduced-motion:reduce){.dw-official-intro{animation:none}}
+
 </style>
 <link rel="stylesheet" href="./qr-scanner.css?build=20261005.1">
 <link rel="stylesheet" href="./cloud.css?build=20261005.1">
-<link rel="stylesheet" href="./access.css?build=20261023.1">
+<link rel="stylesheet" href="./access.css?build=20261024.4">
 <link rel="stylesheet" href="./vitorino-bu.css?build=20261006.5">
 <link rel="stylesheet" href="./segundo-turno.css?build=20261024.2">
 <link rel="stylesheet" href="./central-apuracao.css?build=20261016.5">
@@ -453,9 +462,7 @@ tbody tr:hover{background:#fff4ec}
 <body class="access-visitor">
 <div id="dwIntro" class="dw-intro" role="region" aria-label="Abertura do aplicativo DW Tech">
   <div class="dw-intro-content">
-    <div class="dw-intro-emblem" aria-hidden="true"><i></i><i></i></div>
-    <div class="dw-intro-name">DW <span>Tech</span></div>
-    <div class="dw-intro-sub">SOLUÇÕES EM TECNOLOGIA</div>
+    <img class="dw-official-intro" src="./logo-dwtech-dark.svg" alt="DW Tech — Soluções em Tecnologia" width="650" height="145" decoding="sync">
     <div class="dw-intro-line" aria-hidden="true"></div>
     <p class="dw-intro-product">BOLETIM DE URNA <b>2026</b></p>
     <div class="dw-intro-progress" aria-hidden="true"><i></i></div>
@@ -485,10 +492,7 @@ tbody tr:hover{background:#fff4ec}
 <div id="accessGate" class="access-gate hidden">
   <div class="access-shell">
     <div class="access-brand">
-      <div class="access-brand-top">
-        <div class="access-logo" aria-hidden="true"></div>
-        <div><strong>DW <span>Tech</span></strong><small>Soluções em Tecnologia</small></div>
-      </div>
+      <div class="access-brand-top"><img class="dw-official-access" src="./logo-dwtech-dark.svg" alt="DW Tech — Soluções em Tecnologia" width="330" height="74"></div>
       <div class="access-brand-copy">
         <h1>B.U. 2026 — <span>Boletim de Urna</span></h1>
         <p>Acompanhamento da apuração de Olho d'Água das Cunhãs, resultados oficiais do Maranhão e resultado nacional para Presidente.</p>
@@ -510,8 +514,7 @@ tbody tr:hover{background:#fff4ec}
 </div>
 <header class="dw-header"><div class="dw-top">
   <div class="dw-brand">
-    <div class="dw-symbol" aria-hidden="true"><i></i><i></i></div>
-    <div class="dw-word"><strong>DW <span>Tech</span></strong><small>SOLUÇÕES EM TECNOLOGIA</small></div>
+    <img class="dw-official-header" src="./logo-dwtech-dark.svg" alt="DW Tech — Soluções em Tecnologia" width="300" height="67">
   </div>
   <div class="dw-title"><b>B.U. 2026 — <span>Boletim de Urna</span></b><small>Apuração inteligente • desenvolvido por Dill Wherbeth</small></div>
   <div class="dw-strap">hardware • performance<br>confiança • sempre com você
@@ -665,7 +668,7 @@ tbody tr:hover{background:#fff4ec}
 </section>
 <section id="candidatos" class="section"><div class="card"><div class="head"><h3>Base de candidatos cadastrados</h3><div class="actions"><button class="primary" onclick="refreshCandidates(true)">Atualizar pelo TSE</button></div></div><div class="body"><div class="candidate-browser"><div><div class="field"><label>Cargo</label><select id="candOffice" onchange="renderCandidateBrowser()"></select></div><div class="field" style="margin-top:8px"><label>Pesquisar</label><input id="candSearch" placeholder="Número, nome ou partido..." oninput="renderCandidateBrowser()"></div><div id="candSummary" class="source" style="margin-top:10px"></div></div><div id="candidateList" class="candidate-list"></div></div></div></div></section>
 <div class="notice"><strong>Importante:</strong> ferramenta independente para digitação e conferência de B.U.s. Não substitui o Boletim de Urna oficial nem a totalização oficial da Justiça Eleitoral. Os B.U.s são compartilhados entre os aparelhos conectados à central; em caso de queda de internet, o lançamento pode ficar pendente até a sincronização.</div>
-<div class="dw-footer"><b>DW <span>Tech</span></b><span>Soluções reais para pessoas reais</span><span><span class="orange">inovação</span> • desempenho • confiança</span><span>B.U. 2026 • desenvolvido por Dill Wherbeth</span></div>
+<div class="dw-footer"><img class="dw-official-footer" src="./logo-dwtech-dark.svg" alt="DW Tech" width="145" height="33"><span>Soluções reais para pessoas reais</span><span><span class="orange">inovação</span> • desempenho • confiança</span><span>B.U. 2026 • desenvolvido por Dill Wherbeth</span></div>
 </main>
 
 <button id="pwaUpdateBtn" class="pwa-update-float" type="button" onclick="applyPwaUpdate()">↻ Atualizar aplicativo</button>
@@ -1075,7 +1078,7 @@ async function openResultsWindow(targetWindow=null,autoPrint=false){
   '@media(max-width:700px){.top{grid-template-columns:1fr;padding:12px}.brand{justify-content:center}.headline h1{font-size:20px}.headline p{letter-spacing:1.2px}.overview{grid-template-columns:1fr 1fr}.progress-card{grid-template-columns:1fr}.progress-card b{text-align:left}.rank-head{display:none}.rr{grid-template-columns:42px 58px 1fr 84px}.rbar{display:none}.footer{flex-direction:column;align-items:flex-start}.st b{font-size:20px}}@page{size:A4 landscape;margin:9mm}@media print{html,body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}header{position:static;box-shadow:none}.head-actions{display:none!important}main{max-width:none;padding:8mm 0}.grid{display:block}.result-card{margin:0 0 8mm;box-shadow:none;break-inside:auto}.scroll{max-height:none!important;overflow:visible!important}.rr{break-inside:avoid}.overview,.progress-card{break-inside:avoid}.footer{margin-top:6mm;break-inside:avoid}.top{min-height:82px;padding:8px 14px}.brand strong{font-size:28px}.headline h1{font-size:22px}}'+
   '</style></head><body>'+
   '<header><div class="top">'+
-    '<div class="brand"><div class="mark"><i></i><i></i></div><div><strong>DW <span>Tech</span></strong><small>SOLUÇÕES EM TECNOLOGIA</small></div></div>'+
+    '<div class="brand"><img src="./logo-dwtech-dark.svg" alt="DW Tech" style="width:250px;max-width:100%;height:auto"></div>'+
     '<div class="headline"><h1>B.U. 2026 — <span>RESULTADOS</span></h1><p>Olho d\'Água das Cunhãs — MA • 87ª Zona Eleitoral</p></div>'+
     '<div class="head-actions"><button class="btn orange" onclick="opener&&opener.openResultsWindow(window)">↻ Atualizar</button><button class="btn" onclick="window.print()">🖨 Imprimir / PDF</button><button class="btn" onclick="document.documentElement.requestFullscreen()">⛶ Tela cheia</button><button class="btn" onclick="window.close()">✕ Fechar</button></div>'+
   '</div></header>'+
@@ -1089,7 +1092,7 @@ async function openResultsWindow(targetWindow=null,autoPrint=false){
     '</div>'+
     '<div class="progress-card"><span>Evolução da apuração</span><div class="progress-track"><i style="width:'+Math.min(100,progress).toFixed(1)+'%"></i></div><b>'+progress.toFixed(1)+'%</b></div>'+
     '<div class="grid">'+panels+'</div>'+
-    '<div class="footer"><b>DW <span>Tech</span></b><span>Olho d\'Água das Cunhãs • 53 seções oficiais</span><span>Gerado em '+esc(reportWhen)+'</span><span>Desenvolvido por Dill Wherbeth</span></div>'+
+    '<div class="footer"><img src="./logo-dwtech-dark.svg" alt="DW Tech" style="width:130px;height:auto"><span>Olho d\'Água das Cunhãs • 53 seções oficiais</span><span>Gerado em '+esc(reportWhen)+'</span><span>Desenvolvido por Dill Wherbeth</span></div>'+
   '</main></body></html>';
 
   w.document.open();
@@ -1103,7 +1106,7 @@ async function openResultsWindow(targetWindow=null,autoPrint=false){
 </script>
 <script src="./jsQR.js?build=20261005.1"></script>
 <script src="./qr-scanner.js?build=20261005.1"></script>
-<script src="./pwa.js?build=20261024.3"></script>
+<script src="./pwa.js?build=20261024.4"></script>
 <script src="./cloud.js?build=20261005.1"></script>
 <script src="./access.js?build=20261024.1"></script>
 <script src="./navigation.js?build=20261010.3"></script>
