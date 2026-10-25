@@ -123,7 +123,7 @@ function renderFilters(){
  const city=$("exteriorLocality");if(city){city.value=locality;city.disabled=!country}
 }
 function countryOverview(){
- if(!catalog.length)return "";
+ if(!catalog.length)return '<p class="exterior-coverage">Carregando lista de países do TSE…</p>';
  const groups=new Map();
  for(const place of catalog){
   if(!groups.has(place.pais))groups.set(place.pais,[]);
@@ -134,12 +134,15 @@ function countryOverview(){
   const votes=num=>counted.reduce((sum,x)=>sum+number(results.get(x.codigo).candidatos.find(c=>String(c.numero)===num)?.votos),0);
   return {name,total:places.length,loaded:counted.length,lula:votes("13"),flavio:votes("22")};
  }).sort((a,b)=>(b.lula+b.flavio)-(a.lula+a.flavio)||a.name.localeCompare(b.name,"pt-BR"));
- return '<h3 style="margin:8px 0 12px">Votação por país / território</h3>'+
- '<p class="exterior-coverage">Somas calculadas a partir das localidades oficiais do TSE. O agrupamento por país é da DW Tech; não é um total por país publicado pelo TSE. Toque no nome para consultar cada cidade.</p>'+
- '<div class="table-wrap"><table class="exterior-country-table"><thead><tr><th>País / território</th><th>Lula • 13</th><th>Flávio • 22</th><th>Localidades com votos</th></tr></thead><tbody>'+
- entries.map(x=>'<tr><td><button type="button" class="soft" data-country="'+esc(x.name)+'" onclick="BUExterior.selectCountry(this.dataset.country)">'+esc(x.name)+'</button></td>'+
- '<td class="exterior-red">'+(x.loaded?fmt(x.lula):"—")+'</td><td class="exterior-blue">'+(x.loaded?fmt(x.flavio):"—")+'</td>'+
- '<td>'+fmt(x.loaded)+' / '+fmt(x.total)+'</td></tr>').join("")+'</tbody></table></div>';
+ const total=entries.reduce((n,x)=>n+x.loaded,0);
+ return '<div class="exterior-country-title"><h3>Votos separados por país</h3><span>'+fmt(total)+' de '+fmt(catalog.length)+' localidades com apuração</span></div>'+
+ '<p class="exterior-coverage">Votos oficiais por localidade do TSE agrupados pela DW Tech. Selecione um país para visualizar suas cidades. Os países sem dados confirmados aparecem sem votos, não como zero.</p>'+
+ (total?'':'<p class="exterior-coverage">O total geral pode estar disponível antes dos arquivos por localidade. Ainda não há votos individualizados confirmados nesta sincronização.</p>')+
+ '<div class="exterior-country-grid">'+entries.map(x=>
+ '<article class="exterior-country-card"><button type="button" class="exterior-country-name" data-country="'+esc(x.name)+'" onclick="BUExterior.selectCountry(this.dataset.country)">'+esc(x.name)+' <span aria-hidden="true">›</span></button>'+
+ '<div class="exterior-country-metrics"><div><small>Lula • 13</small><strong class="exterior-red">'+(x.loaded?fmt(x.lula):"—")+'</strong></div>'+
+ '<div><small>Flávio • 22</small><strong class="exterior-blue">'+(x.loaded?fmt(x.flavio):"—")+'</strong></div></div>'+
+ '<p class="exterior-country-progress">Localidades com votos: '+fmt(x.loaded)+' / '+fmt(x.total)+'</p></article>').join("")+'</div>';
 }
 function render(){
  const items=locations(),place=catalog.find(x=>x.codigo===locality);
