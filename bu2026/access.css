@@ -72,3 +72,7 @@ body.access-visitor .access-switch:focus-visible{
 .access-gate .access-panel .fiscal-login .row button{
  cursor:pointer;min-height:42px;
 }
+
+/* Área fiscal — marca oficial legível em fundo escuro. */
+.access-brand-top .dw-official-access{display:block;width:min(100%,370px);max-height:95px;height:auto;object-fit:contain;object-position:left center}
+@media(max-width:780px){.access-brand-top .dw-official-access{max-width:285px}}
