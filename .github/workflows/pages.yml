@@ -47,7 +47,6 @@ jobs:
         run: python3 bu2026/sync_resultados_tse.py
 
       - name: Atualizar apuração presidencial do 2º turno
-        if: github.event_name != 'push'
         continue-on-error: true
         run: python3 bu2026/sync_segundo_turno.py
 
