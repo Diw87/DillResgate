@@ -192,3 +192,16 @@ test('aceita codigo de abrangencia TSE com prefixo ZZ por localidade e exibe na 
  assert.match(h.nodes.get('exteriorHeadline').textContent,/TÓQUIO/);
  assert.match(h.nodes.get('exteriorSummary').innerHTML,/100/);
 });
+
+test('mostra tabela por país diretamente na aba Exterior e permite consultar por país',async()=>{
+ const h=harness();await h.activate();
+ assert.match(h.nodes.get('exteriorLocations').innerHTML,/Votação por país/);
+ assert.match(h.nodes.get('exteriorLocations').innerHTML,/data-country="Japão"/);
+ await h.context.BUExterior.selectCountry('Japão');
+ await h.context.BUExterior.selectCountry('');
+ const table=h.nodes.get('exteriorLocations').innerHTML;
+ assert.match(table,/Japão/);
+ assert.match(table,/180/);
+ assert.match(table,/220/);
+ assert.match(table,/não é um total por país publicado pelo TSE/);
+});
