@@ -515,21 +515,25 @@ async function toggleTV(){
 }
 function validReport(key){return getData(key);}
 async function ensurePdf(){
- if(window.jspdf?.jsPDF)return window.jspdf.jsPDF;
- return new Promise((resolve,reject)=>{
-  const s=document.createElement("script");
-  s.src="./jspdf.umd.min.js?build=20261010.7";
-  s.onload=()=>window.jspdf?.jsPDF?resolve(window.jspdf.jsPDF):reject(new Error("Biblioteca PDF indisponível"));
-  s.onerror=()=>reject(new Error("Falha ao carregar PDF"));
-  document.head.appendChild(s);
- });
+ if(!window.jspdf?.jsPDF){
+  await new Promise((resolve,reject)=>{
+   const s=document.createElement("script");s.src="./jspdf.umd.min.js?build=20261010.7";
+   s.onload=()=>window.jspdf?.jsPDF?resolve():reject(new Error("Biblioteca PDF indisponível"));
+   s.onerror=()=>reject(new Error("Falha ao carregar PDF"));
+   document.head.appendChild(s);
+  });
+ }
+ await window.DWBrandPdf?.prepare?.();
+ return window.jspdf.jsPDF;
 }
 function clean(s){return String(s??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^\x20-\x7e]/g," ");}
 function docHeader(pdf,title,subtitle){
  const w=210;
  pdf.setFillColor(15,20,26);pdf.rect(0,0,w,37,"F");
- pdf.setTextColor(255,106,25);pdf.setFont("helvetica","bold");pdf.setFontSize(17);
- pdf.text("DW TECH | B.U. 2026",14,16);
+ if(!window.DWBrandPdf?.paint?.(pdf,14,6,80)){
+  pdf.setTextColor(255,106,25);pdf.setFont("helvetica","bold");pdf.setFontSize(17);
+  pdf.text("DW TECH | B.U. 2026",14,16);
+ }
  pdf.setTextColor(255,255,255);pdf.setFontSize(10);pdf.text(clean(title),14,25);
  pdf.setFontSize(8);pdf.text(clean(subtitle),14,32);
  pdf.setTextColor(28,38,46);
