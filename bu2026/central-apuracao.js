@@ -31,7 +31,7 @@ const officialFirstCityLink=(uf,cityCode)=>FIRST_BASE+"/dados/"+uf.toLowerCase()
 const officialSecondCityLink=(uf,cityCode)=>BASE+"/"+uf.toLowerCase()+"/"+uf.toLowerCase()+cityCode+"-c0001-e006258-u.json";
 const hasFirstVotes=r=>!!r&&r.fase==="o"&&r.divulgacao==="s"&&n(r.secoes?.totalizadas)>0&&Array.isArray(r.candidatos)&&r.candidatos.some(c=>n(c.votos)>0);
 let stateData={},selectedUF="",generatedAt="",lastCheck=0,failed=false,loading=false,started=false;
-let mapMode="first",firstStates={},firstStatePromises={},firstLoading=null,firstFailures=0;
+let mapMode="second",firstStates={},firstStatePromises={},firstLoading=null,firstFailures=0;
 let cityDirectory=null,cityDirectoryPromise=null,selectedCity=null,selectedCityResult=null,cityLoading=false;
 const FIRST_CACHE_KEY="dwtech-bu2026-map-first-6257-v1";
 let tv=false,tvTimer=null,tvIndex=0,tvOwnFullscreen=false,scrollTick=0;
@@ -601,7 +601,8 @@ async function report(){
 }
 function init(){
  if(started)return;started=true;
- loadFirstCache();tvButton();paint();loadFirstStates();if(available())refresh();
+ // O mapa abre sempre no 2º turno. O 1º turno é carregado ao selecioná-lo manualmente.
+ loadFirstCache();tvButton();paint();if(available())refresh();
  setInterval(()=>{if(document.visibilityState==="visible"){paint();if(navigator.onLine&&available()&&mapMode==="second")refresh();}},30000);
  setInterval(()=>{if(document.visibilityState==="visible")pulse();},5000);
  window.addEventListener("online",()=>{if(mapMode==="first")loadFirstStates();else refresh();});
