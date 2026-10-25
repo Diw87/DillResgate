@@ -70,7 +70,7 @@ async function loadLocalitySnapshot(){
   if(doc.meta?.official!==true||Number(doc.meta.eleicao)!==6258||Number(doc.meta.turno)!==2)return false;
   let valid=0;
   for(const [code,r] of Object.entries(doc.results||{})){
-   if(!/^\\d{5}$/.test(code)||!catalog.some(x=>x.codigo===code)||Number(r.eleicao)!==6258||Number(r.turno)!==2||r.codigoAbrangencia!==code)continue;
+   if(!/^\d{5}$/.test(code)||!catalog.some(x=>x.codigo===code)||Number(r.eleicao)!==6258||Number(r.turno)!==2||r.codigoAbrangencia!==code)continue;
    if(accept(code,r))valid++;
   }
   return valid>0;
