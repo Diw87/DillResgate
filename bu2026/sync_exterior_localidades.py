@@ -53,6 +53,15 @@ def main():
                     data["meta"]["errors"] += 1
     data["meta"]["loaded"] = len(data["results"])
     OUT.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    published = [r for r in data["results"].values()
+                 if r.get("fase") == "o"
+                 and r.get("divulgacao") != "n"
+                 and int(r.get("secoes", {}).get("totalizadas", 0)) > 0]
+    data["meta"]["comVotosApurados"] = len(published)
+    data["meta"]["votosValidosLocalidades"] = sum(int(r.get("votos", {}).get("validos", 0)) for r in published)
+    data["meta"]["paisesComVotos"] = len({r.get("pais") for r in published})
+    # Regrava o mesmo snapshot com metadados de cobertura auditáveis.
+    OUT.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(json.dumps(data["meta"], ensure_ascii=False))
     return 0
 
