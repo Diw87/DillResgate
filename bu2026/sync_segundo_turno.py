@@ -79,8 +79,12 @@ def main():
  states["meta"]["errors"]=[x for x in errors if x["key"] not in SOURCES]
  save(OUT,output)
  save(STATES_OUT,states)
+ resumo={key:{"secoes":item.get("secoes",{}).get("totalizadas",0),
+              "votosValidos":item.get("votos",{}).get("validos",0),
+              "atualizadoEm":item.get("geradoEm",{})}
+         for key,item in output["results"].items() if key in ("presidente_br","presidente_zz")}
  print(json.dumps({"principais":output["meta"]["loaded"],"ufs":states["meta"]["loaded"],
-                   "erros":len(errors)},ensure_ascii=False))
+                   "erros":len(errors),"resumoOficial":resumo},ensure_ascii=False))
  return 0
 
 if __name__=="__main__":
