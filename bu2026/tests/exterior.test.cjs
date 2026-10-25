@@ -181,3 +181,14 @@ test('mostra votos oficiais do cache local quando a consulta direta ao TSE falha
  assert.match(h.nodes.get('exteriorLocations').innerHTML,/TÓQUIO/);
  assert.match(h.nodes.get('exteriorCoverage').textContent,/incomplet/i);
 });
+
+test('aceita codigo de abrangencia TSE com prefixo ZZ por localidade e exibe na aba correta',async()=>{
+ const h=harness();
+ h.docs.set('30627',official('zz30627',75,25));
+ await h.activate();
+ await h.context.BUExterior.selectCountry('Japão');
+ await h.context.BUExterior.selectLocality('30627');
+ assert.match(h.nodes.get('exteriorCandidates').innerHTML,/75 votos válidos/);
+ assert.match(h.nodes.get('exteriorHeadline').textContent,/TÓQUIO/);
+ assert.match(h.nodes.get('exteriorSummary').innerHTML,/100/);
+});
