@@ -375,3 +375,8 @@ body.t2-fullscreen-open{overflow:hidden}
 #exterior .table-wrap{border:1px solid #e3eaf2;border-radius:10px}
 #exterior table{min-width:620px}#exterior td,#exterior th{padding:12px}
 @media(max-width:640px){.exterior-filters{grid-template-columns:1fr;padding:13px}}
+
+/* Lista navegável de países exibida na própria aba Exterior. */
+#exterior .exterior-country-table{min-width:620px}
+#exterior .exterior-country-table button[data-country]{text-align:left;max-width:240px;background:#f1f7fd;color:#174f79;border:1px solid #c8dcf0;padding:9px 11px;font-size:12px;border-radius:8px}
+#exterior .exterior-country-table button[data-country]:hover{background:#e1effc}
