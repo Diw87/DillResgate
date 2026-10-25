@@ -40,7 +40,7 @@ async function loadCatalog(){
  return catalogPromise;
 }
 function normalize(doc,code){
- if(!doc||String(doc.ele)!=="6258"||String(doc.t)!=="2"||doc.f!=="o"||String(doc.cdabr).toLowerCase()!==code)return null;
+ if(!doc||String(doc.ele)!=="6258"||String(doc.t)!=="2"||doc.f!=="o"||![code,code==='zz'?'zz':'zz'+code].includes(String(doc.cdabr).toLowerCase()))return null;
  const cargo=(doc.carg||[]).find(c=>String(c.cd)==="1");
  if(!cargo||!doc.s||!doc.e||!doc.v)return null;
  const candidatos=[];
@@ -96,7 +96,8 @@ async function queryCodes(codes){
  }));
  return successes;
 }
-function aggregate(items=locations()){,available=items.map(x=>results.get(x.codigo)).filter(Boolean),published=available.filter(ready);
+function aggregate(items=locations()){
+ const available=items.map(x=>results.get(x.codigo)).filter(Boolean),published=available.filter(ready);
  if(!published.length)return null;
  const r={fase:"o",divulgacao:"s",secoes:{total:0,totalizadas:0,percentual:0},eleitores:{total:0,comparecimento:0,abstencao:0},votos:{validos:0,brancos:0,nulos:0},candidatos:finalists.map(c=>({...c,votos:0,percentual:0})),incompleto:available.length!==items.length};
  for(const item of available){
