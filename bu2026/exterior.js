@@ -184,7 +184,7 @@ function refresh(){
   const failed=selectedCodes.filter(code=>failures.has(code)).length;
   render();
   const cached=locality?ready(results.get(locality)):country?!!aggregate():ready(results.get("zz"))||!!aggregate(catalog);
-  feedback(failed?"TSE direto indisponível em "+failed+" de "+selectedCodes.length+" consulta(s). "+(cached?"Exibindo dados oficiais da última sincronização.":"Aguardando arquivo oficial.") :count?"Consulta ao TSE concluída.":cached?"Exibindo dados oficiais da última sincronização.":"Aguardando resultados oficiais do TSE; tente novamente.");
+  feedback(failed?"Falha na consulta direta ao TSE em "+failed+" de "+selectedCodes.length+" consulta(s). "+(cached?"Última parcial oficial disponível preservada.":"Aguardando arquivo oficial.") :count?"Consulta ao TSE concluída.":cached?"Exibindo dados oficiais da última sincronização.":"Aguardando resultados oficiais do TSE; tente novamente.");
  })().catch(error=>{
   console.warn("Consulta do exterior indisponível:",error);feedback("Não foi possível consultar o TSE. A última parcial foi preservada.");
  }).finally(()=>{
