@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v64-identidade-completa";
+const CACHE_VERSION="dwtech-bu2026-v65-mapa-segundo-turno";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
