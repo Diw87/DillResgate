@@ -380,3 +380,29 @@ body.t2-fullscreen-open{overflow:hidden}
 #exterior .exterior-country-table{min-width:620px}
 #exterior .exterior-country-table button[data-country]{text-align:left;max-width:240px;background:#f1f7fd;color:#174f79;border:1px solid #c8dcf0;padding:9px 11px;font-size:12px;border-radius:8px}
 #exterior .exterior-country-table button[data-country]:hover{background:#e1effc}
+
+/* Exterior: votos por país à vista em cartões responsivos, sem rolagem horizontal. */
+#exterior .exterior-country-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 10px}
+#exterior .exterior-country-title h3{margin:0;font-size:17px}
+#exterior .exterior-country-title span{font-size:11px;color:#637389;font-weight:800}
+#exterior .exterior-country-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+#exterior .exterior-country-card{padding:12px;border:1px solid #d9e4ed;border-radius:12px;background:#fff;min-width:0}
+#exterior .exterior-country-name{width:100%;display:flex;justify-content:space-between;gap:8px;text-align:left;background:#eff6ff;border:1px solid #c8dcf0;color:#123d65;padding:10px;border-radius:8px;font-size:13px}
+#exterior .exterior-country-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:11px 0}
+#exterior .exterior-country-metrics div{padding:8px;background:#f8fafc;border-radius:8px}
+#exterior .exterior-country-metrics small{display:block;color:#64748b;font-weight:800;font-size:11px}
+#exterior .exterior-country-metrics strong{display:block;font-size:19px;margin-top:5px}
+#exterior .exterior-country-progress{font-size:11px;color:#52647a;margin:0;font-weight:750}
+@media(max-width:650px){
+ #exterior .exterior-country-grid{grid-template-columns:1fr}
+ #exterior .exterior-localities table{min-width:0;width:100%}
+ #exterior .exterior-localities thead{display:none}
+ #exterior .exterior-localities tbody{display:grid;gap:8px;padding:8px}
+ #exterior .exterior-localities tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;border:1px solid #dce5ee;border-radius:10px;padding:10px}
+ #exterior .exterior-localities tbody td{display:block;padding:5px;border:0;min-width:0;overflow-wrap:anywhere}
+ #exterior .exterior-localities tbody td:first-child{grid-column:1/-1;font-size:14px}
+ #exterior .exterior-localities tbody td:nth-child(2):before{content:"Lula (13)";display:block;color:#64748b;font-size:10px}
+ #exterior .exterior-localities tbody td:nth-child(3):before{content:"Flávio (22)";display:block;color:#64748b;font-size:10px}
+ #exterior .exterior-localities tbody td:nth-child(4):before{content:"Seções apuradas";display:block;color:#64748b;font-size:10px}
+ #exterior .exterior-localities tbody td:nth-child(5):before{content:"Situação";display:block;color:#64748b;font-size:10px}
+}
