@@ -3,14 +3,14 @@
 let handlingPop=false;
 let patched=false;
 let lastView="";
-const VALID_VIEWS=new Set(["novo","apurados","resultados","vitorino","segundo-turno"]);
+const VALID_VIEWS=new Set(["novo","apurados","resultados","vitorino","segundo-turno","exterior"]);
 
 function activeView(){
  const el=document.querySelector(".section.active");
  return el?.id||"";
 }
 function tabFor(view){
- const map={novo:0,apurados:1,resultados:2,vitorino:3,"segundo-turno":4};
+ const map={novo:0,apurados:1,resultados:2,vitorino:3,"segundo-turno":4,exterior:5};
  const i=map[view];
  return Number.isInteger(i)?document.querySelectorAll(".tab")[i]:null;
 }
@@ -33,7 +33,7 @@ function showAccessFromHistory(){
 }
 function restoreView(view){
  // O histórico não pode reabrir outras abas quando o acesso é Visitante.
- if(window.BUAccess?.mode==="visitor")view="segundo-turno";
+ if(window.BUAccess?.mode==="visitor"&&!["segundo-turno","exterior"].includes(view))view="segundo-turno";
  else if(!VALID_VIEWS.has(view))view="resultados";
  handlingPop=true;
  try{

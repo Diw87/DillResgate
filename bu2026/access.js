@@ -85,8 +85,8 @@ function patchNavigation(){
  if(typeof window.showMain==="function"&&!window.__accessShowMainPatched){
   const base=window.showMain;window.__accessShowMainPatched=true;
   window.showMain=function(id,btn){
-   // Visitante: qualquer rota antiga, atalho ou navegação volta ao 2º turno.
-   if(mode==="visitor"&&id!=="segundo-turno"){
+   // Visitante: somente os dois painéis públicos de apuração.
+   if(mode==="visitor"&&!["segundo-turno","exterior"].includes(id)){
     id="segundo-turno";btn=document.querySelectorAll(".tab")[4];
    }
    return base(id,btn);

@@ -454,9 +454,9 @@ tbody tr:hover{background:#fff4ec}
 </style>
 <link rel="stylesheet" href="./qr-scanner.css?build=20261005.1">
 <link rel="stylesheet" href="./cloud.css?build=20261005.1">
-<link rel="stylesheet" href="./access.css?build=20261024.5">
+<link rel="stylesheet" href="./access.css?build=20261025.3">
 <link rel="stylesheet" href="./vitorino-bu.css?build=20261006.5">
-<link rel="stylesheet" href="./segundo-turno.css?build=20261024.2">
+<link rel="stylesheet" href="./segundo-turno.css?build=20261025.3">
 <link rel="stylesheet" href="./central-apuracao.css?build=20261016.5">
 </head>
 <body class="access-visitor">
@@ -527,6 +527,7 @@ tbody tr:hover{background:#fff4ec}
   <button class="side-link" data-target="resultados" onclick="showMain('resultados',document.querySelectorAll('.tab')[2])"><span class="side-icon">▥</span><span>Resultados ODC</span></button>
   <button class="side-link" data-target="vitorino" onclick="showMain('vitorino',document.querySelectorAll('.tab')[3])"><span class="side-icon">▥</span><span>Resultados Vitorino Freire</span></button>
   <button class="side-link active" data-target="segundo-turno" onclick="showMain('segundo-turno',document.querySelectorAll('.tab')[4])"><span class="side-icon">◉</span><span>Presidente • 2º turno</span></button>
+  <button class="side-link" data-target="exterior" onclick="showMain('exterior',document.querySelectorAll('.tab')[5])"><span class="side-icon">◎</span><span>Votos do exterior</span></button>
   <button class="side-link qr-scan-btn" type="button" onclick="openQrScanner()"><span class="side-icon">📷</span><span>Escanear QR</span></button>
   <button id="installAppSide" class="side-link" type="button" onclick="installApp()" style="display:none"><span class="side-icon">⬇</span><span>Instalar aplicativo</span></button>
   <div class="side-grow"></div>
@@ -534,7 +535,11 @@ tbody tr:hover{background:#fff4ec}
 </aside>
 <main>
 <div class="hero"><div><span class="eyebrow">Bem-vindo ao sistema</span><h2>B.U. 2026 — <span>BOLETIM DE URNA</span></h2><p>Olho d'Água das Cunhãs — MA • apuração segura, rápida e transparente</p></div><div class="source" id="sourceStatus">ODC • 53 seções oficiais</div></div>
-<div class="tabs"><button class="tab" onclick="showMain('novo',this)">▣ &nbsp;Novo B.U.</button><button class="tab" onclick="showMain('apurados',this)">▥ &nbsp;B.U.s</button><button class="tab" onclick="showMain('resultados',this)">▥ &nbsp;Resultados ODC</button><button class="tab" onclick="showMain('vitorino',this)">▥ &nbsp;Resultados Vitorino Freire</button><button class="tab active" onclick="showMain('segundo-turno',this)">◉ &nbsp;Presidente • 2º Turno</button></div>
+<nav class="public-results-tabs" aria-label="Painéis de apuração">
+  <button type="button" class="public-result-tab active" data-public-view="segundo-turno" aria-pressed="true" onclick="showMain('segundo-turno',document.querySelectorAll('.tab')[4])">◉ Brasil e regiões</button>
+  <button type="button" class="public-result-tab" data-public-view="exterior" aria-pressed="false" onclick="showMain('exterior',document.querySelectorAll('.tab')[5])">◎ Votos do exterior</button>
+</nav>
+<div class="tabs"><button class="tab" onclick="showMain('novo',this)">▣ &nbsp;Novo B.U.</button><button class="tab" onclick="showMain('apurados',this)">▥ &nbsp;B.U.s</button><button class="tab" onclick="showMain('resultados',this)">▥ &nbsp;Resultados ODC</button><button class="tab" onclick="showMain('vitorino',this)">▥ &nbsp;Resultados Vitorino Freire</button><button class="tab active" onclick="showMain('segundo-turno',this)">◉ &nbsp;Presidente • 2º Turno</button><button class="tab" onclick="showMain('exterior',this)">◎ &nbsp;Votos do exterior</button></div>
 <section id="novo" class="section"><div class="card"><div class="head"><h3>Identificação da seção</h3><div class="actions"><button class="qr-scan-btn" type="button" onclick="openQrScanner()">📷 Escanear QR do B.U.</button><button class="soft" type="button" onclick="resetBU()">Limpar B.U.</button></div></div><div class="body"><form id="buForm"><input type="hidden" id="buId"><div class="form-grid"><div class="field"><label>Município</label><input id="municipio" value="Olho d'Água das Cunhãs" readonly></div><div class="field"><label>UF</label><input id="uf" value="MA" readonly></div><div class="field"><label>Zona eleitoral</label><input id="zona" value="87" readonly></div><div class="field"><label>Seção *</label><select id="secao" required onchange="fillSection()"><option value="">Selecione a seção</option></select></div><div class="field span2"><label>Local de votação</label><input id="local" readonly></div><div class="field span2"><label>Endereço</label><input id="enderecoLocal" readonly></div><div class="field"><label>ID / código da urna</label><input id="urna"></div><div class="field"><label>Data da eleição</label><input id="dataEleicao" type="date" value="2026-10-04"></div><div class="field"><label>Eleitores aptos *</label><input id="aptos" type="number" min="0" required oninput="refreshConference()"></div><div class="field"><label>Comparecimento *</label><input id="comparecimento" type="number" min="0" required oninput="refreshConference()"></div></div><div class="office-tabs" id="officeTabs"></div><div id="officePanels"></div><div id="qrImportBadge" class="qr-import-badge"></div><div id="conference" class="conference conf-bad">Aguardando lançamento dos votos.</div><div class="actions" style="margin-top:13px"><button class="primary" type="submit">Salvar B.U.</button><button class="soft" type="button" onclick="refreshConference()">Conferir agora</button></div></form></div></div></section>
 <section id="apurados" class="section"><div class="stats"><div class="stat"><span>Seções apuradas</span><strong id="stBU">0</strong></div><div class="stat"><span>Seções restantes</span><strong id="stRest">53</strong></div><div class="stat"><span>Aptos</span><strong id="stAptos">0</strong></div><div class="stat"><span>Comparecimento</span><strong id="stComp">0</strong></div><div class="stat"><span>Faltosos</span><strong id="stFalt">0</strong></div><div class="stat"><span>Progresso</span><strong id="stProg">0%</strong></div></div><div class="card"><div class="head"><h3>B.U.s lançados</h3><span id="buCount" style="font-size:12px;color:#667085"></span></div><div class="toolbar"><input id="buSearch" placeholder="Pesquisar seção, urna ou local..." oninput="renderBUs()"><select id="buZone" onchange="renderBUs()"><option value="">Todas as seções</option></select></div><div class="table-wrap"><table><thead><tr><th>Seção</th><th>Local</th><th>Urna</th><th>Aptos</th><th>Comparecimento</th><th>Fed.</th><th>Est.</th><th>Senador</th><th>Gov.</th><th>Pres.</th><th>Status</th><th>Ações</th></tr></thead><tbody id="buBody"></tbody></table><div class="empty" id="buEmpty">Nenhum B.U. salvo.</div></div></div></section>
 <section id="resultados" class="section">
@@ -652,6 +657,32 @@ tbody tr:hover{background:#fff4ec}
     <div class="t2-foot"><span id="turno2Updated">Fonte: Tribunal Superior Eleitoral • eleição 6258</span><a id="turno2Source" href="https://resultados.tse.jus.br/oficial/app/index.html" target="_blank" rel="noopener noreferrer">Conferir fonte oficial ↗</a></div>
   </div>
 </section>
+<section id="exterior" class="section" aria-label="Votos do exterior no segundo turno">
+  <div class="t2-wrap">
+    <div class="t2-hero">
+      <div><span class="t2-tag">DW Tech • eleições 2026</span><h2>VOTOS DO EXTERIOR</h2><p>Presidente da República • 2º turno • brasileiros que votam fora do Brasil</p></div>
+      <div class="t2-actions"><button id="exteriorRefreshBtn" type="button" class="primary t2-refresh-btn" onclick="BUExterior.refresh()" aria-busy="false"><span class="t2-refresh-icon" aria-hidden="true">↻</span><span id="exteriorRefreshLabel">Atualizar TSE</span></button><button id="exteriorFullscreenBtn" type="button" class="t2-fullscreen-btn" onclick="BUExterior.toggleFullscreen()" aria-pressed="false">⛶ Tela cheia</button></div>
+    </div>
+    <div class="t2-refresh-info"><span id="exteriorFeedback" class="t2-refresh-feedback" role="status" aria-live="polite">Atualização automática a cada 5 segundos com esta aba aberta.</span><span id="exteriorLastCheck" class="t2-last-check">Última consulta: ainda não realizada</span></div>
+    <div class="exterior-filters">
+      <div class="field"><label for="exteriorCountry">País / território</label><select id="exteriorCountry" onchange="BUExterior.selectCountry(this.value)"><option value="">Total do exterior</option></select></div>
+      <div class="field"><label for="exteriorLocality">Localidade de votação</label><select id="exteriorLocality" disabled onchange="BUExterior.selectLocality(this.value)"><option value="">Selecione um país / território</option></select></div>
+    </div>
+    <div id="exteriorStatus" class="t2-note" role="status" aria-live="polite">Aguardando divulgação oficial do segundo turno no exterior.</div>
+    <div class="t2-detail">
+      <div class="t2-heading"><h3 id="exteriorHeadline">Apuração para presidente • Exterior • total geral</h3><span class="source">Exclusivo exterior • 2º turno</span></div>
+      <div id="exteriorSummary" class="t2-summary"></div>
+      <div id="exteriorCandidates" class="t2-candidates"></div>
+    </div>
+    <div class="t2-detail exterior-localities">
+      <div class="t2-heading"><h3>Resultados por país e localidade</h3></div>
+      <p id="exteriorCoverage" class="exterior-coverage" role="status" aria-live="polite">O total oficial do exterior vem do TSE. Selecione um país para consultar suas localidades.</p>
+      <div id="exteriorLocations"></div>
+      <p class="exterior-method">Votos e localidades: TSE. Os totais por país / território são calculados pelo aplicativo somando as respectivas localidades. A abstenção considera somente as seções já apuradas.</p>
+    </div>
+    <div class="t2-foot"><span id="exteriorUpdated">Fonte: Tribunal Superior Eleitoral • eleição 6258</span><a id="exteriorSource" href="https://resultados.tse.jus.br/oficial/ele2026/6258/dados/zz/zz-c0001-e006258-u.json" target="_blank" rel="noopener noreferrer">Conferir fonte oficial ↗</a></div>
+  </div>
+</section>
 <section id="gerais" class="section">
   <div class="general-wrap">
     <div class="head" style="border:1px solid var(--dw-line);border-radius:11px;box-shadow:var(--shadow)">
@@ -756,7 +787,7 @@ let candidates={federal:[],estadual:[],senador:[],governador:[],presidente:[]},b
 function blankDraft(){const d={};ORDER.forEach(k=>d[k]={cand:{},legend:{},brancos:0,nulos:0,outros:0,expectedQr:null});return d}
 function esc(s=""){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}
 function num(v){return Number(v||0)}function fmt(n){return Number(n||0).toLocaleString("pt-BR")}function candidateByNumber(k,nr){return candidates[k].find(c=>String(c.numero)===String(nr))}
-function showMain(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");document.querySelectorAll(".side-link[data-target]").forEach(x=>x.classList.toggle("active",x.dataset.target===id));if(id==="resultados"){renderResults();loadOfficialResults(false)}if(id==="vitorino"){renderVitorinoResults();loadOfficialResults(false);window.renderVitorinoBUSection?.(false)}if(id==="segundo-turno")window.BUSecondRound?.activate();if(id==="gerais")renderGeneralResults();if(id==="candidatos")renderCandidateBrowser()}
+function showMain(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");document.querySelectorAll(".side-link[data-target]").forEach(x=>x.classList.toggle("active",x.dataset.target===id));if(id==="resultados"){renderResults();loadOfficialResults(false)}if(id==="vitorino"){renderVitorinoResults();loadOfficialResults(false);window.renderVitorinoBUSection?.(false)}if(id==="segundo-turno")window.BUSecondRound?.activate();if(id==="exterior")window.BUExterior?.activate();document.querySelectorAll("[data-public-view]").forEach(x=>{const active=x.dataset.publicView===id;x.classList.toggle("active",active);x.setAttribute("aria-pressed",String(active))});if(id==="gerais")renderGeneralResults();if(id==="candidatos")renderCandidateBrowser()}
 function showOffice(k,btn){document.querySelectorAll(".office-panel").forEach(x=>x.classList.remove("active"));document.getElementById("office_"+k).classList.add("active");document.querySelectorAll(".office-tab").forEach(x=>x.classList.remove("active"));btn.classList.add("active")}
 function renderSections(){const s=document.getElementById("secao"),cur=s.value;s.innerHTML='<option value="">Selecione a seção</option>';ODAC_SECOES.forEach(x=>{const used=buData.some(b=>String(b.secao)===String(x.secao)),o=document.createElement("option");o.value=x.secao;o.textContent=(used?"✓ ":"")+String(x.secao).padStart(3,"0")+" — "+x.local;s.appendChild(o)});if(ODAC_SECOES.some(x=>String(x.secao)===String(cur)))s.value=cur}
 function fillSection(){const x=ODAC_SECOES.find(x=>String(x.secao)===String(document.getElementById("secao").value));document.getElementById("local").value=x?.local||"";document.getElementById("enderecoLocal").value=x?.endereco||""}
@@ -1112,16 +1143,18 @@ async function openResultsWindow(targetWindow=null,autoPrint=false){
 </script>
 <script src="./jsQR.js?build=20261005.1"></script>
 <script src="./qr-scanner.js?build=20261005.1"></script>
-<script src="./pwa.js?build=20261025.2"></script>
+<script src="./pwa.js?build=20261025.3"></script>
 <script src="./cloud.js?build=20261025.2"></script>
-<script src="./access.js?build=20261024.1"></script>
-<script src="./navigation.js?build=20261010.3"></script>
+<script src="./access.js?build=20261025.3"></script>
+<script src="./navigation.js?build=20261025.3"></script>
 <script src="./vitorino-bu.js?build=20261006.5"></script>
-<script src="./segundo-turno.js?build=20261025.2"></script>
+<script src="./segundo-turno.js?build=20261025.3"></script>
+<script src="./exterior.js?build=20261025.3"></script>
 <script src="./logo-pdf.js?build=20261024.6"></script>
 <script src="./pdf-export.js?build=20261024.5"></script>
 <script src="./mapa-municipios.js?build=20261016.5"></script>
 <script src="./central-apuracao.js?build=20261025.2"></script>
 </body>
 </html>
+
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Atualiza 2º turno presidencial: Brasil, municípios e 27 UFs, somente pelo TSE."""
+"""Atualiza 2º turno presidencial: Brasil, exterior, municípios e 27 UFs, somente pelo TSE."""
 import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
@@ -13,6 +13,7 @@ STATES_OUT=FOLDER/"resultados-estados-segundo-turno.json"
 RELEASE=datetime(2026,10,25,20,0,tzinfo=timezone.utc)
 SOURCES={
  "presidente_br":("br","br","Brasil + exterior"),
+ "presidente_zz":("zz","zz","Exterior"),
  "presidente_ma":("ma","ma","Maranhão"),
  "presidente_odc":("ma","ma08478","Olho d'Água das Cunhãs"),
  "presidente_vf":("ma","ma09539","Vitorino Freire"),
@@ -31,10 +32,13 @@ def get(key,source):
  uf,abr,name=source
  url=f"{BASE}/{uf}/{abr}-c0001-e006258-u.json"
  doc=fetch_json(url)
+ if str(doc.get("ele"))!="6258" or str(doc.get("t"))!="2":
+  raise ValueError("Eleição ou turno incorreto")
  if doc.get("f") not in (None,"o"):
   raise ValueError("Fonte não é da fase oficial")
  # Metadados do resultado gerados pela função já utilizada pelo aplicativo.
  item=summarize(key,("6258",uf,"0001","006258","Presidente",name),doc,source_url=url)
+ item.update({"eleicao":6258,"turno":2,"codigoAbrangencia":str(doc.get("cdabr",abr))})
  return key,item
 
 def save(path,data):
@@ -81,3 +85,4 @@ def main():
 
 if __name__=="__main__":
  raise SystemExit(main())
+

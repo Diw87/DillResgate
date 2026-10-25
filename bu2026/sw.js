@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v66-atualizacao-5s";
+const CACHE_VERSION="dwtech-bu2026-v67-votos-exterior";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -22,6 +22,8 @@ const SHELL=[
   "./vitorino-bu.css",
   "./segundo-turno.css",
   "./segundo-turno.js",
+  "./exterior.js",
+  "./exterior-localidades.json",
   "./central-apuracao.js",
   "./mapa-municipios.js",
   "./central-apuracao.css",
@@ -115,4 +117,5 @@ self.addEventListener("fetch",event=>{
 self.addEventListener("message",event=>{
   if(event.data?.type==="SKIP_WAITING")self.skipWaiting();
 });
+
 

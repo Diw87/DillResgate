@@ -1,0 +1,946 @@
+{
+  "meta": {
+    "source": "Tribunal Superior Eleitoral • EA12",
+    "sourceUrl": "https://resultados.tse.jus.br/oficial/ele2026/6258/config/mun-e006258-cm.json",
+    "official": true,
+    "eleicao": 6258,
+    "turno": 2,
+    "configGeradaEm": {
+      "data": "15/10/2026",
+      "hora": "09:38:00"
+    },
+    "countryMapping": "Agrupamento geográfico DW Tech; não é uma totalização por país publicada pelo TSE."
+  },
+  "localidades": [
+    {
+      "codigo": "29254",
+      "nome": "ABIDJÃ",
+      "pais": "Costa do Marfim"
+    },
+    {
+      "codigo": "29262",
+      "nome": "ABU DHABI",
+      "pais": "Emirados Árabes Unidos"
+    },
+    {
+      "codigo": "99198",
+      "nome": "ABUJA",
+      "pais": "Nigéria"
+    },
+    {
+      "codigo": "29270",
+      "nome": "ACCRA",
+      "pais": "Gana"
+    },
+    {
+      "codigo": "99325",
+      "nome": "ADIS ABEBA",
+      "pais": "Etiópia"
+    },
+    {
+      "codigo": "30457",
+      "nome": "AMSTERDÃ",
+      "pais": "Países Baixos"
+    },
+    {
+      "codigo": "29289",
+      "nome": "AMÃ",
+      "pais": "Jordânia"
+    },
+    {
+      "codigo": "29297",
+      "nome": "ANCARA",
+      "pais": "Turquia"
+    },
+    {
+      "codigo": "29300",
+      "nome": "ARGEL",
+      "pais": "Argélia"
+    },
+    {
+      "codigo": "29319",
+      "nome": "ARTIGAS",
+      "pais": "Uruguai"
+    },
+    {
+      "codigo": "29327",
+      "nome": "ASSUNÇÃO",
+      "pais": "Paraguai"
+    },
+    {
+      "codigo": "39241",
+      "nome": "ASTANA",
+      "pais": "Cazaquistão"
+    },
+    {
+      "codigo": "29335",
+      "nome": "ATENAS",
+      "pais": "Grécia"
+    },
+    {
+      "codigo": "39080",
+      "nome": "ATLANTA",
+      "pais": "Estados Unidos"
+    },
+    {
+      "codigo": "99171",
+      "nome": "BAGDÁ",
+      "pais": "Iraque"
+    },
+    {
+      "codigo": "39128",
+      "nome": "BAKU",
+      "pais": "Azerbaijão"
+    },
+    {
+      "codigo": "99350",
+      "nome": "BAMAKO",
+      "pais": "Mali"
+    },
+    {
+      "codigo": "29343",
+      "nome": "BANGKOK",
+      "pais": "Tailândia"
+    },
+    {
+      "codigo": "29351",
+      "nome": "BARCELONA",
+      "pais": "Espanha"
+    },
+    {
+      "codigo": "99473",
+      "nome": "BAREIN",
+      "pais": "Barein"
+    },
+    {
+      "codigo": "29360",
+      "nome": "BEIRUTE",
+      "pais": "Líbano"
+    },
+    {
+      "codigo": "29378",
+      "nome": "BELGRADO",
+      "pais": "Sérvia"
+    },
+    {
+      "codigo": "38881",
+      "nome": "BELMOPAN",
+      "pais": "Belize"
+    },
+    {
+      "codigo": "29386",
+      "nome": "BERLIM",
+      "pais": "Alemanha"
+    },
+    {
+      "codigo": "29394",
+      "nome": "BISSAU",
+      "pais": "Guiné-Bissau"
+    },
+    {
+      "codigo": "29408",
+      "nome": "BOGOTÁ",
+      "pais": "Colômbia"
+    },
+    {
+      "codigo": "29416",
+      "nome": "BOSTON",
+      "pais": "Estados Unidos"
+    },
+    {
+      "codigo": "39209",
+      "nome": "BRATISLAVA",
+      "pais": "Eslováquia"
+    },
+    {
+      "codigo": "39187",
+      "nome": "BRAZZAVILLE",
+      "pais": "República do Congo"
+    },
+    {
+      "codigo": "29424",
+      "nome": "BRIDGETOWN",
+      "pais": "Barbados"
+    },
+    {
+      "codigo": "29432",
+      "nome": "BRUXELAS",
+      "pais": "Bélgica"
+    },
+    {
+      "codigo": "29440",
+      "nome": "BUCARESTE",
+      "pais": "Romênia"
+    },
+    {
+      "codigo": "29459",
+      "nome": "BUDAPESTE",
+      "pais": "Hungria"
+    },
+    {
+      "codigo": "29467",
+      "nome": "BUENOS AIRES",
+      "pais": "Argentina"
+    },
+    {
+      "codigo": "29475",
+      "nome": "CAIENA",
+      "pais": "Guiana Francesa"
+    },
+    {
+      "codigo": "29483",
+      "nome": "CAIRO",
+      "pais": "Egito"
+    },
+    {
+      "codigo": "29491",
+      "nome": "CAMBERRA",
+      "pais": "Austrália"
+    },
+    {
+      "codigo": "30651",
+      "nome": "CANTÃO",
+      "pais": "China"
+    },
+    {
+      "codigo": "29505",
+      "nome": "CARACAS",
+      "pais": "Venezuela"
+    },
+    {
+      "codigo": "99384",
+      "nome": "CASTRIES",
+      "pais": "Santa Lúcia"
+    },
+    {
+      "codigo": "29513",
+      "nome": "CHICAGO",
+      "pais": "Estados Unidos"
+    },
+    {
+      "codigo": "29521",
+      "nome": "CHUY",
+      "pais": "Uruguai"
+    },
+    {
+      "codigo": "29530",
+      "nome": "CIDADE DO CABO",
+      "pais": "África do Sul"
+    },
+    {
+      "codigo": "29556",
+      "nome": "CIUDAD DEL ESTE",
+      "pais": "Paraguai"
+    },
+    {
+      "codigo": "29564",
+      "nome": "CIUDAD GUAYANA",
+      "pais": "Venezuela"
+    },
+    {
+      "codigo": "99210",
+      "nome": "COBIJA",
+      "pais": "Bolívia"
+    },
+    {
+      "codigo": "29572",
+      "nome": "COCHABAMBA",
+      "pais": "Bolívia"
+    },
+    {
+      "codigo": "30929",
+      "nome": "COLOMBO",
+      "pais": "Sri Lanka"
+    },
+    {
+      "codigo": "38903",
+      "nome": "CONACRI",
+      "pais": "Guiné"
+    },
+    {
+      "codigo": "29580",
+      "nome": "CONCEPCIÓN",
+      "pais": "Paraguai"
+    },
+    {
+      "codigo": "29599",
+      "nome": "COPENHAGUE",
+      "pais": "Dinamarca"
+    },
+    {
+      "codigo": "38920",
+      "nome": "COTONOU",
+      "pais": "Benim"
+    },
+    {
+      "codigo": "29602",
+      "nome": "CÓRDOBA",
+      "pais": "Argentina"
+    },
+    {
+      "codigo": "29610",
+      "nome": "DACAR",
+      "pais": "Senegal"
+    },
+    {
+      "codigo": "29629",
+      "nome": "DACCA",
+      "pais": "Bangladesh"
+    },
+    {
+      "codigo": "29637",
+      "nome": "DAMASCO",
+      "pais": "Síria"
+    },
+    {
+      "codigo": "38962",
+      "nome": "DAR ES SALAAM",
+      "pais": "Tanzânia"
+    },
+    {
+      "codigo": "29653",
+      "nome": "DOHA",
+      "pais": "Catar"
+    },
+    {
+      "codigo": "29661",
+      "nome": "DUBLIN",
+      "pais": "Irlanda"
+    },
+    {
+      "codigo": "29645",
+      "nome": "DÍLI",
+      "pais": "Timor-Leste"
+    },
+    {
+      "codigo": "99503",
+      "nome": "EDIMBURGO",
+      "pais": "Reino Unido"
+    },
+    {
+      "codigo": "29670",
+      "nome": "ENCARNACIÓN",
+      "pais": "Paraguai"
+    },
+    {
+      "codigo": "29688",
+      "nome": "ESTOCOLMO",
+      "pais": "Suécia"
+    },
+    {
+      "codigo": "30961",
+      "nome": "FARO",
+      "pais": "Portugal"
+    },
+    {
+      "codigo": "29696",
+      "nome": "FRANKFURT",
+      "pais": "Alemanha"
+    },
+    {
+      "codigo": "30669",
+      "nome": "GABORONE",
+      "pais": "Botsuana"
+    },
+    {
+      "codigo": "29700",
+      "nome": "GENEBRA",
+      "pais": "Suíça"
+    },
+    {
+      "codigo": "29718",
+      "nome": "GEORGETOWN",
+      "pais": "Guiana"
+    },
+    {
+      "codigo": "98000",
+      "nome": "GUATEMALA",
+      "pais": "Guatemala"
+    },
+    {
+      "codigo": "29742",
+      "nome": "HAMAMATSU",
+      "pais": "Japão"
+    },
+    {
+      "codigo": "29750",
+      "nome": "HANÓI",
+      "pais": "Vietnã"
+    },
+    {
+      "codigo": "29769",
+      "nome": "HARARE",
+      "pais": "Zimbábue"
+    },
+    {
+      "codigo": "30902",
+      "nome": "HARTFORD",
+      "pais": "Estados Unidos"
+    },
+    {
+      "codigo": "29777",
+      "nome": "HAVANA",
+      "pais": "Cuba"
+    },
+    {
+      "codigo": "29785",
+      "nome": "HELSINQUE",
+      "pais": "Finlândia"
+    },
+    {
+      "codigo": "29793",
+      "nome": "HONG KONG",
+      "pais": "China"
+    },
+    {
+      "codigo": "29807",
+      "nome": "HOUSTON",
+      "pais": "Estados Unidos"
+    },
+    {
+      "codigo": "29815",
+      "nome": "IAUNDÊ",
+      "pais": "Camarões"
+    },
+    {
+      "codigo": "38989",
+      "nome": "IEREVAN",
+      "pais": "Armênia"
+    },
+    {
+      "codigo": "29823",
+      "nome": "IQUITOS",
+      "pais": "Peru"
+    },
+    {
+      "codigo": "29831",
+      "nome": "ISLAMABADE",
+      "pais": "Paquistão"
+    },
+    {
+      "codigo": "39306",
+      "nome": "ISTAMBUL",
+      "pais": "Turquia"
+    },
+    {
+      "codigo": "29840",
+      "nome": "JACARTA",
+      "pais": "Indonésia"
+    },
+    {
+      "codigo": "29173",
+      "nome": "KATMANDU",
+      "pais": "Nepal"
+    },
+    {
+      "codigo": "29858",
+      "nome": "KIEV",
+      "pais": "Ucrânia"
+    },
+    {
+      "codigo": "99430",
+      "nome": "KINGSTON-JAMAICA",
+      "pais": "Jamaica"
+    },
+    {
+      "codigo": "29874",
+      "nome": "KINSHASA",
+      "pais": "República Democrática do Congo"
+    },
+    {
+      "codigo": "29882",
+      "nome": "KUAITE",
+      "pais": "Kuwait"
+    },
+    {
+      "codigo": "29890",
+      "nome": "KUALA LUMPUR",
+      "pais": "Malásia"
+    },
+    {
+      "codigo": "29904",
+      "nome": "LA PAZ",
+      "pais": "Bolívia"
+    },
+    {
+      "codigo": "29912",
+      "nome": "LAGOS",
+      "pais": "Nigéria"
+    },
+    {
+      "codigo": "29939",
+      "nome": "LIBREVILLE",
+      "pais": "Gabão"
+    },
+    {
+      "codigo": "99341",
+      "nome": "LILONGUE",
+      "pais": "Malawi"
+    },
+    {
+      "codigo": "29947",
+      "nome": "LIMA",
+      "pais": "Peru"
+    },
+    {
+      "codigo": "29955",
+      "nome": "LISBOA",
+      "pais": "Portugal"
+    },
+    {
+      "codigo": "39160",
+      "nome": "LIUBLIANA",
+      "pais": "Eslovênia"
+    },
+    {
+      "codigo": "29963",
+      "nome": "LOMÉ",
+      "pais": "Togo"
+    },
+    {
+      "codigo": "29971",
+      "nome": "LONDRES",
+      "pais": "Reino Unido"
+    },
+    {
+      "codigo": "29980",
+      "nome": "LOS ANGELES",
+      "pais": "Estados Unidos"
+    },
+    {
+      "codigo": "29998",
+      "nome": "LUANDA",
+      "pais": "Angola"
+    },
+    {
+      "codigo": "99287",
+      "nome": "LUSACA",
+      "pais": "Zâmbia"
+    },
+    {
+      "codigo": "30066",
+      "nome": "MADRI",
+      "pais": "Espanha"
+    },
+    {
+      "codigo": "39263",
+      "nome": "MALABO",
+      "pais": "Guiné Equatorial"
+    },
+    {
+      "codigo": "30082",
+      "nome": "MANILA",
+      "pais": "Filipinas"
+    },
+    {
+      "codigo": "30074",
+      "nome": "MANÁGUA",
+      "pais": "Nicarágua"
+    },
+    {
+      "codigo": "30090",
+      "nome": "MAPUTO",
+      "pais": "Moçambique"
+    },
+    {
+      "codigo": "99511",
+      "nome": "MARSELHA",
+      "pais": "França"
+    },
+    {
+      "codigo": "39102",
+      "nome": "MASCATE",
+      "pais": "Omã"
+    },
+    {
+      "codigo": "39004",
+      "nome": "MENDOZA",
+      "pais": "Argentina"
+    },
+    {
+      "codigo": "30104",
+      "nome": "MEXICO",
+      "pais": "México"
+    },
+    {
+      "codigo": "30112",
+      "nome": "MIAMI",
+      "pais": "Estados Unidos"
+    },
+    {
+      "codigo": "30120",
+      "nome": "MILÃO",
+      "pais": "Itália"
+    },
+    {
+      "codigo": "30147",
+      "nome": "MONTEVIDÉU",
+      "pais": "Uruguai"
+    },
+    {
+      "codigo": "30155",
+      "nome": "MONTREAL",
+      "pais": "Canadá"
+    },
+    {
+      "codigo": "30163",
+      "nome": "MOSCOU",
+      "pais": "Rússia"
+    },
+    {
+      "codigo": "30171",
+      "nome": "MUMBAI",
+      "pais": "Índia"
+    },
+    {
+      "codigo": "30180",
+      "nome": "MUNIQUE",
+      "pais": "Alemanha"
+    },
+    {
+      "codigo": "30198",
+      "nome": "NAGÓIA",
+      "pais": "Japão"
+    },
+    {
+      "codigo": "30201",
+      "nome": "NAIRÓBI",
+      "pais": "Quênia"
+    },
+    {
+      "codigo": "99180",
+      "nome": "NASSAU",
+      "pais": "Bahamas"
+    },
+    {
+      "codigo": "39322",
+      "nome": "NICOSIA",
+      "pais": "Chipre"
+    },
+    {
+      "codigo": "30210",
+      "nome": "NOVA DELHI",
+      "pais": "Índia"
+    },
+    {
+      "codigo": "30228",
+      "nome": "NOVA YORK",
+      "pais": "Estados Unidos"
+    },
+    {
+      "codigo": "99490",
+      "nome": "ORLANDO",
+      "pais": "Estados Unidos"
+    },
+    {
+      "codigo": "30244",
+      "nome": "OSLO",
+      "pais": "Noruega"
+    },
+    {
+      "codigo": "30252",
+      "nome": "OTTAWA",
+      "pais": "Canadá"
+    },
+    {
+      "codigo": "30260",
+      "nome": "PANAMA",
+      "pais": "Panamá"
+    },
+    {
+      "codigo": "30279",
+      "nome": "PARAMARIBO",
+      "pais": "Suriname"
+    },
+    {
+      "codigo": "30287",
+      "nome": "PARIS",
+      "pais": "França"
+    },
+    {
+      "codigo": "30295",
+      "nome": "PASO LOS LIBRES",
+      "pais": "Argentina"
+    },
+    {
+      "codigo": "30309",
+      "nome": "PEDRO JUAN CABALLERO",
+      "pais": "Paraguai"
+    },
+    {
+      "codigo": "30317",
+      "nome": "PEQUIM",
+      "pais": "China"
+    },
+    {
+      "codigo": "30325",
+      "nome": "PORT OF SPAIN",
+      "pais": "Trinidad e Tobago"
+    },
+    {
+      "codigo": "30341",
+      "nome": "PORTO",
+      "pais": "Portugal"
+    },
+    {
+      "codigo": "30333",
+      "nome": "PORTO PRÍNCIPE",
+      "pais": "Haiti"
+    },
+    {
+      "codigo": "30350",
+      "nome": "PRAGA",
+      "pais": "Tchéquia"
+    },
+    {
+      "codigo": "30368",
+      "nome": "PRAIA",
+      "pais": "Cabo Verde"
+    },
+    {
+      "codigo": "30376",
+      "nome": "PRETÓRIA",
+      "pais": "África do Sul"
+    },
+    {
+      "codigo": "99155",
+      "nome": "PUERTO IGUAZÚ",
+      "pais": "Argentina"
+    },
+    {
+      "codigo": "99236",
+      "nome": "PUERTO QUIJARRO",
+      "pais": "Bolívia"
+    },
+    {
+      "codigo": "99295",
+      "nome": "PYONGYANG",
+      "pais": "Coreia do Norte"
+    },
+    {
+      "codigo": "30392",
+      "nome": "QUITO",
+      "pais": "Equador"
+    },
+    {
+      "codigo": "30406",
+      "nome": "RABAT",
+      "pais": "Marrocos"
+    },
+    {
+      "codigo": "30414",
+      "nome": "RAMALLAH",
+      "pais": "Palestina"
+    },
+    {
+      "codigo": "30422",
+      "nome": "RIADE",
+      "pais": "Arábia Saudita"
+    },
+    {
+      "codigo": "30430",
+      "nome": "RIO BRANCO",
+      "pais": "Uruguai"
+    },
+    {
+      "codigo": "99244",
+      "nome": "RIVERA",
+      "pais": "Uruguai"
+    },
+    {
+      "codigo": "30449",
+      "nome": "ROMA",
+      "pais": "Itália"
+    },
+    {
+      "codigo": "99147",
+      "nome": "SAINT JOHNS",
+      "pais": "Antígua e Barbuda"
+    },
+    {
+      "codigo": "30465",
+      "nome": "SALTO DEL GUAIRÁ",
+      "pais": "Paraguai"
+    },
+    {
+      "codigo": "30473",
+      "nome": "SANTA CRUZ DE LA SIERRA",
+      "pais": "Bolívia"
+    },
+    {
+      "codigo": "99279",
+      "nome": "SANTA ELENA DE UAIRÉN",
+      "pais": "Venezuela"
+    },
+    {
+      "codigo": "30481",
+      "nome": "SANTIAGO",
+      "pais": "Chile"
+    },
+    {
+      "codigo": "30988",
+      "nome": "SARAJEVO",
+      "pais": "Bósnia e Herzegovina"
+    },
+    {
+      "codigo": "30538",
+      "nome": "SEUL",
+      "pais": "Coreia do Sul"
+    },
+    {
+      "codigo": "29548",
+      "nome": "SINGAPURA",
+      "pais": "Singapura"
+    },
+    {
+      "codigo": "99333",
+      "nome": "ST GEORGES DE LOYAPOCK",
+      "pais": "Guiana Francesa"
+    },
+    {
+      "codigo": "30562",
+      "nome": "SYDNEY",
+      "pais": "Austrália"
+    },
+    {
+      "codigo": "30490",
+      "nome": "SÃO DOMINGOS",
+      "pais": "República Dominicana"
+    },
+    {
+      "codigo": "30503",
+      "nome": "SÃO FRANCISCO",
+      "pais": "Estados Unidos"
+    },
+    {
+      "codigo": "30511",
+      "nome": "SÃO JOSÉ",
+      "pais": "Costa Rica"
+    },
+    {
+      "codigo": "30520",
+      "nome": "SÃO SALVADOR",
+      "pais": "El Salvador"
+    },
+    {
+      "codigo": "39225",
+      "nome": "SÃO TOMÉ",
+      "pais": "São Tomé e Príncipe"
+    },
+    {
+      "codigo": "30546",
+      "nome": "SÓFIA",
+      "pais": "Bulgária"
+    },
+    {
+      "codigo": "30570",
+      "nome": "TAIPÉ",
+      "pais": "Taiwan"
+    },
+    {
+      "codigo": "99317",
+      "nome": "TALIN",
+      "pais": "Estônia"
+    },
+    {
+      "codigo": "99104",
+      "nome": "TBILISI",
+      "pais": "Geórgia"
+    },
+    {
+      "codigo": "30597",
+      "nome": "TEERÃ",
+      "pais": "Irã"
+    },
+    {
+      "codigo": "30600",
+      "nome": "TEGUCIGALPA",
+      "pais": "Honduras"
+    },
+    {
+      "codigo": "30619",
+      "nome": "TEL AVIV",
+      "pais": "Israel"
+    },
+    {
+      "codigo": "99139",
+      "nome": "TIRANA",
+      "pais": "Albânia"
+    },
+    {
+      "codigo": "30635",
+      "nome": "TORONTO",
+      "pais": "Canadá"
+    },
+    {
+      "codigo": "30686",
+      "nome": "TRÍPOLI",
+      "pais": "Líbia"
+    },
+    {
+      "codigo": "30708",
+      "nome": "TUNIS",
+      "pais": "Tunísia"
+    },
+    {
+      "codigo": "30627",
+      "nome": "TÓQUIO",
+      "pais": "Japão"
+    },
+    {
+      "codigo": "39284",
+      "nome": "UAGADUGU",
+      "pais": "Burkina Faso"
+    },
+    {
+      "codigo": "39063",
+      "nome": "VANCOUVER",
+      "pais": "Canadá"
+    },
+    {
+      "codigo": "30740",
+      "nome": "VARSÓVIA",
+      "pais": "Polônia"
+    },
+    {
+      "codigo": "30767",
+      "nome": "VIENA",
+      "pais": "Áustria"
+    },
+    {
+      "codigo": "30783",
+      "nome": "WASHINGTON",
+      "pais": "Estados Unidos"
+    },
+    {
+      "codigo": "30805",
+      "nome": "WELLINGTON",
+      "pais": "Nova Zelândia"
+    },
+    {
+      "codigo": "30821",
+      "nome": "WINDHOEK",
+      "pais": "Namíbia"
+    },
+    {
+      "codigo": "30848",
+      "nome": "XANGAI",
+      "pais": "China"
+    },
+    {
+      "codigo": "99376",
+      "nome": "YANGON",
+      "pais": "Mianmar"
+    },
+    {
+      "codigo": "39020",
+      "nome": "ZAGREB",
+      "pais": "Croácia"
+    },
+    {
+      "codigo": "30864",
+      "nome": "ZURIQUE",
+      "pais": "Suíça"
+    }
+  ]
+}

@@ -32,15 +32,15 @@ linear-gradient(145deg,#0a0d10,#20262d);color:#fff;border-right:4px solid #ff650
 .access-mode-badge{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:5px 8px;border-radius:999px;border:1px solid #4b545e;background:#151a1f;color:#d5dbe1;font-size:9px;font-weight:900;letter-spacing:.5px;text-transform:uppercase}
 .access-mode-badge.visitor{border-color:#ffb47e;color:#ffb47e}.access-mode-badge.fiscal{border-color:#78db9d;color:#78db9d}
 .access-switch{width:100%;display:flex;align-items:center;gap:10px;background:transparent;color:#f0f3f5;border:1px solid #3b434c;border-radius:8px;padding:10px 12px;margin:4px 0;font-size:12px;font-weight:800;cursor:pointer}.access-switch:hover{background:#2b3239}
-/* Acesso visitante • somente o painel presidencial do segundo turno */
+/* Acesso visitante • painéis presidenciais do segundo turno e exterior */
 body.access-visitor .visitor-hide{display:none!important}
 /* Outras páginas continuam intactas para o acesso fiscal. */
-body.access-visitor main>.section:not(#segundo-turno){display:none!important}
+body.access-visitor main>.section:not(#segundo-turno):not(#exterior){display:none!important}
 body.access-visitor main>.hero,
 body.access-visitor main>.tabs,
 body.access-visitor main>.notice{display:none!important}
-/* Mantém a navegação única de 2º turno e a ação Trocar acesso. */
-body.access-visitor .dw-sidebar .side-link[data-target]:not([data-target="segundo-turno"]),
+/* Mantém as duas abas públicas de apuração e a ação Trocar acesso. */
+body.access-visitor .dw-sidebar .side-link[data-target]:not([data-target="segundo-turno"]):not([data-target="exterior"]),
 body.access-visitor .dw-sidebar .qr-scan-btn,
 body.access-visitor .dw-sidebar #installAppSide,
 body.access-visitor .dw-sidebar button[onclick*="refreshCandidates"],
@@ -76,3 +76,12 @@ body.access-visitor .access-switch:focus-visible{
 /* Área fiscal — marca oficial legível em fundo escuro. */
 .access-brand-top .dw-official-access{display:block;width:min(100%,370px);max-height:95px;height:auto;object-fit:contain;object-position:left center}
 @media(max-width:780px){.access-brand-top .dw-official-access{max-width:285px}}
+
+
+/* Alternância pública visível também no celular. */
+.public-results-tabs{display:flex;gap:8px;margin-bottom:15px}
+.public-result-tab{flex:1;min-height:45px;padding:11px 14px;background:#fff;border:1px solid #dce4ee;border-radius:10px;color:#334357;font-size:13px;font-weight:850}
+.public-result-tab.active{background:#152539;color:#fff;border-color:#152539;box-shadow:inset 0 -3px #ff650d}
+.public-result-tab:focus-visible{outline:3px solid #ff8f4a;outline-offset:2px}
+body.access-fiscal .public-results-tabs{display:none}
+@media(max-width:480px){.public-result-tab{font-size:12px;padding:10px 7px}}

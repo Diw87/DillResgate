@@ -394,6 +394,7 @@ function init(){
  window.addEventListener("online",()=>{if($("segundo-turno")?.classList.contains("active"))fetchResults(true)});
  if($("segundo-turno")?.classList.contains("active"))activate();
 }
-window.BUSecondRound={activate,refresh:refreshManually,select,toggleFullscreen,get results(){return {...results}}};
+window.BUSecondRound={candidateCard:cardForCandidate,activate,refresh:refreshManually,select,toggleFullscreen,get results(){return {...results}}};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
+

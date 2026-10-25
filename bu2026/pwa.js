@@ -2,7 +2,7 @@
 let deferredPrompt=null;
 let registration=null;
 let updateRequested=false;
-const APP_BUILD="20261025.2";
+const APP_BUILD="20261025.3";
 const BUILD_KEY="BU2026_APP_BUILD";
 const $=id=>document.getElementById(id);
 const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
@@ -121,7 +121,7 @@ function handleShortcut(){
   if(!abrir)return;
   setTimeout(()=>{
     const tabs=[...document.querySelectorAll(".tab")];
-    const ids=["novo","apurados","resultados","vitorino","segundo-turno"];
+    const ids=["novo","apurados","resultados","vitorino","segundo-turno","exterior"];
     const i=ids.indexOf(abrir);
     if(i>=0&&tabs[i]&&typeof showMain==="function")showMain(abrir,tabs[i]);
   },350);
@@ -132,4 +132,5 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("iosInstallModal")?.addEventListener("click",e=>{if(e.target.id==="iosInstallModal")window.closeIOSInstall()});
 });
 })();
+
 
