@@ -17,11 +17,12 @@ function official(area='zz',lula=60,flavio=40,extra={}){
   s:{ts:'10',st:'5',pst:'50,00'},e:{te:'200',c:String(lula+flavio+4),a:'15'},v:{vv:String(lula+flavio),vb:'1',tvn:'3'},
   carg:[{cd:'1',agr:[{par:[{sg:'PT',cand:[{n:'13',nmu:'LULA',vap:String(lula),pvap:String(100*lula/(lula+flavio))}]},{sg:'PL',cand:[{n:'22',nmu:'FLAVIO BOLSONARO',vap:String(flavio),pvap:String(100*flavio/(lula+flavio))}]}]}]}],...extra};
 }
-function harness(){
+function harness({noTse=false,cachedSnapshot=null}={}){
  const ids=['exterior','exteriorCountry','exteriorLocality','exteriorHeadline','exteriorStatus','exteriorSummary','exteriorCandidates','exteriorLocations','exteriorCoverage','exteriorUpdated','exteriorLastCheck','exteriorRefreshBtn','exteriorRefreshLabel','exteriorFeedback','exteriorSource','exteriorFullscreenBtn'];
  const nodes=new Map(ids.map(id=>[id,node(id)])),events={},intervals=[],requests=[];
  let now=Date.parse('2026-10-25T21:05:00Z'),offline=false,hold=null;
  const docs=new Map([['zz',official()],['30627',official('30627',60,40)],['29742',official('29742',30,170)],['30198',official('30198',90,10)]]);
+ if(noTse)docs.clear();
  const catalog={meta:{official:true},localidades:[{codigo:'30627',nome:'TÓQUIO',pais:'Japão'},{codigo:'29742',nome:'HAMAMATSU',pais:'Japão'},{codigo:'30198',nome:'NAGÓIA',pais:'Japão'},{codigo:'30805',nome:'WELLINGTON',pais:'Nova Zelândia'}]};
  class Clock extends Date{constructor(...a){super(...(a.length?a:[now]))}static now(){return now}}
  const context={Date:Clock,AbortController,console:{warn(){},info(){}},navigator:{onLine:true},
@@ -31,6 +32,7 @@ function harness(){
  context.fetch=async url=>{
   requests.push(url);if(hold)await hold;if(offline)throw Error('offline');
   if(url.startsWith('./exterior-localidades.json'))return {ok:true,json:async()=>catalog};
+  if(url.startsWith('./resultados-exterior-localidades.json'))return cachedSnapshot?{ok:true,json:async()=>cachedSnapshot}:{ok:false,status:404};
   const key=url.match(/zz(\d{5})?-c0001/)?.[1]||'zz';
   if(!url.startsWith('https://resultados.tse.jus.br/')||!docs.has(key))return {ok:false,status:404};
   return {ok:true,json:async()=>docs.get(key)};
@@ -158,4 +160,24 @@ test('visitante abre Exterior, volta pelo histórico e usa atalho sem acessar o 
  vm.runInContext(fs.readFileSync(path.join(root,'pwa.js'),'utf8'),context);events.DOMContentLoaded();
  timeouts.find(x=>x.ms===350).fn();assert.equal(doc.querySelector('.section.active').id,'exterior');
  assert.equal(publicTabs[1].classList.contains('active'),true);
+});
+
+test('mostra votos oficiais do cache local quando a consulta direta ao TSE falha',async()=>{
+ const cached={
+  eleicao:6258,turno:2,codigoAbrangencia:'30627',fase:'o',divulgacao:'s',
+  geradoEm:{data:'25/10/2026',hora:'18:00:00'},
+  secoes:{total:10,totalizadas:5,percentual:50},
+  eleitores:{total:200,comparecimento:104,abstencao:15},
+  votos:{validos:100,brancos:1,nulos:3},
+  candidatos:[{numero:'13',nome:'LULA',partido:'PT',votos:60,percentual:60},
+              {numero:'22',nome:'FLAVIO BOLSONARO',partido:'PL',votos:40,percentual:40}]
+ };
+ const h=harness({noTse:true,cachedSnapshot:{meta:{official:true,eleicao:6258,turno:2},results:{'30627':cached}}});
+ await h.activate();
+ assert.match(h.nodes.get('exteriorCandidates').innerHTML,/60 votos válidos/);
+ assert.match(h.nodes.get('exteriorStatus').textContent,/soma parcial/i);
+ await h.context.BUExterior.selectCountry('Japão');
+ assert.match(h.nodes.get('exteriorCandidates').innerHTML,/60 votos válidos/);
+ assert.match(h.nodes.get('exteriorLocations').innerHTML,/TÓQUIO/);
+ assert.match(h.nodes.get('exteriorCoverage').textContent,/incomplet/i);
 });
