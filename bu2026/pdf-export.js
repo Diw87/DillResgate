@@ -17,9 +17,9 @@ function loadScript(src){
  });
 }
 async function ensurePdf(){
- if(window.jspdf?.jsPDF)return window.jspdf.jsPDF;
- await loadScript(LIB_URL);
+ if(!window.jspdf?.jsPDF)await loadScript(LIB_URL);
  if(!window.jspdf?.jsPDF)throw new Error("Gerador de PDF indisponível.");
+ await window.DWBrandPdf?.prepare?.();
  return window.jspdf.jsPDF;
 }
 function clean(v){
@@ -104,8 +104,10 @@ function reportAggregate(ballots,key){
 function pageBase(doc,title,subtitle=""){
  doc.setFillColor(...BRAND.black);doc.rect(0,0,297,19,"F");
  doc.setFillColor(...BRAND.orange);doc.rect(0,19,297,2.2,"F");
- doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text("DW",12,12.5);
- doc.setTextColor(...BRAND.orange);doc.text("Tech",25,12.5);
+ if(!window.DWBrandPdf?.paint?.(doc,12,5,38)){
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text("DW",12,12.5);
+  doc.setTextColor(...BRAND.orange);doc.text("Tech",25,12.5);
+ }
  doc.setTextColor(255,255,255);doc.setFontSize(11);doc.text(clean(title),52,10.5);
  if(subtitle){doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.setTextColor(195,202,209);doc.text(clean(subtitle),52,15.2)}
  return 29;
@@ -130,8 +132,10 @@ function cover(doc,ballots){
  doc.setFillColor(...BRAND.black);doc.rect(0,0,297,210,"F");
  doc.setFillColor(...BRAND.orange);doc.rect(0,0,12,210,"F");
  doc.setDrawColor(...BRAND.orange);doc.setLineWidth(1.1);doc.line(28,42,270,42);
- doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(30);doc.text("DW",31,30);
- doc.setTextColor(...BRAND.orange);doc.text("Tech",60,30);
+ if(!window.DWBrandPdf?.paint?.(doc,31,15,96)){
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(30);doc.text("DW",31,30);
+  doc.setTextColor(...BRAND.orange);doc.text("Tech",60,30);
+ }
  doc.setTextColor(255,255,255);doc.setFontSize(26);doc.text("B.U. 2026",31,70);
  doc.setFontSize(34);doc.text("RESULTADO GERAL",31,91);
  doc.setTextColor(...BRAND.orange);doc.setFontSize(14);doc.text("APURAÇÃO POR SEÇÃO • TODOS OS CARGOS",31,106);
@@ -151,8 +155,10 @@ function coverVitorino(doc,ballots){
  doc.setFillColor(...BRAND.black);doc.rect(0,0,297,210,"F");
  doc.setFillColor(...BRAND.orange);doc.rect(0,0,12,210,"F");
  doc.setDrawColor(...BRAND.orange);doc.setLineWidth(1.1);doc.line(28,42,270,42);
- doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(30);doc.text("DW",31,30);
- doc.setTextColor(...BRAND.orange);doc.text("Tech",60,30);
+ if(!window.DWBrandPdf?.paint?.(doc,31,15,96)){
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(30);doc.text("DW",31,30);
+  doc.setTextColor(...BRAND.orange);doc.text("Tech",60,30);
+ }
  doc.setTextColor(255,255,255);doc.setFontSize(26);doc.text("B.U. 2026",31,70);
  doc.setFontSize(31);doc.text("VITORINO FREIRE",31,91);
  doc.setTextColor(...BRAND.orange);doc.setFontSize(14);doc.text("RELATÓRIO POR SEÇÃO • TODOS OS CARGOS",31,106);
@@ -172,8 +178,10 @@ function backCover(doc){
  doc.addPage();
  doc.setFillColor(...BRAND.black);doc.rect(0,0,297,210,"F");
  doc.setFillColor(...BRAND.orange);doc.rect(285,0,12,210,"F");
- doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(31);doc.text("DW",44,79);
- doc.setTextColor(...BRAND.orange);doc.text("Tech",76,79);
+ if(!window.DWBrandPdf?.paint?.(doc,44,57,120)){
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(31);doc.text("DW",44,79);
+  doc.setTextColor(...BRAND.orange);doc.text("Tech",76,79);
+ }
  doc.setTextColor(255,255,255);doc.setFontSize(18);doc.text("B.U. 2026",44,101);
  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(185,192,200);
  doc.text("Soluções em Tecnologia • Apuração • Transparência • Organização",44,116);
