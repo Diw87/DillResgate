@@ -150,10 +150,12 @@ function render(){
  const parcial=!country&&!locality&&!ready(oficial)?aggregate(catalog):null;
  const r=locality?results.get(locality):country?aggregate():ready(oficial)?oficial:parcial||oficial,hasVotes=ready(r);
  const totalPorLocalidades=!!parcial&&r===parcial;
+ const zzSemTotalizacao=!!oficial&&number(oficial.secoes?.totalizadas)===0;
+ const localidadesSemVotos=!!country&&items.length>0&&items.every(x=>results.has(x.codigo)&&!ready(results.get(x.codigo)));
  const label=place?place.nome+" • "+country:country||"Exterior • total geral";
  const stale=locality?failures.has(locality):country?items.some(x=>failures.has(x.codigo)):failures.has("zz");
  setText("exteriorHeadline","Apuração para presidente • "+label);
- setText("exteriorStatus",hasVotes?(totalPorLocalidades?"Soma parcial dos arquivos oficiais das localidades do exterior (não é o total oficial ZZ).":country?"Soma por país dos arquivos oficiais das localidades do TSE.":"Dados oficiais do TSE • "+label+".")+" "+(stale?"Falha na última consulta. Última parcial preservada.":"Atualização automática a cada 5 segundos."):"Aguardando divulgação dos votos oficiais do segundo turno para "+label+".");
+ setText("exteriorStatus",hasVotes?(totalPorLocalidades?"Soma parcial dos arquivos oficiais das localidades do exterior (não é o total oficial ZZ).":country?"Soma por país dos arquivos oficiais das localidades do TSE.":"Dados oficiais do TSE • "+label+".")+" "+(stale?"Falha na última consulta. Última parcial preservada.":"Atualização automática a cada 5 segundos."):localidadesSemVotos?"O TSE ainda informa zero seções totalizadas nas localidades de "+label+". Os dados deste país não devem ser confundidos com o total nacional.":zzSemTotalizacao?"O TSE informa 0 seções totalizadas no exterior (ZZ). O total Brasil + exterior não representa a votação exclusiva do exterior.":"Aguardando divulgação dos votos oficiais do segundo turno para "+label+".");
  const dash="—";
  setHTML("exteriorSummary",[
   ["Seções totalizadas",hasVotes?fmt(r.secoes.totalizadas)+(r.incompleto?" (parcial)":" / "+fmt(r.secoes.total)):dash],
