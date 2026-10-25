@@ -83,7 +83,7 @@ test('simulado, primeiro turno, cargo e abrangência errados não entram no exte
 });
 test('arquivo zerado fica aguardando e nunca usa votação do primeiro turno',async()=>{
  const h=harness();h.docs.set('zz',official('zz',0,0,{s:{ts:'10',st:'0',pst:'0,00'}}));await h.activate();
- assert.match(h.nodes.get('exteriorStatus').textContent,/aguardando/i);
+ assert.match(h.nodes.get('exteriorStatus').textContent,/0 seções totalizadas no exterior/i);
  assert.doesNotMatch(h.nodes.get('exteriorCandidates').innerHTML,/NaN|0 votos válidos/);
 });
 test('cinco segundos atualizam a parcial sem trocar país, rolagem ou tela cheia',async()=>{
