@@ -1,6 +1,6 @@
 {
   "name": "DW Tech • B.U. 2026",
-  "version": "1.3.21",
+  "version": "1.3.22",
   "channel": "production",
   "architecture": "GitHub Pages + Supabase",
   "features": {
@@ -97,6 +97,6 @@
     "votos_exterior_snapshot_local": true
   },
   "released_at": "2026-10-25",
-  "build": "20261025.6",
+  "build": "20261025.7",
   "update_policy": "check_on_open_without_automatic_reload"
 }
