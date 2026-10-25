@@ -64,6 +64,18 @@ function accept(code,r){
  if(previous&&(stamp(r)<stamp(previous)||(ready(previous)&&!ready(r))))return true;
  results.set(code,r);return true;
 }
+async function loadLocalitySnapshot(){
+ try{
+  const doc=await json("./resultados-exterior-localidades.json");
+  if(doc.meta?.official!==true||Number(doc.meta.eleicao)!==6258||Number(doc.meta.turno)!==2)return false;
+  let valid=0;
+  for(const [code,r] of Object.entries(doc.results||{})){
+   if(!/^\\d{5}$/.test(code)||!catalog.some(x=>x.codigo===code)||Number(r.eleicao)!==6258||Number(r.turno)!==2||r.codigoAbrangencia!==code)continue;
+   if(accept(code,r))valid++;
+  }
+  return valid>0;
+ }catch{return false}
+}
 async function fallback(){
  try{
   const doc=await json("./resultados-segundo-turno.json"),r=doc.results?.presidente_zz;
@@ -84,8 +96,7 @@ async function queryCodes(codes){
  }));
  return successes;
 }
-function aggregate(){
- const items=locations(),available=items.map(x=>results.get(x.codigo)).filter(Boolean),published=available.filter(ready);
+function aggregate(items=locations()){,available=items.map(x=>results.get(x.codigo)).filter(Boolean),published=available.filter(ready);
  if(!published.length)return null;
  const r={fase:"o",divulgacao:"s",secoes:{total:0,totalizadas:0,percentual:0},eleitores:{total:0,comparecimento:0,abstencao:0},votos:{validos:0,brancos:0,nulos:0},candidatos:finalists.map(c=>({...c,votos:0,percentual:0})),incompleto:available.length!==items.length};
  for(const item of available){
@@ -112,11 +123,14 @@ function renderFilters(){
 }
 function render(){
  const items=locations(),place=catalog.find(x=>x.codigo===locality);
- const r=locality?results.get(locality):country?aggregate():results.get("zz"),hasVotes=ready(r);
+ const oficial=results.get("zz");
+ const parcial=!country&&!locality&&!ready(oficial)?aggregate(catalog):null;
+ const r=locality?results.get(locality):country?aggregate():ready(oficial)?oficial:parcial||oficial,hasVotes=ready(r);
+ const totalPorLocalidades=!!parcial&&r===parcial;
  const label=place?place.nome+" • "+country:country||"Exterior • total geral";
  const stale=locality?failures.has(locality):country?items.some(x=>failures.has(x.codigo)):failures.has("zz");
  setText("exteriorHeadline","Apuração para presidente • "+label);
- setText("exteriorStatus",hasVotes?"Dados oficiais do TSE • "+label+" • "+(stale?"Falha na última consulta. Última parcial preservada.":"atualização automática a cada 5 segundos."):"Aguardando divulgação dos votos oficiais do segundo turno para "+label+".");
+ setText("exteriorStatus",hasVotes?(totalPorLocalidades?"Soma parcial dos arquivos oficiais das localidades do exterior (não é o total oficial ZZ).":country?"Soma por país dos arquivos oficiais das localidades do TSE.":"Dados oficiais do TSE • "+label+".")+" "+(stale?"Falha na última consulta. Última parcial preservada.":"Atualização automática a cada 5 segundos."):"Aguardando divulgação dos votos oficiais do segundo turno para "+label+".");
  const dash="—";
  setHTML("exteriorSummary",[
   ["Seções totalizadas",hasVotes?fmt(r.secoes.totalizadas)+(r.incompleto?" (parcial)":" / "+fmt(r.secoes.total)):dash],
@@ -134,7 +148,7 @@ function render(){
   const failed=items.filter(x=>failures.has(x.codigo)).length;
   setText("exteriorCoverage",country+" • "+loaded+" / "+items.length+" localidades consultadas • "+published+" com votos apurados."+(loaded<items.length?" Cobertura incompleta: há localidades indisponíveis.":" O total do país soma as localidades abaixo.")+(failed?" Falha na última consulta de "+failed+" localidade(s); a última parcial disponível foi preservada.":""));
  }else if(catalog.length){
-  setText("exteriorCoverage","Total oficial do exterior (ZZ). Selecione um país / território para consultar suas localidades.");
+  setText("exteriorCoverage",totalPorLocalidades?"Parcial calculada a partir de "+catalog.filter(x=>ready(results.get(x.codigo))).length+" de "+catalog.length+" localidades do exterior. Não corresponde à totalização oficial ZZ; os demais locais ainda não foram confirmados.":"Total oficial do exterior (ZZ). Selecione um país / território para consultar suas localidades.");
  }
  setHTML("exteriorLocations",country?'<div class="table-wrap"><table><thead><tr><th>Localidade do TSE</th><th>Lula • 13</th><th>Flávio • 22</th><th>Seções apuradas</th><th>Situação</th></tr></thead><tbody>'+items.map(item=>{
   const row=results.get(item.codigo),ok=ready(row);
@@ -142,7 +156,7 @@ function render(){
   return '<tr><td><strong>'+esc(item.nome)+'</strong></td><td class="exterior-red">'+votes("13")+'</td><td class="exterior-blue">'+votes("22")+'</td><td>'+(row?fmt(row.secoes.totalizadas)+" / "+fmt(row.secoes.total):dash)+'</td><td>'+(row&&failures.has(item.codigo)?"Última parcial • falha na consulta":ok?(row.secoes.totalizadas===row.secoes.total?"Totalizada":"Parcial"):row?"Aguardando":"Indisponível")+'</td></tr>';
  }).join("")+'</tbody></table></div>':"");
  const time=hasVotes?[r.geradoEm?.data,r.geradoEm?.hora].filter(Boolean).join(" "):dash;
- setText("exteriorUpdated","Fonte: TSE • eleição 6258 • "+(country&&!locality?"Arquivo mais antigo na soma: ":"Atualização TSE: ")+time);
+ setText("exteriorUpdated","Fonte: TSE • eleição 6258 • "+((country&&!locality)||totalPorLocalidades?"Arquivo mais antigo na soma: ":"Atualização TSE: ")+time);
  const link=$("exteriorSource");if(link)link.href=source(locality||"zz");
 }
 function feedback(message,busy=false){
@@ -156,16 +170,20 @@ function refresh(){
  inFlight=(async()=>{
   feedback("Consultando a apuração oficial do exterior...",true);
   await loadCatalog();requestedScope=scope();
+  // Primeiro mostra o ultimo snapshot confiavel servido no mesmo dominio (sem bloqueio CORS).
+  await Promise.all([loadLocalitySnapshot(),fallback()]);
+  render();
   if(!navigator.onLine){feedback("Sem conexão. A última parcial recebida foi preservada.");return}
   if(Date.now()<RELEASE){render();feedback("Aguardando o horário de divulgação oficial do segundo turno.");return}
   const codes=["zz",...(locality?[locality]:country?locations().map(x=>x.codigo):[])];
   let count=await queryCodes(codes);
-  if(!count&&!country&&!locality){count=Number(await fallback());if(count)failures.delete("zz")}
+  // O arquivo de reserva ja foi consultado, independentemente do filtro selecionado.
   if(count)lastCheck=Date.now();
   const selectedCodes=locality?[locality]:country?locations().map(x=>x.codigo):["zz"];
   const failed=selectedCodes.filter(code=>failures.has(code)).length;
   render();
-  feedback(failed?"Falha ao atualizar "+failed+" de "+selectedCodes.length+" localidade(s) da área selecionada. A última parcial disponível foi preservada.":count?"Consulta concluída. Dados do exterior verificados.":"Não foi possível consultar o TSE. A última parcial foi preservada; confira sua conexão.");
+  const cached=locality?ready(results.get(locality)):country?!!aggregate():ready(results.get("zz"))||!!aggregate(catalog);
+  feedback(failed?"TSE direto indisponível em "+failed+" de "+selectedCodes.length+" consulta(s). "+(cached?"Exibindo dados oficiais da última sincronização.":"Aguardando arquivo oficial.") :count?"Consulta ao TSE concluída.":cached?"Exibindo dados oficiais da última sincronização.":"Aguardando resultados oficiais do TSE; tente novamente.");
  })().catch(error=>{
   console.warn("Consulta do exterior indisponível:",error);feedback("Não foi possível consultar o TSE. A última parcial foi preservada.");
  }).finally(()=>{
