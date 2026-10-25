@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v69-votos-exterior-corrigido";
+const CACHE_VERSION="dwtech-bu2026-v70-votos-exterior-por-pais";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
