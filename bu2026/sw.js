@@ -1,10 +1,12 @@
-const CACHE_VERSION="dwtech-bu2026-v61-abertura-dwtech";
+const CACHE_VERSION="dwtech-bu2026-v62-logo-oficial";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
   "./",
   "./index.html",
   "./manifest.webmanifest",
+  "./logo-dwtech-light.svg",
+  "./logo-dwtech-dark.svg",
   "./VERSION.json",
   "./qr-scanner.css",
   "./qr-scanner.js",
