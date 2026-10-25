@@ -1,6 +1,6 @@
 {
   "name": "DW Tech • B.U. 2026",
-  "version": "1.3.12",
+  "version": "1.3.13",
   "channel": "production",
   "architecture": "GitHub Pages + Supabase",
   "features": {
@@ -81,9 +81,11 @@
     "visitante_default_apos_reabrir": true,
     "publicacao_rapida_pages_sem_sincronizacao_bloqueante": true,
     "segundo_turno_animacao_virada_lula_nacional": true,
-    "abertura_animada_dwtech": true
+    "abertura_animada_dwtech": true,
+    "logo_dwtech_oficial_variantes_clara_escura": true,
+    "iconografia_dwtech_oficial": true
   },
   "released_at": "2026-10-24",
-  "build": "20261024.3",
+  "build": "20261024.4",
   "update_policy": "check_on_open_and_force_latest"
 }
