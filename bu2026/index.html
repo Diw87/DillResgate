@@ -536,7 +536,7 @@ tbody tr:hover{background:#fff4ec}
 <main>
 <div class="hero"><div><span class="eyebrow">Bem-vindo ao sistema</span><h2>B.U. 2026 — <span>BOLETIM DE URNA</span></h2><p>Olho d'Água das Cunhãs — MA • apuração segura, rápida e transparente</p></div><div class="source" id="sourceStatus">ODC • 53 seções oficiais</div></div>
 <nav class="public-results-tabs" aria-label="Painéis de apuração">
-  <button type="button" class="public-result-tab active" data-public-view="segundo-turno" aria-pressed="true" onclick="showMain('segundo-turno',document.querySelectorAll('.tab')[4])">◉ Brasil e regiões</button>
+  <button type="button" class="public-result-tab active" data-public-view="segundo-turno" aria-pressed="true" onclick="showMain('segundo-turno',document.querySelectorAll('.tab')[4])">◉ Brasil + exterior</button>
   <button type="button" class="public-result-tab" data-public-view="exterior" aria-pressed="false" onclick="showMain('exterior',document.querySelectorAll('.tab')[5])">◎ Votos do exterior</button>
 </nav>
 <div class="tabs"><button class="tab" onclick="showMain('novo',this)">▣ &nbsp;Novo B.U.</button><button class="tab" onclick="showMain('apurados',this)">▥ &nbsp;B.U.s</button><button class="tab" onclick="showMain('resultados',this)">▥ &nbsp;Resultados ODC</button><button class="tab" onclick="showMain('vitorino',this)">▥ &nbsp;Resultados Vitorino Freire</button><button class="tab active" onclick="showMain('segundo-turno',this)">◉ &nbsp;Presidente • 2º Turno</button><button class="tab" onclick="showMain('exterior',this)">◎ &nbsp;Votos do exterior</button></div>
@@ -669,16 +669,16 @@ tbody tr:hover{background:#fff4ec}
       <div class="field"><label for="exteriorLocality">Localidade de votação</label><select id="exteriorLocality" disabled onchange="BUExterior.selectLocality(this.value)"><option value="">Selecione um país / território</option></select></div>
     </div>
     <div id="exteriorStatus" class="t2-note" role="status" aria-live="polite">Aguardando divulgação oficial do segundo turno no exterior.</div>
-    <div class="t2-detail">
-      <div class="t2-heading"><h3 id="exteriorHeadline">Apuração para presidente • Exterior • total geral</h3><span class="source">Exclusivo exterior • 2º turno</span></div>
-      <div id="exteriorSummary" class="t2-summary"></div>
-      <div id="exteriorCandidates" class="t2-candidates"></div>
-    </div>
     <div class="t2-detail exterior-localities">
       <div class="t2-heading"><h3>Resultados por país e localidade</h3></div>
       <p id="exteriorCoverage" class="exterior-coverage" role="status" aria-live="polite">O total oficial do exterior vem do TSE. Selecione um país para consultar suas localidades.</p>
       <div id="exteriorLocations"></div>
       <p class="exterior-method">Votos e localidades: TSE. Os totais por país / território são calculados pelo aplicativo somando as respectivas localidades. A abstenção considera somente as seções já apuradas.</p>
+    </div>
+    <div class="t2-detail">
+      <div class="t2-heading"><h3 id="exteriorHeadline">Apuração para presidente • Exterior • total geral</h3><span class="source">Exclusivo exterior • 2º turno</span></div>
+      <div id="exteriorSummary" class="t2-summary"></div>
+      <div id="exteriorCandidates" class="t2-candidates"></div>
     </div>
     <div class="t2-foot"><span id="exteriorUpdated">Fonte: Tribunal Superior Eleitoral • eleição 6258</span><a id="exteriorSource" href="https://resultados.tse.jus.br/oficial/ele2026/6258/dados/zz/zz-c0001-e006258-u.json" target="_blank" rel="noopener noreferrer">Conferir fonte oficial ↗</a></div>
   </div>
