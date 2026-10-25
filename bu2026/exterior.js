@@ -122,6 +122,25 @@ function renderFilters(){
  setHTML("exteriorLocality",'<option value="">Todas as localidades do país / território</option>'+items.map(x=>'<option value="'+x.codigo+'">'+esc(x.nome)+'</option>').join(""));
  const city=$("exteriorLocality");if(city){city.value=locality;city.disabled=!country}
 }
+function countryOverview(){
+ if(!catalog.length)return "";
+ const groups=new Map();
+ for(const place of catalog){
+  if(!groups.has(place.pais))groups.set(place.pais,[]);
+  groups.get(place.pais).push(place);
+ }
+ const entries=[...groups].map(([name,places])=>{
+  const counted=places.filter(x=>ready(results.get(x.codigo)));
+  const votes=num=>counted.reduce((sum,x)=>sum+number(results.get(x.codigo).candidatos.find(c=>String(c.numero)===num)?.votos),0);
+  return {name,total:places.length,loaded:counted.length,lula:votes("13"),flavio:votes("22")};
+ }).sort((a,b)=>(b.lula+b.flavio)-(a.lula+a.flavio)||a.name.localeCompare(b.name,"pt-BR"));
+ return '<h3 style="margin:8px 0 12px">Votação por país / território</h3>'+
+ '<p class="exterior-coverage">Somas calculadas a partir das localidades oficiais do TSE. O agrupamento por país é da DW Tech; não é um total por país publicado pelo TSE. Toque no nome para consultar cada cidade.</p>'+
+ '<div class="table-wrap"><table class="exterior-country-table"><thead><tr><th>País / território</th><th>Lula • 13</th><th>Flávio • 22</th><th>Localidades com votos</th></tr></thead><tbody>'+
+ entries.map(x=>'<tr><td><button type="button" class="soft" data-country="'+esc(x.name)+'" onclick="BUExterior.selectCountry(this.dataset.country)">'+esc(x.name)+'</button></td>'+
+ '<td class="exterior-red">'+(x.loaded?fmt(x.lula):"—")+'</td><td class="exterior-blue">'+(x.loaded?fmt(x.flavio):"—")+'</td>'+
+ '<td>'+fmt(x.loaded)+' / '+fmt(x.total)+'</td></tr>').join("")+'</tbody></table></div>';
+}
 function render(){
  const items=locations(),place=catalog.find(x=>x.codigo===locality);
  const oficial=results.get("zz");
@@ -155,7 +174,7 @@ function render(){
   const row=results.get(item.codigo),ok=ready(row);
   const votes=num=>ok?fmt(row.candidatos.find(c=>c.numero===num)?.votos):dash;
   return '<tr><td><strong>'+esc(item.nome)+'</strong></td><td class="exterior-red">'+votes("13")+'</td><td class="exterior-blue">'+votes("22")+'</td><td>'+(row?fmt(row.secoes.totalizadas)+" / "+fmt(row.secoes.total):dash)+'</td><td>'+(row&&failures.has(item.codigo)?"Última parcial • falha na consulta":ok?(row.secoes.totalizadas===row.secoes.total?"Totalizada":"Parcial"):row?"Aguardando":"Indisponível")+'</td></tr>';
- }).join("")+'</tbody></table></div>':"");
+ }).join("")+'</tbody></table></div>':countryOverview());
  const time=hasVotes?[r.geradoEm?.data,r.geradoEm?.hora].filter(Boolean).join(" "):dash;
  setText("exteriorUpdated","Fonte: TSE • eleição 6258 • "+((country&&!locality)||totalPorLocalidades?"Arquivo mais antigo na soma: ":"Atualização TSE: ")+time);
  const link=$("exteriorSource");if(link)link.href=source(locality||"zz");
