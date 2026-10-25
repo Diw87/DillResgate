@@ -158,7 +158,10 @@ test('visitante abre Exterior, volta pelo histórico e usa atalho sem acessar o 
  windowEvents.popstate({state:exteriorState});assert.equal(doc.querySelector('.section.active').id,'exterior');
  context.BUNavigation.go('novo');assert.equal(doc.querySelector('.section.active').id,'segundo-turno');
  vm.runInContext(fs.readFileSync(path.join(root,'pwa.js'),'utf8'),context);events.DOMContentLoaded();
- timeouts.find(x=>x.ms===350).fn();assert.equal(doc.querySelector('.section.active').id,'exterior');
+ assert.equal(doc.querySelector('.section.active').id,'segundo-turno');
+ assert.equal(publicTabs[0].classList.contains('active'),true);
+ context.BUNavigation.go('exterior');
+ assert.equal(doc.querySelector('.section.active').id,'exterior');
  assert.equal(publicTabs[1].classList.contains('active'),true);
 });
 
@@ -195,7 +198,7 @@ test('aceita codigo de abrangencia TSE com prefixo ZZ por localidade e exibe na 
 
 test('mostra tabela por país diretamente na aba Exterior e permite consultar por país',async()=>{
  const h=harness();await h.activate();
- assert.match(h.nodes.get('exteriorLocations').innerHTML,/Votação por país/);
+ assert.match(h.nodes.get('exteriorLocations').innerHTML,/Votos separados por país/);
  assert.match(h.nodes.get('exteriorLocations').innerHTML,/data-country="Japão"/);
  await h.context.BUExterior.selectCountry('Japão');
  await h.context.BUExterior.selectCountry('');
@@ -203,5 +206,16 @@ test('mostra tabela por país diretamente na aba Exterior e permite consultar po
  assert.match(table,/Japão/);
  assert.match(table,/180/);
  assert.match(table,/220/);
- assert.match(table,/não é um total por país publicado pelo TSE/);
+ assert.match(table,/agrupados pela DW Tech/);
+});
+
+test('o atalho antigo do Exterior nao toma a tela inicial Brasil e exterior',()=>{
+ const pwa=fs.readFileSync(path.join(root,'pwa.js'),'utf8');
+ assert.match(pwa,/abrir==="exterior"/);
+ assert.match(pwa,/q\.delete\("abrir"\)/);
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const countries=html.indexOf('id="exteriorLocations"');
+ const total=html.indexOf('id="exteriorCandidates"');
+ assert.ok(countries>0 && countries<total,'países devem aparecer antes dos cartões do total geral');
+ assert.match(html,/public-result-tab active[^>]*Brasil \+ exterior/);
 });
