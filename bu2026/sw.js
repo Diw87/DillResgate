@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v71-brasil-default-exterior-paises";
+const CACHE_VERSION="dwtech-bu2026-v72-zz-status-oficial";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
