@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v65-mapa-segundo-turno";
+const CACHE_VERSION="dwtech-bu2026-v66-atualizacao-5s";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -115,3 +115,4 @@ self.addEventListener("fetch",event=>{
 self.addEventListener("message",event=>{
   if(event.data?.type==="SKIP_WAITING")self.skipWaiting();
 });
+

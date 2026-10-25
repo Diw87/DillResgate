@@ -1,0 +1,158 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const root=path.resolve(__dirname,'..');
+const flush=()=>new Promise(resolve=>setImmediate(resolve));
+function storage(initial={}){
+ const values=new Map(Object.entries(initial));
+ return {getItem:key=>values.get(key)||null,setItem:(key,value)=>values.set(key,String(value)),removeItem:key=>values.delete(key)};
+}
+function element(id,classes=[]){
+ const names=new Set(classes);let html='';
+ return {id,dataset:{},textContent:'',writes:0,scrollTop:0,scrollLeft:0,
+  get innerHTML(){return html},set innerHTML(value){html=value;this.writes++},
+  classList:{contains:n=>names.has(n),add:n=>names.add(n),remove:n=>names.delete(n),toggle(n,on){if(on)names.add(n);else names.delete(n)}},
+  setAttribute(){},querySelector(){return null}};
+}
+function harness(ids=[]){
+ const nodes=new Map(ids.map(id=>[id,element(id,id==='segundo-turno'?['active']:[])]));
+ const events={},windowEvents={},intervals=[],timeouts=new Map();
+ let now=Date.parse('2026-10-25T21:00:00Z'),nextTimer=0;
+ class Clock extends Date {constructor(...args){super(...(args.length?args:[now]))}static now(){return now}}
+ const document={readyState:'loading',visibilityState:'visible',fullscreenElement:nodes.get('segundo-turno'),body:element('body'),
+  getElementById:id=>nodes.get(id)||null,querySelector:selector=>selector==='.section.active'?nodes.get('segundo-turno'):null,
+  querySelectorAll:()=>[],addEventListener:(name,fn)=>events[name]=fn};
+ const context={document,navigator:{onLine:true,userAgent:''},localStorage:storage(),sessionStorage:storage(),Date:Clock,
+  AbortController,URL,URLSearchParams,crypto:{randomUUID:()=> 'device-test'},console:{info(){},warn(){},error(){}},
+  setInterval:(fn,ms)=>{intervals.push({fn,ms,next:now+ms});return intervals.length},clearInterval(){},
+  setTimeout:(fn,ms)=>{timeouts.set(++nextTimer,{fn,ms});return nextTimer},clearTimeout:id=>timeouts.delete(id),
+  scrollY:240,scrollX:0,scrollTo({top}){context.scrollY=top},requestAnimationFrame:fn=>fn(),
+  matchMedia:()=>({matches:false}),addEventListener:(name,fn)=>windowEvents[name]=fn};
+ context.window=context;
+ vm.createContext(context);
+ return {context,nodes,events,windowEvents,intervals,
+  run(file){vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context)},
+  async advance(ms){now+=ms;for(const timer of intervals){if(timer.next<=now){timer.next=now+timer.ms;timer.fn()}}await flush()}};
+}
+function result(votes=60){
+ return {fase:'o',divulgacao:'s',geradoEm:{data:'25/10/2026',hora:'18:00:00'},
+  secoes:{total:100,totalizadas:20,percentual:20},eleitores:{comparecimento:100},
+  votos:{validos:votes+40,brancos:0,nulos:0},candidatos:[
+   {numero:'13',nome:'LULA',partido:'PT',votos:votes,percentual:60},
+   {numero:'22',nome:'FLAVIO BOLSONARO',partido:'PL',votos:40,percentual:40}]};
+}
+function secondRound(){
+ const h=harness(['segundo-turno','turno2Status','turno2Summary','turno2Candidates','turno2Areas','turno2Headline','turno2Updated','turno2LastCheck']);
+ let snapshot=result(),requests=0,offline=false;
+ h.context.fetch=async url=>{
+  if(offline)throw Error('offline');
+  if(url.startsWith('./resultados-segundo-turno.json')){requests++;return {ok:true,json:async()=>({results:{presidente_br:snapshot,presidente_ma:snapshot}})}}
+  return {ok:false,status:404};
+ };
+ h.run('segundo-turno.js');
+ return {...h,setResult:r=>snapshot=r,get requests(){return requests},fail:()=>offline=true};
+}
+
+test('recebe votos novos após cinco segundos e mantém área, tela cheia e rolagem',async()=>{
+ const h=secondRound();h.events.DOMContentLoaded();await flush();
+ h.context.BUSecondRound.select('ma');
+ const host=h.context.document.fullscreenElement;
+ h.setResult(result(85));await h.advance(5000);
+ assert.equal(h.context.BUSecondRound.results.presidente_ma.candidatos[0].votos,85);
+ assert.match(h.nodes.get('turno2Headline').textContent,/Maranhão/);
+ assert.match(h.nodes.get('turno2Candidates').innerHTML,/85 votos válidos/);
+ assert.equal(h.context.document.fullscreenElement,host);
+ assert.equal(host.classList.contains('active'),true);
+ assert.equal(h.context.scrollY,240);
+ h.setResult(result(90));await h.advance(5000);
+ assert.equal(h.context.BUSecondRound.results.presidente_ma.candidatos[0].votos,90);
+});
+
+test('consulta sem novidade mantém os cartões e falha de rede conserva a última votação',async()=>{
+ const h=secondRound();h.events.DOMContentLoaded();await flush();
+ const candidates=h.nodes.get('turno2Candidates'),writes=candidates.writes;
+ await h.advance(5000);
+ assert.equal(candidates.writes,writes,'A consulta sem mudança não deve reconstruir retratos e cartões');
+ h.fail();await h.advance(5000);
+ assert.equal(h.context.BUSecondRound.results.presidente_br.candidatos[0].votos,60);
+ assert.match(candidates.innerHTML,/60 votos válidos/);
+});
+
+test('tempo gasto na resposta não transforma o intervalo de cinco em dez segundos',async()=>{
+ const h=secondRound();let release;
+ const ready=new Promise(resolve=>release=resolve),fetch=h.context.fetch;
+ h.context.fetch=async(...args)=>{await ready;return fetch(...args)};
+ h.events.DOMContentLoaded();await h.advance(1000);release();await flush();
+ h.setResult(result(85));await h.advance(4000);
+ assert.equal(h.context.BUSecondRound.results.presidente_br.candidatos[0].votos,85);
+});
+
+test('não consulta a apuração com a aba oculta ou sem conexão',async()=>{
+ const h=secondRound();h.events.DOMContentLoaded();await flush();const count=h.requests;
+ h.context.document.visibilityState='hidden';await h.advance(5000);assert.equal(h.requests,count);
+ h.context.document.visibilityState='visible';h.context.navigator.onLine=false;
+ await h.advance(5000);assert.equal(h.requests,count);
+});
+
+test('mapa recebe a nova parcial em cinco segundos e conserva o estado selecionado',async()=>{
+ const h=harness(['segundo-turno','t2UFDetail']);let snapshot=result(60);
+ h.context.fetch=async()=>({ok:true,json:async()=>({meta:{turno:2,eleicao:6258},results:{presidente_ma:snapshot}})});
+ h.run('central-apuracao.js');h.events.DOMContentLoaded();await flush();
+ h.context.BUCentral.selectUF('MA');await flush();
+ snapshot=result(85);await h.advance(5000);
+ assert.equal(h.context.BUCentral.stateResults.presidente_ma.candidatos[0].votos,85);
+ assert.match(h.nodes.get('t2UFDetail').innerHTML,/Maranhão/);
+ assert.match(h.nodes.get('t2UFDetail').innerHTML,/85 votos/);
+ assert.equal(h.context.document.fullscreenElement,h.nodes.get('segundo-turno'));
+});
+
+test('painel geral atualiza em cinco segundos sem duplicar consultas ou apagar dados na falha',async()=>{
+ const h=harness(['gerais']);h.nodes.get('gerais').classList.add('active');
+ let current={results:{presidente_br:result(60)}},requests=0,release;
+ h.context.fetchOfficialDirect=async()=>{requests++;if(release)await release;return current};
+ h.context.fetchOfficialFallback=async()=>null;
+ for(const name of ['paintOfficialResults','renderStats','renderResults','renderVitorinoResults'])h.context[name]=()=>{};
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const state=html.match(/^let officialResultsCache=.*$/m)[0];
+ vm.runInContext(state+'\n'+html.slice(html.indexOf('async function loadOfficialResults('),html.indexOf('async function openGeneralResultsWindow(')),h.context);
+ h.context.renderGeneralResults();await flush();
+ let finish;release=new Promise(resolve=>finish=resolve);
+ current={results:{presidente_br:result(85)}};
+ await h.advance(5000);const concurrent=h.context.loadOfficialResults(true);
+ assert.equal(requests,2,'Consulta manual e automática precisam compartilhar a requisição em andamento');
+ finish();await concurrent;
+ assert.equal(vm.runInContext('officialResultsCache.results.presidente_br.candidatos[0].votos',h.context),85);
+ release=null;current=null;await h.advance(5000);
+ assert.equal(vm.runInContext('officialResultsCache.results.presidente_br.candidatos[0].votos',h.context),85);
+});
+
+test('sincronização lenta não sobrepõe consultas nem desfaz a rolagem feita pelo usuário',async()=>{
+ const h=harness(['segundo-turno']);let release,requests=0,redraws=0;
+ const response=new Promise(resolve=>release=resolve);
+ h.context.fetch=async()=>{requests++;await response;return {ok:true,text:async()=> '[]'}};
+ for(const name of ['renderStats','renderBUFilter','renderBUs','renderResults','renderSections'])h.context[name]=()=>redraws++;
+ Object.assign(h.context,{buData:[],KEY_BU:'ballots'});
+ h.run('cloud.js');
+ const first=h.context.BUCloud.softRefresh(),second=h.context.BUCloud.softRefresh();
+ await flush();h.context.scrollY=910;release();await Promise.all([first,second]);
+ assert.equal(requests,1,'Deve haver uma única leitura com fila vazia e chamadas simultâneas');
+ assert.equal(h.context.scrollY,910,'A rolagem atual deve prevalecer sobre a posição anterior à consulta');
+ const oldRedraws=redraws;await h.context.BUCloud.softRefresh();
+ assert.equal(redraws,oldRedraws,'A central sem alterações não deve redesenhar as telas');
+});
+
+test('nova versão e troca do service worker mantêm a página aberta; recarga exige ação manual',async()=>{
+ const h=harness(['segundo-turno']);const navigations=[],workerEvents={};
+ h.context.location={href:'https://diw87.github.io/DillResgate/bu2026/',search:'',reload:()=>navigations.push('reload'),replace:()=>navigations.push('replace')};
+ h.context.localStorage=storage({BU2026_APP_BUILD:'anterior'});
+ h.context.caches={keys:async()=>[],delete:async()=>true};
+ const registration={update:async()=>{},addEventListener(){}};
+ h.context.navigator.serviceWorker={controller:{},register:async()=>registration,addEventListener:(name,fn)=>workerEvents[name]=fn};
+ h.context.fetch=async()=>({ok:true,json:async()=>({build:'nova-versao'})});
+ h.run('pwa.js');h.events.DOMContentLoaded();await flush();await flush();
+ workerEvents.controllerchange?.();
+ assert.deepEqual(navigations,[],'Atualização em segundo plano não pode navegar ou sair da tela cheia');
+ await h.context.applyPwaUpdate();assert.deepEqual(navigations,['reload']);
+});

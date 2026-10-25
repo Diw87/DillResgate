@@ -39,6 +39,7 @@ jobs:
           node --check bu2026/sw.js
           node --check bu2026/segundo-turno.js
           node --check bu2026/central-apuracao.js
+          node --test bu2026/tests/auto-refresh.test.cjs
           $mapa = Get-Content bu2026/brasil-estados.svg -Raw
           if (([regex]::Matches($mapa, '<path class="br-map-state')).Count -ne 27) { throw "Mapa do Brasil deve conter 27 geometrias estaduais" }
           if ($mapa.Length -gt 85000) { throw "Mapa SVG excedeu limite leve de 85 KB" }
@@ -58,3 +59,4 @@ jobs:
         run: |
           $required = @('src/Start.ps1','src/Core.psm1','src/Worker.ps1','src/Server.ps1','web/index.html','web/style.css','web/app.js','config.json','01_INICIAR_AUTONOMO.cmd','02_SO_DIAGNOSTICO.cmd')
           foreach ($f in $required) { if (-not (Test-Path $f)) { throw "Arquivo essencial ausente: $f" } }
+

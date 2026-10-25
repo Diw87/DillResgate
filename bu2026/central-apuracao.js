@@ -3,6 +3,7 @@
 "use strict";
 const BASE="https://resultados.tse.jus.br/oficial/ele2026/6258/dados";
 const RELEASE=Date.UTC(2026,9,25,20,0,0);
+const REFRESH_INTERVAL_MS=5000;
 const FIRST_BASE="https://resultados.tse.jus.br/oficial/ele2026/6257";
 const FIRST_CONFIG=FIRST_BASE+"/config/mun-e006257-cm.json";
 const UF=[
@@ -603,7 +604,7 @@ function init(){
  if(started)return;started=true;
  // O mapa abre sempre no 2º turno. O 1º turno é carregado ao selecioná-lo manualmente.
  loadFirstCache();tvButton();paint();if(available())refresh();
- setInterval(()=>{if(document.visibilityState==="visible"){paint();if(navigator.onLine&&available()&&mapMode==="second")refresh();}},30000);
+ setInterval(()=>{if(document.visibilityState==="visible"&&$("segundo-turno")?.classList.contains("active")){paint();if(navigator.onLine&&available()&&mapMode==="second")refresh();}},REFRESH_INTERVAL_MS);
  setInterval(()=>{if(document.visibilityState==="visible")pulse();},5000);
  window.addEventListener("online",()=>{if(mapMode==="first")loadFirstStates();else refresh();});
  window.addEventListener("offline",connection);

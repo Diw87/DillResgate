@@ -4,10 +4,12 @@ const SB_URL="https://ecptjdykrzyiekunxylx.supabase.co";
 const SB_KEY="sb_publishable_7KNgN5uT6Mywv0rTYv3dtw_QQS7f1Of";
 const QUEUE_KEY="BU2026_CLOUD_QUEUE_V2";
 const DEVICE_KEY="BU2026_DEVICE_ID_V1";
+const REFRESH_INTERVAL_MS=5000;
 const DEVICE_ID=localStorage.getItem(DEVICE_KEY)||crypto.randomUUID();
 localStorage.setItem(DEVICE_KEY,DEVICE_ID);
 
 let cloudReady=false,pollTimer=null,toastTimer=null,patched=false,lastFingerprint="";
+let refreshInFlight=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
 const queue=()=>{try{return JSON.parse(localStorage.getItem(QUEUE_KEY)||"[]")}catch{return[]}};
@@ -86,7 +88,7 @@ function renderStatus(){
  const c=$("cloudSimpleStatus"),t=$("cloudSimpleText");if(!c||!t)return;
  const q=queue(),conf=q.filter(x=>x.state==="conflict").length,pending=q.filter(x=>x.state!=="conflict").length;
  c.classList.toggle("offline",!navigator.onLine);
- t.innerHTML=(navigator.onLine?"Online • atualização automática 30s":"Offline")+
+ t.innerHTML=(navigator.onLine?"Online • atualização automática 5s":"Offline")+
   (pending?'<br><span class="queue">'+pending+' pendente(s)</span>':"")+
   (conf?'<br><span class="queue">'+conf+' conflito(s)</span>':"");
 }
@@ -213,6 +215,7 @@ function enqueue(rec){
 async function syncQueue(){
  if(!navigator.onLine)return;
  let q=queue(),changed=false;
+ if(!q.some(item=>item.state!=="conflict"))return;
  for(const item of q){
   if(item.state==="conflict")continue;
   try{await saveCloud(item.rec);item.state="done";changed=true}
@@ -226,18 +229,17 @@ async function syncQueue(){
  if(q.some(x=>x.state==="conflict"))toast("Uma seção pendente já foi lançada por outro aparelho.","warn");
 }
 async function softRefresh(){
+ if(refreshInFlight)return refreshInFlight;
  if(!navigator.onLine){renderStatus();return}
- const view=document.querySelector(".section.active")?.id||"";
- const y=window.scrollY||0;
- try{
+ refreshInFlight=(async()=>{
   await syncQueue();
   await loadCloudBallots(true);
-  if((view==="gerais"||view==="resultados")&&typeof window.loadOfficialResults==="function"){
+  const view=document.querySelector(".section.active")?.id||"";
+  if(["gerais","resultados","vitorino"].includes(view)&&typeof window.loadOfficialResults==="function"){
    try{await window.loadOfficialResults(true)}catch{}
   }
- }finally{
-  requestAnimationFrame(()=>window.scrollTo({top:y,left:0,behavior:"auto"}));
- }
+ })().finally(()=>refreshInFlight=null);
+ return refreshInFlight;
 }
 async function syncAfterBallot(){
  if(!navigator.onLine){renderStatus();return}
@@ -351,7 +353,7 @@ async function boot(){
  await loadCloudBallots();
  await syncQueue();
  clearInterval(pollTimer);
- pollTimer=setInterval(()=>softRefresh(),30000);
+ pollTimer=setInterval(()=>{if(document.visibilityState==="visible")softRefresh()},REFRESH_INTERVAL_MS);
 }
 
 window.BUCloud={reload:softRefresh,sync:syncQueue,hasDuplicateSection,duplicateState,softRefresh};

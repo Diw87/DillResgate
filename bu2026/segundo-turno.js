@@ -3,6 +3,7 @@
 "use strict";
 const BASE="https://resultados.tse.jus.br/oficial/ele2026/6258/dados";
 const RELEASE=Date.UTC(2026,9,25,20,0,0); // 25/10/2026 17h no horário de Brasília
+const REFRESH_INTERVAL_MS=5000;
 const AREAS=[
  {id:"br",key:"presidente_br",name:"Brasil + exterior",short:"BRASIL",url:BASE+"/br/br-c0001-e006258-u.json"},
  {id:"ma",key:"presidente_ma",name:"Maranhão",short:"MARANHÃO",url:BASE+"/ma/ma-c0001-e006258-u.json"},
@@ -196,7 +197,7 @@ function render(){
  }else if(!ready){
   status.textContent="Aguardando publicação dos resultados oficiais do 2º turno pelo TSE. Nenhum voto do 1º turno será utilizado nesta tela.";
  }else{
-  status.textContent="Dados oficiais do TSE • "+statusText(r)+" • "+area.name+". Atualização automática a cada 30 segundos enquanto esta aba estiver aberta.";
+  status.textContent="Dados oficiais do TSE • "+statusText(r)+" • "+area.name+". Atualização automática a cada 5 segundos enquanto esta aba estiver aberta.";
  }
  areas.innerHTML=AREAS.map(a=>{
   const item=results[a.key],isReady=officialReady(item),pct=isReady?decimal(item.secoes.percentual).toFixed(2).replace(".",",")+"%":"—";
@@ -249,7 +250,7 @@ async function fetchResults(force=false){
   render();
   return {ok,published:false,changed:false};
  }
- if(!force&&Date.now()-updated<25000){render();return {ok:true,published:Object.values(results).some(officialReady),changed:false};}
+ if(!force&&Date.now()-updated<REFRESH_INTERVAL_MS)return {ok:true,published:Object.values(results).some(officialReady),changed:false};
  inFlight=(async()=>{
   const fetched={};
   const calls=[fetchJson("./resultados-segundo-turno.json",11000).catch(()=>null),
@@ -273,7 +274,8 @@ async function fetchResults(force=false){
   const changed=JSON.stringify(results)!==previous;
   updated=lastConsultation=Date.now();
   if(!Object.values(results).some(officialReady))await loadFinalists();
-  render();
+  if(changed)render();
+  paintConsultationTime();
   return {ok:true,published:Object.values(results).some(officialReady),changed};
  })().finally(()=>inFlight=null);
  return inFlight;
@@ -375,7 +377,7 @@ async function toggleFullscreen(){
  updateFullscreenButton();
 }
 function activate(){render();renderCountdown();fetchResults(false);}
-function select(id){if(!AREAS.some(a=>a.id===id))return;selected=id;render();if(hasReleased()&&Date.now()-updated>25000)fetchResults();}
+function select(id){if(!AREAS.some(a=>a.id===id))return;selected=id;render();if(hasReleased()&&Date.now()-updated>=REFRESH_INTERVAL_MS)fetchResults();}
 function init(){
  document.addEventListener("fullscreenchange",updateFullscreenButton);
  document.addEventListener("webkitfullscreenchange",updateFullscreenButton);
@@ -387,8 +389,8 @@ function init(){
  countdownTimer=setInterval(()=>renderCountdown(),1000);
  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")renderCountdown();});
  timer=setInterval(()=>{
-  if(document.visibilityState==="visible"&&$("segundo-turno")?.classList.contains("active")&&navigator.onLine)fetchResults(false);
- },30000);
+  if(document.visibilityState==="visible"&&$("segundo-turno")?.classList.contains("active")&&navigator.onLine)fetchResults(true);
+ },REFRESH_INTERVAL_MS);
  window.addEventListener("online",()=>{if($("segundo-turno")?.classList.contains("active"))fetchResults(true)});
  if($("segundo-turno")?.classList.contains("active"))activate();
 }
