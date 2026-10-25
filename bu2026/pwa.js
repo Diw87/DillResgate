@@ -118,6 +118,16 @@ window.applyPwaUpdate=async()=>{
 function handleShortcut(){
   const q=new URLSearchParams(location.search);
   const abrir=q.get("abrir");
+  // A tela inicial pública é sempre Brasil + exterior, mesmo se um link
+  // antigo tiver sido salvo com ?abrir=exterior.
+  if(abrir==="exterior"){
+    q.delete("abrir");
+    try{
+      const rest=q.toString();
+      history.replaceState(history.state,"",location.pathname+(rest?"?"+rest:"")+(location.hash||""));
+    }catch{}
+    return;
+  }
   if(!abrir)return;
   setTimeout(()=>{
     const tabs=[...document.querySelectorAll(".tab")];
