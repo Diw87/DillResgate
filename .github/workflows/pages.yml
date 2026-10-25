@@ -50,6 +50,10 @@ jobs:
         continue-on-error: true
         run: python3 bu2026/sync_segundo_turno.py
 
+      - name: Atualizar localidades do exterior (copias oficiais de reserva)
+        continue-on-error: true
+        run: python3 bu2026/sync_exterior_localidades.py
+
       - name: Preparar leitor oficial de B.U. 2026
         if: github.event_name != 'push'
         continue-on-error: true
