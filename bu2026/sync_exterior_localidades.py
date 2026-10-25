@@ -62,7 +62,21 @@ def main():
     data["meta"]["paisesComVotos"] = len({r.get("pais") for r in published})
     # Regrava o mesmo snapshot com metadados de cobertura auditáveis.
     OUT.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    print(json.dumps(data["meta"], ensure_ascii=False))
+    # Diagnóstico sem inventar votos: fase, divulgação e seções efetivas do TSE.
+    from collections import Counter
+    stats = {
+        "fase": dict(Counter(str(r.get("fase")) for r in data["results"].values())),
+        "divulgacao": dict(Counter(str(r.get("divulgacao")) for r in data["results"].values())),
+        "secoesPositivas": sum(int(r.get("secoes", {}).get("totalizadas", 0)) > 0 for r in data["results"].values()),
+        "votosValidosPositivos": sum(int(r.get("votos", {}).get("validos", 0)) > 0 for r in data["results"].values()),
+        "amostra": [
+            {"codigo": code, "pais": r.get("pais"), "fase": r.get("fase"),
+             "divulgacao": r.get("divulgacao"), "secoes": r.get("secoes"),
+             "validos": r.get("votos", {}).get("validos")}
+            for code, r in list(data["results"].items())[:3]
+        ],
+    }
+    print(json.dumps({"cobertura": data["meta"], "diagnostico": stats}, ensure_ascii=False))
     return 0
 
 if __name__ == "__main__":
