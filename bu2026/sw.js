@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v72-zz-status-oficial";
+const CACHE_VERSION="dwtech-bu2026-v73-telao-fixo";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
@@ -21,6 +21,7 @@ const SHELL=[
   "./vitorino-bu.js",
   "./vitorino-bu.css",
   "./segundo-turno.css",
+  "./telao-fixo.css",
   "./segundo-turno.js",
   "./exterior.js",
   "./exterior-localidades.json",

@@ -2,7 +2,7 @@
 let deferredPrompt=null;
 let registration=null;
 let updateRequested=false;
-const APP_BUILD="20261025.8";
+const APP_BUILD="20261028.1";
 const BUILD_KEY="BU2026_APP_BUILD";
 const $=id=>document.getElementById(id);
 const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;

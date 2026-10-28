@@ -35,7 +35,7 @@ let stateData={},selectedUF="",generatedAt="",lastCheck=0,failed=false,loading=f
 let mapMode="second",firstStates={},firstStatePromises={},firstLoading=null,firstFailures=0;
 let cityDirectory=null,cityDirectoryPromise=null,selectedCity=null,selectedCityResult=null,cityLoading=false;
 const FIRST_CACHE_KEY="dwtech-bu2026-map-first-6257-v1";
-let tv=false,tvTimer=null,tvIndex=0,tvOwnFullscreen=false,scrollTick=0;
+let scrollTick=0;
 function allResults(){return window.BUSecondRound?.results||{};}
 function getData(key){
  const live=allResults()[key],snap=stateData[key];
@@ -489,31 +489,10 @@ async function share(){
   if(e)e.textContent="Abra ou copie este link: "+url;
  }
 }
-function tvButton(){
- const b=$("t2TVBtn");
- if(!b)return;
- b.setAttribute("aria-pressed",String(tv));b.textContent=tv?"■ Parar modo TV":"▶ Modo TV automático";
- const s=$("t2TVStatus");if(s)s.textContent=tv?"TV ativa • alternando Brasil, Maranhão e municípios a cada 12 segundos":"";
-}
 async function toggleTV(){
- if(tv){
-  tv=false;clearInterval(tvTimer);tvTimer=null;
-  if(tvOwnFullscreen){tvOwnFullscreen=false;try{await window.BUSecondRound?.toggleFullscreen();}catch{}}
-  tvButton();return;
- }
- tv=true;tvIndex=0;window.BUSecondRound?.select("br");
- const host=$("segundo-turno");
- const alreadyFullscreen=!!document.fullscreenElement||host?.classList.contains("t2-fullscreen-fallback");
- tvOwnFullscreen=!alreadyFullscreen;
- if(tvOwnFullscreen)try{await window.BUSecondRound?.toggleFullscreen();}catch{}
- tvTimer=setInterval(()=>{
-  if(!tv)return;
-  const tabs=["br","ma","odc","vf"];
-  tvIndex=(tvIndex+1)%tabs.length;
-  window.BUSecondRound?.select(tabs[tvIndex]);
- },12000);
- tvButton();
+ return window.BUSecondRound?.toggleFullscreen();
 }
+
 function validReport(key){return getData(key);}
 async function ensurePdf(){
  if(!window.jspdf?.jsPDF){
@@ -603,7 +582,7 @@ async function report(){
 function init(){
  if(started)return;started=true;
  // O mapa abre sempre no 2º turno. O 1º turno é carregado ao selecioná-lo manualmente.
- loadFirstCache();tvButton();paint();if(available())refresh();
+ loadFirstCache();paint();if(available())refresh();
  setInterval(()=>{if(document.visibilityState==="visible"&&$("segundo-turno")?.classList.contains("active")){paint();if(navigator.onLine&&available()&&mapMode==="second")refresh();}},REFRESH_INTERVAL_MS);
  setInterval(()=>{if(document.visibilityState==="visible")pulse();},5000);
  window.addEventListener("online",()=>{if(mapMode==="first")loadFirstStates();else refresh();});
