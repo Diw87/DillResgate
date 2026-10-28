@@ -1,4 +1,4 @@
-const CACHE_VERSION="dwtech-bu2026-v73-telao-fixo";
+const CACHE_VERSION="dwtech-bu2026-v74-telao-mapa-ampliado-cidades";
 const STATIC_CACHE=CACHE_VERSION+"-static";
 const RUNTIME_CACHE=CACHE_VERSION+"-runtime";
 const SHELL=[
