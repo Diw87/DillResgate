@@ -246,6 +246,12 @@ test('tela fixa usa mapa interativo sem nomes de cidade, com zoom e cores por ma
  assert.doesNotMatch(html,/t2CityLabelsBtn/);
  assert.match(tv,/pointer-events:auto/);
  assert.match(tv,/t2-map-controls/);
+ assert.match(tv,/t2-tv-search/);
+ assert.match(html,/t2TVMapSearch/);
+ assert.match(central,/lookupCityFromTV/);
+ assert.match(central,/target\.addEventListener\("wheel"/);
+ assert.match(central,/target\.addEventListener\("pointermove"/);
+ assert.match(central,/margin-close/);
  assert.doesNotMatch(tv,/pointer-events:none;padding:0/);
 });
 test('zoom do mapa municipal funciona dentro do telão sem sair do modo de TV',()=>{
