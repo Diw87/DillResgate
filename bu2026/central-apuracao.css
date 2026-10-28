@@ -336,3 +336,70 @@
 #segundo-turno .t2-municipal-legend small{
  flex-basis:100%;font-size:10px;font-weight:600;line-height:1.5;color:#788498;
 }
+
+/* DW Tech • 2026.10.28 • mapa central ampliado entre os candidatos. */
+#segundo-turno .t2-broadcast-board{
+ display:grid;grid-template-columns:minmax(180px,.58fr) minmax(0,2.25fr) minmax(180px,.58fr);
+ gap:clamp(10px,1.2vw,20px);align-items:start;
+}
+#segundo-turno .t2-broadcast-board>#turno2Candidates{display:contents}
+#segundo-turno .t2-broadcast-board>#turno2Candidates>.t2-candidate:first-child{grid-column:1;grid-row:1}
+#segundo-turno .t2-broadcast-board>#turno2Candidates>.t2-candidate:nth-child(2){grid-column:3;grid-row:1}
+#segundo-turno .t2-broadcast-board>.t2-map-card{grid-column:2;grid-row:1;min-width:0}
+#segundo-turno .t2-broadcast-board .t2-map-layout{grid-template-columns:minmax(0,1fr)}
+#segundo-turno .t2-broadcast-board .t2-map-card{padding:clamp(10px,1.5vw,22px)}
+#segundo-turno .t2-broadcast-board .t2-map{
+ min-height:clamp(450px,43vw,770px);max-height:none;
+}
+#segundo-turno .t2-broadcast-board .br-map-svg{
+ width:100%;max-height:730px;
+}
+#segundo-turno .t2-broadcast-board .t2-muni-svg{
+ display:block;width:100%;height:auto;max-height:740px;
+}
+#segundo-turno .t2-map-aside{padding:12px}
+#segundo-turno .t2-map-label-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 2px 9px}
+#segundo-turno .t2-map-label-tools button{
+ background:#183a5e;color:#fff;border:1px solid #183a5e;border-radius:8px;
+ padding:8px 12px;font-size:11px;font-weight:900;cursor:pointer;
+}
+#segundo-turno .t2-map-label-tools button[aria-pressed="false"]{background:#fff;color:#183a5e}
+#segundo-turno .t2-map-label-tools button[hidden]{display:none}
+#segundo-turno .t2-map-label-tools span{font-size:11px;color:#53657a;font-weight:750}
+#segundo-turno .t2-map .t2-city-name-layer{pointer-events:none}
+#segundo-turno .t2-map .t2-city-name{
+ pointer-events:none;fill:#16374d;stroke:#fff;stroke-width:3.2px;
+ paint-order:stroke;font:800 10px "Segoe UI",Arial,sans-serif;
+}
+#segundo-turno .t2-map .t2-city-name.is-selected{
+ fill:#8e2709;stroke:#fff6c3;stroke-width:4.5px;font-weight:950;font-size:12px;
+}
+#segundo-turno .t2-election-mark{
+ font-size:11px;font-weight:950;letter-spacing:.6px;border-radius:999px;
+ padding:7px 11px;display:inline-flex;align-items:center;white-space:nowrap;
+}
+#segundo-turno .t2-election-mark.is-elected{background:#127449;color:#fff;box-shadow:0 2px 10px #0e6f402e}
+#segundo-turno .t2-election-mark.is-leading{background:#f5eada;color:#765220}
+#segundo-turno .t2-elected-banner[hidden]{display:none}
+#segundo-turno .t2-elected-banner{
+ margin:8px 0 14px;padding:11px 16px;
+ background:#f4faf5;border:1px solid #b9dbbd;border-left:4px solid #147749;
+ border-radius:9px;color:#165b39;font-size:13px;font-weight:950;
+}
+@media(max-width:1350px){
+ #segundo-turno .t2-broadcast-board{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #segundo-turno .t2-broadcast-board>#turno2Candidates>.t2-candidate:first-child{grid-column:1;grid-row:1}
+ #segundo-turno .t2-broadcast-board>#turno2Candidates>.t2-candidate:nth-child(2){grid-column:2;grid-row:1}
+ #segundo-turno .t2-broadcast-board>.t2-map-card{grid-column:1/-1;grid-row:2}
+}
+@media(max-width:680px){
+ #segundo-turno .t2-broadcast-board{grid-template-columns:minmax(0,1fr)}
+ #segundo-turno .t2-broadcast-board>#turno2Candidates>.t2-candidate:first-child{grid-column:1;grid-row:1}
+ #segundo-turno .t2-broadcast-board>.t2-map-card{grid-column:1;grid-row:2}
+ #segundo-turno .t2-broadcast-board>#turno2Candidates>.t2-candidate:nth-child(2){grid-column:1;grid-row:3}
+ #segundo-turno .t2-broadcast-board .t2-map{min-height:340px;max-height:none}
+ #segundo-turno .t2-broadcast-board .br-map-svg{max-height:590px}
+ #segundo-turno .t2-broadcast-board .t2-muni-svg{max-height:580px}
+ #segundo-turno .t2-map .t2-city-name{font-size:9px}
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-broadcast-board .t2-map{min-height:460px}
