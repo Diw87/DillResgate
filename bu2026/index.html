@@ -607,6 +607,7 @@ tbody tr:hover{background:#fff4ec}
           <div class="t2-map-controls">
             <button id="t2MapBack" type="button" class="t2-map-back" onclick="BUCentral.selectUF('')" hidden aria-label="Voltar ao mapa do Brasil">← Brasil</button>
             <select id="t2StatePicker" aria-label="Selecione um estado do mapa" onchange="BUCentral.selectUF(this.value)"></select>
+            <div class="t2-tv-search"><input type="search" id="t2TVMapSearch" list="t2CityDatalist" placeholder="Selecione um estado" aria-label="Buscar município no mapa" disabled onkeydown="if(event.key==='Enter'){event.preventDefault();BUCentral.lookupCityFromTV()}"><button type="button" onclick="BUCentral.lookupCityFromTV()" aria-label="Pesquisar município">⌕</button></div>
             <div class="t2-zoom-controls">
               <button type="button" onclick="BUCentral.zoomMap(1.3)" aria-label="Aproximar mapa">+</button>
               <button type="button" onclick="BUCentral.zoomMap(0.77)" aria-label="Afastar mapa">−</button>
