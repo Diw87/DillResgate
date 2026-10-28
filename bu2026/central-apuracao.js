@@ -139,10 +139,11 @@ async function loadCityDirectory(){
 }
 function cityKey(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toUpperCase();}
 function updateCityControls(){
- const controls=$("t2CityControls"),input=$("t2CitySearch"),list=$("t2CityDatalist"),help=$("t2CityHelp");
+ const controls=$("t2CityControls"),input=$("t2CitySearch"),list=$("t2CityDatalist"),help=$("t2CityHelp"),tv=$("t2TVMapSearch");
  if(!controls)return;
  const isVisible=!!selectedUF;
  controls.hidden=!isVisible;
+ if(tv){tv.disabled=!isVisible||cityLoading||!(cityDirectory?.[selectedUF]||[]).length;tv.placeholder=isVisible?"Buscar município...":"Selecione um estado";if(!isVisible)tv.value="";}
  if(!isVisible)return;
  const cities=cityDirectory?.[selectedUF]||[];
  if(input)input.disabled=!cities.length||cityLoading;
@@ -178,8 +179,9 @@ function renderTVMapSelection(){
 function resetCity(){
  selectedCity=null;selectedCityResult=null;
  window.BUMunicipios?.highlight(null);
- const input=$("t2CitySearch"),result=$("t2CityResult");
+ const input=$("t2CitySearch"),result=$("t2CityResult"),tv=$("t2TVMapSearch");
  if(input)input.value="";
+ if(tv)tv.value="";
  if(result)result.innerHTML="";
  updateCityControls();
  renderTVMapSelection();
@@ -202,6 +204,12 @@ function renderCityResult(){
    '<div class="t2-uf-track"><i class="'+candidateClass(c)+'" style="width:'+Math.max(0,Math.min(100,pct(c.percentual)))+'%"></i></div>'+
    '<small>'+fmt(c.votos)+' votos</small>').join("")+
   '<a class="t2-city-source" href="'+esc(r.sourceUrl)+'" target="_blank" rel="noopener noreferrer">Conferir resultado no TSE ↗</a>';
+}
+function lookupCityFromTV(){
+ const tv=$("t2TVMapSearch"),regular=$("t2CitySearch");
+ if(!tv||!regular||!selectedUF)return false;
+ regular.value=tv.value;
+ return lookupCity();
 }
 async function lookupCity(){
  if(!selectedUF)return false;
@@ -248,12 +256,13 @@ async function selectCityByIBGE(id){
   const list=await loadCityDirectory(),cities=list?.[selectedUF]||[];
   const city=cities.find(c=>c.ibge===String(id));
   if(!city)return false;
-  const input=$("t2CitySearch");if(input)input.value=city.name;
+  const input=$("t2CitySearch"),tv=$("t2TVMapSearch");if(input)input.value=city.name;if(tv)tv.value=city.name;
   return await lookupCity();
  }catch(e){console.info("Falha ao relacionar município IBGE e TSE",e);return false;}
 }
 function selectMapMode(mode){
  if(mode!=="first"&&mode!=="second")return;
+ if(mapMode===mode){mapIntro();return;}
  mapMode=mode;resetCity();mapIntro();mapHtml();
  window.BUMunicipios?.refreshColors();
  if(mode==="first")loadFirstStates();
@@ -632,6 +641,6 @@ function init(){
  window.addEventListener("offline",connection);
  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){paint();if(mapMode==="second"&&available())refresh();}});
 }
-window.BUCentral={selectUF,selectMapMode,lookupCity,selectCityByIBGE,zoomMap,resetMapZoom,previewMapPlace,clearMapPreview,refresh:refreshAll,share,toggleTV,report,getCityDirectory:async uf=>(await loadCityDirectory())[uf]||[],get currentMapMode(){return mapMode;},get stateResults(){return {...stateData}},get firstRoundStates(){return {...firstStates}}};
+window.BUCentral={selectUF,selectMapMode,lookupCity,lookupCityFromTV,selectCityByIBGE,zoomMap,resetMapZoom,previewMapPlace,clearMapPreview,refresh:refreshAll,share,toggleTV,report,getCityDirectory:async uf=>(await loadCityDirectory())[uf]||[],get currentMapMode(){return mapMode;},get stateResults(){return {...stateData}},get firstRoundStates(){return {...firstStates}}};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
