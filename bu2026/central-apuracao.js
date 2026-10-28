@@ -363,7 +363,8 @@ function mapHtml(){
   legend.innerHTML='<span class="t2-key second"></span>Lula (13)'+
    '<span class="t2-key first"></span>Flávio Bolsonaro (22)'+
    '<span class="t2-key other"></span>Outro candidato'+
-   '<span class="t2-key pending"></span>Sem dados';
+   '<span class="t2-key pending"></span>Sem dados'+
+   '<span class="t2-margin-explainer">Cor mais escura = maior vantagem (0–5, 5–20, acima de 20 p.p.)</span>';
  }
  const picker=$("t2StatePicker");
  if(picker){
