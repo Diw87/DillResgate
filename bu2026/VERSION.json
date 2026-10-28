@@ -1,6 +1,6 @@
 {
   "name": "DW Tech • B.U. 2026",
-  "version": "1.3.25",
+  "version": "1.3.26",
   "channel": "production",
   "architecture": "GitHub Pages + Supabase",
   "features": {
@@ -99,12 +99,17 @@
     "telao_diferenca_votos_e_pontos": true,
     "telao_abstencao": true,
     "mapa_ampliado_entre_candidatos": true,
-    "mapa_cidades_nomes_fixos_por_estado": true,
+    "mapa_cidades_nomes_fixos_por_estado": false,
     "mapa_zoom_rotulos_cidades": true,
     "selo_eleito_nacional_somente_confirmado_tse": true,
-    "telao_preserva_estado_selecionado": true
+    "telao_preserva_estado_selecionado": true,
+    "mapa_interativo_no_telao": true,
+    "mapa_sem_rotulos_das_cidades": true,
+    "mapa_cores_por_margem_do_vencedor": true,
+    "mapa_busca_municipal_no_telao": true,
+    "mapa_arrastar_e_zoom_em_tela_cheia": true
   },
   "released_at": "2026-10-28",
-  "build": "20261028.2",
+  "build": "20261028.3",
   "update_policy": "check_on_open_without_automatic_reload"
 }
