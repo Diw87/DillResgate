@@ -392,9 +392,9 @@ async function toggleFullscreen(){
   updateFullscreenButton();
   return;
  }
- // No telão o mapa nacional fica no segundo turno, independente das consultas anteriores.
+ // O telão usa o segundo turno, mas conserva o estado selecionado:
+ // assim, os nomes das cidades continuam visíveis no mapa fixo.
  window.BUCentral?.selectMapMode("second");
- window.BUCentral?.selectUF("");
  if(typeof host.requestFullscreen==="function"){
   try{
    await host.requestFullscreen({navigationUI:"hide"});
