@@ -427,3 +427,12 @@
 #segundo-turno .t2-map .t2-municipio:hover{filter:brightness(1.13);stroke:#283747;stroke-width:2.4}
 #segundo-turno .t2-map .t2-municipio:focus-visible{outline:none;stroke:#ffb22d;stroke-width:3.2}
 #segundo-turno .t2-tv-map-selection:not([hidden]){display:none}
+
+/* Estados em três níveis de intensidade de vantagem, sem confundir com votação municipal. */
+#segundo-turno .t2-map .br-map-state.second.margin-close{fill:#f5b6c2}
+#segundo-turno .t2-map .br-map-state.second.margin-medium{fill:#e96379}
+#segundo-turno .t2-map .br-map-state.second.margin-wide{fill:#bc1b3b}
+#segundo-turno .t2-map .br-map-state.first.margin-close{fill:#a9cef5}
+#segundo-turno .t2-map .br-map-state.first.margin-medium{fill:#5292d9}
+#segundo-turno .t2-map .br-map-state.first.margin-wide{fill:#195baa}
+#segundo-turno .t2-margin-explainer{flex-basis:100%;font-size:10px;font-weight:700;color:#56718c;padding:3px 0}
