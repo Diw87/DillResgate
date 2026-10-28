@@ -403,3 +403,27 @@
  #segundo-turno .t2-map .t2-city-name{font-size:9px}
 }
 #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-broadcast-board .t2-map{min-height:460px}
+
+/* Mapa inspirado na leitura cartográfica por diferença de votos, sem rótulos nas cidades. */
+#segundo-turno .t2-map .t2-city-name-layer{display:none!important}
+#segundo-turno .t2-map .t2-municipio.winner-known.has-second.margin-close,
+#segundo-turno .t2-map .t2-municipio.winner-known.has-second.margin-close:nth-of-type(even){fill:#f5b6c2}
+#segundo-turno .t2-map .t2-municipio.winner-known.has-second.margin-medium,
+#segundo-turno .t2-map .t2-municipio.winner-known.has-second.margin-medium:nth-of-type(even){fill:#e96379}
+#segundo-turno .t2-map .t2-municipio.winner-known.has-second.margin-wide,
+#segundo-turno .t2-map .t2-municipio.winner-known.has-second.margin-wide:nth-of-type(even){fill:#bc1b3b}
+#segundo-turno .t2-map .t2-municipio.winner-known.has-first.margin-close,
+#segundo-turno .t2-map .t2-municipio.winner-known.has-first.margin-close:nth-of-type(even){fill:#a9cef5}
+#segundo-turno .t2-map .t2-municipio.winner-known.has-first.margin-medium,
+#segundo-turno .t2-map .t2-municipio.winner-known.has-first.margin-medium:nth-of-type(even){fill:#5292d9}
+#segundo-turno .t2-map .t2-municipio.winner-known.has-first.margin-wide,
+#segundo-turno .t2-map .t2-municipio.winner-known.has-first.margin-wide:nth-of-type(even){fill:#195baa}
+#segundo-turno .t2-map .t2-municipio.winner-known.has-other.margin-close,
+#segundo-turno .t2-map .t2-municipio.winner-known.has-other.margin-close:nth-of-type(even){fill:#c9c0e6}
+#segundo-turno .t2-map .t2-municipio.winner-known.has-other.margin-medium,
+#segundo-turno .t2-map .t2-municipio.winner-known.has-other.margin-medium:nth-of-type(even){fill:#8975bb}
+#segundo-turno .t2-map .t2-municipio.winner-known.has-other.margin-wide,
+#segundo-turno .t2-map .t2-municipio.winner-known.has-other.margin-wide:nth-of-type(even){fill:#53408c}
+#segundo-turno .t2-map .t2-municipio:hover{filter:brightness(1.13);stroke:#283747;stroke-width:2.4}
+#segundo-turno .t2-map .t2-municipio:focus-visible{outline:none;stroke:#ffb22d;stroke-width:3.2}
+#segundo-turno .t2-tv-map-selection:not([hidden]){display:none}
