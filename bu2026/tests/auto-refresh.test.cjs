@@ -44,7 +44,7 @@ function result(votes=60){
    {numero:'22',nome:'FLAVIO BOLSONARO',partido:'PL',votos:40,percentual:40}]};
 }
 function secondRound(){
- const h=harness(['segundo-turno','turno2Status','turno2Summary','turno2Candidates','turno2Areas','turno2Headline','turno2Updated','turno2LastCheck','turno2Gap','turno2Progress','turno2AreaPicker']);
+ const h=harness(['segundo-turno','turno2Status','turno2Summary','turno2Candidates','turno2Areas','turno2Headline','turno2Updated','turno2LastCheck','turno2Gap','turno2Progress','turno2AreaPicker','turno2ElectedStatus']);
  let snapshot=result(),requests=0,offline=false;
  h.context.fetch=async url=>{
   if(offline)throw Error('offline');
@@ -185,13 +185,13 @@ test('atalho legado de TV abre telão fixo sem alternar abrangência',async()=>{
  h.run('central-apuracao.js');await h.context.BUCentral.toggleTV();
  await h.advance(24000);assert.equal(fullscreen,1);assert.equal(selections,0);
 });
-test('entrar no telão restaura mapa nacional do segundo turno sem trocar candidatos',async()=>{
+test('entrar no telão conserva mapa de cidades e seleção dos candidatos',async()=>{
  const h=secondRound();const map=[];
  h.events.DOMContentLoaded();await flush();h.context.BUSecondRound.select('ma');
  h.context.document.fullscreenElement=null;
  h.context.BUCentral={selectMapMode:mode=>map.push(mode),selectUF:uf=>map.push(uf)};
  await h.context.BUSecondRound.toggleFullscreen();
- assert.deepEqual(map,['second','']);
+ assert.deepEqual(map,['second']);
  assert.equal(h.nodes.get('segundo-turno').classList.contains('t2-fullscreen-fallback'),true);
  assert.equal(h.nodes.get('turno2AreaPicker').value,'ma');
 });
@@ -202,4 +202,37 @@ test('campos de eleitores ausentes no arquivo TSE aparecem sem dados, nunca como
  h.events.DOMContentLoaded();await flush();
  assert.match(h.nodes.get('turno2Summary').innerHTML,/Abstenção<\/span><strong>—/);
  assert.match(h.nodes.get('turno2Summary').innerHTML,/Comparecimento<\/span><strong>—/);
+});
+
+test('mostra ELEITO somente com totalização nacional oficial concluída',async()=>{
+ const h=secondRound();
+ h.events.DOMContentLoaded();await flush();
+ assert.doesNotMatch(h.nodes.get('turno2Candidates').innerHTML,/✓ ELEITO/);
+ const partial=result(95);
+ partial.candidatos[0].eleito=true;
+ h.setResult(partial);await h.advance(5000);
+ assert.doesNotMatch(h.nodes.get('turno2Candidates').innerHTML,/✓ ELEITO/,'Liderança parcial não é eleição confirmada');
+ const final=result(95);
+ final.codigoAbrangencia='br';final.totalizacaoFinal='s';
+ final.secoes={total:100,totalizadas:100,percentual:100};
+ final.candidatos[0].eleito=true;
+ h.setResult(final);await h.advance(5000);
+ assert.match(h.nodes.get('turno2Candidates').innerHTML,/✓ ELEITO/);
+ assert.match(h.nodes.get('turno2ElectedStatus').textContent,/ELEITO.*LULA/);
+ h.context.BUSecondRound.select('ma');
+ assert.doesNotMatch(h.nodes.get('turno2Candidates').innerHTML,/✓ ELEITO/,'Vencer em uma UF não significa ser eleito presidente');
+ assert.equal(h.nodes.get('turno2ElectedStatus').hidden,true);
+});
+test('mapa ampliado exibe controle de nomes fixos e zoom atualiza rótulos municipais',()=>{
+ const map=fs.readFileSync(path.join(root,'mapa-municipios.js'),'utf8');
+ const central=fs.readFileSync(path.join(root,'central-apuracao.js'),'utf8');
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const tv=fs.readFileSync(path.join(root,'telao-fixo.css'),'utf8');
+ assert.match(map,/t2-city-name-layer/);
+ assert.match(map,/setLabelZoom/);
+ assert.match(map,/toggleLabels/);
+ assert.match(central,/BUMunicipios\?\.setLabelZoom\(mapZoom\)/);
+ assert.match(html,/t2CityLabelsBtn/);
+ assert.match(html,/t2MapLabelsInfo/);
+ assert.match(tv,/2\.25fr/);
 });
