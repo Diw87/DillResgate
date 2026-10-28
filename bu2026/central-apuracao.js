@@ -151,6 +151,21 @@ function updateCityControls(){
   :cities.length?cities.length+" municípios disponíveis. Digite e escolha uma cidade."
   :cityDirectoryPromise?"Carregando lista oficial de municípios...":"Carregando cidades do estado...";
 }
+function renderTVMapSelection(){
+ const el=$("t2TVMapSelection");if(!el)return;
+ if(!selectedUF){el.hidden=true;el.textContent="";return;}
+ const name=selectedCity?.name||UF.find(x=>x[0]===selectedUF)?.[1]||selectedUF;
+ const r=selectedCity?selectedCityResult:getMapData(selectedUF);
+ const valid=mapMode==="first"?hasFirstVotes(r):hasVotes(r);
+ const leader=valid?orderedCandidates(r)[0]:null;
+ const place=selectedCity?"MUNICÍPIO":"ESTADO";
+ const status=leader&&n(leader.votos)>0
+  ?"Mais votado: "+leader.nome+" ("+leader.numero+") • "+pct(leader.percentual).toFixed(2).replace(".",",")+"% • "+fmt(leader.votos)+" votos"
+  :"Aguardando resultado oficial desta localidade";
+ el.innerHTML='<small>'+place+' • '+(mapMode==="first"?"1º":"2º")+' TURNO</small>'+
+  '<strong>'+esc(name)+'</strong><span>'+esc(status)+'</span>';
+ el.hidden=false;
+}
 function resetCity(){
  selectedCity=null;selectedCityResult=null;
  window.BUMunicipios?.highlight(null);
@@ -158,8 +173,10 @@ function resetCity(){
  if(input)input.value="";
  if(result)result.innerHTML="";
  updateCityControls();
+ renderTVMapSelection();
 }
 function renderCityResult(){
+ renderTVMapSelection();
  const box=$("t2CityResult");if(!box)return;
  if(!selectedCity){box.innerHTML="";return;}
  const first=mapMode==="first",r=selectedCityResult,label=first?"1º TURNO":"2º TURNO";
@@ -342,6 +359,7 @@ function mapHtml(){
  detailUF();
 }
 function detailUF(){
+ renderTVMapSelection();
  const box=$("t2UFDetail");if(!box)return;
  if(!selectedUF){
   box.innerHTML='<div class="t2-map-default"><span class="t2-map-default-icon">⌖</span><h4>Brasil inteiro</h4>'+
