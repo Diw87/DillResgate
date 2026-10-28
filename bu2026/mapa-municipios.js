@@ -131,11 +131,15 @@ function createMap(json,uf){
    const record=cacheEntries(uf,currentElection()).items[p.dataset.ibge];
    if(record)status(p.dataset.city+" • "+record.name+" ("+record.number+") "+record.percent.toFixed(2).replace(".",",")+"% • "+record.votes.toLocaleString("pt-BR")+" votos");
    else status("Cidade: "+p.dataset.city+" • resultado ainda não disponível • clique para consultar.");
+   window.BUCentral?.previewMapPlace?.("MUNICÍPIO",p.dataset.city,record||null);
   }
  });
  svg.addEventListener("pointerout",e=>{
   const p=e.target.closest?.("path[data-ibge]");
-  if(p)status(features.length+" municípios de "+uf+" • selecione a cidade ou pesquise pelo nome.");
+  if(p){
+   status(features.length+" municípios de "+uf+" • selecione a cidade ou pesquise pelo nome.");
+   window.BUCentral?.clearMapPreview?.();
+  }
  });
  return {svg,count:features.length};
 }
@@ -195,11 +199,12 @@ function winnerOf(doc,election,cityCode){
   }
  }
  results.sort((a,b)=>b.votes-a.votes);
+ if(results.length)results[0].margin=results.length>1?Math.max(0,results[0].percent-results[1].percent):null;
  return results.length?results[0]:null;
 }
 function setWinner(path,winner){
  if(!path)return;
- path.classList.remove("has-first","has-second","has-other","winner-known");
+ path.classList.remove("has-first","has-second","has-other","winner-known","margin-close","margin-medium","margin-wide");
  const title=path.querySelector("title");
  const name=path.dataset.city||"Município";
  if(!winner){
@@ -209,6 +214,9 @@ function setWinner(path,winner){
  }
  const kind=winner.number==="13"?"has-second":winner.number==="22"?"has-first":"has-other";
  path.classList.add(kind,"winner-known");
+ if(Number.isFinite(winner.margin)&&winner.margin>=0){
+  path.classList.add(winner.margin<5?"margin-close":winner.margin<20?"margin-medium":"margin-wide");
+ }
  const detail=name+" • "+winner.name+" ("+winner.number+") "+winner.percent.toFixed(2).replace(".",",")+"% • "+winner.votes.toLocaleString("pt-BR")+" votos";
  if(title)title.textContent=detail;
  path.setAttribute("aria-label",detail);
