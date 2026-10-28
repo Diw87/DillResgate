@@ -151,6 +151,15 @@ function updateCityControls(){
   :cities.length?cities.length+" municípios disponíveis. Digite e escolha uma cidade."
   :cityDirectoryPromise?"Carregando lista oficial de municípios...":"Carregando cidades do estado...";
 }
+function previewMapPlace(kind,name,winner){
+ const el=$("t2TVMapSelection");if(!el||!name)return;
+ const status=winner&&n(winner.votes)>0
+  ?"Mais votado: "+winner.name+" ("+winner.number+") • "+pct(winner.percent).toFixed(2).replace(".",",")+"% • "+fmt(winner.votes)+" votos"
+  :"Sem resultado individual confirmado";
+ el.innerHTML='<small>'+esc(kind)+'</small><strong>'+esc(name)+'</strong><span>'+esc(status)+'</span>';
+ el.hidden=false;
+}
+function clearMapPreview(){renderTVMapSelection();}
 function renderTVMapSelection(){
  const el=$("t2TVMapSelection");if(!el)return;
  if(!selectedUF){el.hidden=true;el.textContent="";return;}
@@ -325,6 +334,16 @@ async function loadMap(){
   if(!window.BUMunicipios?.isOpen())target.replaceChildren(node);
   target.addEventListener("click",event=>{
    const el=event.target.closest?.("[data-uf]");if(el&&target.contains(el))selectUF(el.getAttribute("data-uf"));
+  });
+  target.addEventListener("pointerover",event=>{
+   const el=event.target.closest?.("[data-uf]");
+   if(!el||!target.contains(el)||window.BUMunicipios?.isOpen())return;
+   const uf=el.getAttribute("data-uf"),r=getMapData(uf),leader=hasMapVotes(r)?orderedCandidates(r)[0]:null;
+   previewMapPlace("ESTADO",UF.find(v=>v[0]===uf)?.[1]||uf,leader?{name:leader.nome,number:leader.numero,percent:leader.percentual,votes:leader.votos}:null);
+  });
+  target.addEventListener("pointerout",event=>{
+   if(!event.target.closest?.("[data-uf]")||window.BUMunicipios?.isOpen())return;
+   clearMapPreview();
   });
   target.addEventListener("keydown",event=>{
    if(event.key!=="Enter"&&event.key!==" ")return;
@@ -612,6 +631,6 @@ function init(){
  window.addEventListener("offline",connection);
  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){paint();if(mapMode==="second"&&available())refresh();}});
 }
-window.BUCentral={selectUF,selectMapMode,lookupCity,selectCityByIBGE,zoomMap,resetMapZoom,refresh:refreshAll,share,toggleTV,report,getCityDirectory:async uf=>(await loadCityDirectory())[uf]||[],get currentMapMode(){return mapMode;},get stateResults(){return {...stateData}},get firstRoundStates(){return {...firstStates}}};
+window.BUCentral={selectUF,selectMapMode,lookupCity,selectCityByIBGE,zoomMap,resetMapZoom,previewMapPlace,clearMapPreview,refresh:refreshAll,share,toggleTV,report,getCityDirectory:async uf=>(await loadCityDirectory())[uf]||[],get currentMapMode(){return mapMode;},get stateResults(){return {...stateData}},get firstRoundStates(){return {...firstStates}}};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
