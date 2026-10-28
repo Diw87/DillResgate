@@ -291,7 +291,7 @@ function candidateClass(c){
 }
 
 /* SVG real dos estados, com precisão vetorial e nenhum pacote pesado. */
-let mapReady=false,mapLoading=false,mapZoom=1;
+let mapReady=false,mapLoading=false,mapZoom=1,mapPanX=0,mapPanY=0;
 function paintMapStates(){
  const svg=document.querySelector("#t2Map svg");if(!svg)return;
  for(const element of svg.querySelectorAll("[data-uf]")){
@@ -327,12 +327,13 @@ function updateMapView(){
  const focus=svg.querySelector('path[data-uf="'+selectedUF+'"]');
  let cx=ox+ow/2,cy=oy+oh/2;
  if(mapZoom>1&&focus){const b=focus.getBBox();cx=b.x+b.width/2;cy=b.y+b.height/2;}
+ cx+=mapPanX;cy+=mapPanY;
  const x=Math.max(ox,Math.min(ox+ow-w,cx-w/2)),y=Math.max(oy,Math.min(oy+oh-h,cy-h/2));
  svg.setAttribute("viewBox",[x,y,w,h].map(v=>v.toFixed(2)).join(" "));
  const label=$("t2MapZoom");if(label)label.textContent=Math.round(mapZoom*100)+"%";
 }
 function zoomMap(factor){mapZoom=Math.max(1,Math.min(4,Math.round(mapZoom*factor*100)/100));updateMapView();}
-function resetMapZoom(){mapZoom=1;updateMapView();}
+function resetMapZoom(){mapZoom=1;mapPanX=0;mapPanY=0;updateMapView();}
 async function loadMap(){
  const target=$("t2Map");if(!target||mapLoading||mapReady)return;
  mapLoading=true;target.textContent="Carregando mapa geográfico...";
@@ -345,9 +346,42 @@ async function loadMap(){
   const node=document.importNode(svg,true);node.dataset.baseViewBox=node.getAttribute("viewBox");
   window.BUMunicipios?.setCountryNode(node);
   if(!window.BUMunicipios?.isOpen())target.replaceChildren(node);
+  let drag=null,suppressClick=false;
   target.addEventListener("click",event=>{
+   if(suppressClick){suppressClick=false;return;}
    const el=event.target.closest?.("[data-uf]");if(el&&target.contains(el))selectUF(el.getAttribute("data-uf"));
   });
+  target.addEventListener("wheel",event=>{
+   if(window.BUMunicipios?.isOpen())return;
+   event.preventDefault();
+   zoomMap(event.deltaY<0?1.18:1/1.18);
+  },{passive:false});
+  target.addEventListener("pointerdown",event=>{
+   if(window.BUMunicipios?.isOpen()||mapZoom<=1||event.button!==0)return;
+   drag={id:event.pointerId,x:event.clientX,y:event.clientY,moved:false};
+   target.setPointerCapture?.(event.pointerId);
+  });
+  target.addEventListener("pointermove",event=>{
+   if(!drag||drag.id!==event.pointerId)return;
+   const dx=event.clientX-drag.x,dy=event.clientY-drag.y;
+   if(Math.abs(dx)+Math.abs(dy)>3){
+    drag.moved=true;
+    const svg=target.querySelector("svg"),box=svg?.getBoundingClientRect();
+    if(box?.width&&box?.height){
+     mapPanX-=dx*(620/mapZoom)/box.width;
+     mapPanY-=dy*(618/mapZoom)/box.height;
+     updateMapView();
+    }
+   }
+   drag.x=event.clientX;drag.y=event.clientY;
+  });
+  const endDrag=event=>{
+   if(!drag||drag.id!==event.pointerId)return;
+   suppressClick=drag.moved;drag=null;
+   if(target.hasPointerCapture?.(event.pointerId))target.releasePointerCapture(event.pointerId);
+  };
+  target.addEventListener("pointerup",endDrag);
+  target.addEventListener("pointercancel",endDrag);
   target.addEventListener("pointerover",event=>{
    const el=event.target.closest?.("[data-uf]");
    if(!el||!target.contains(el)||window.BUMunicipios?.isOpen())return;
@@ -506,7 +540,7 @@ function selectUF(uf){
  if(uf&&!UF.some(x=>x[0]===uf))return;
  const changed=selectedUF!==uf;
  selectedUF=uf;if(changed)resetCity();
- mapZoom=1;
+ mapZoom=1;mapPanX=0;mapPanY=0;
  window.BUMunicipios?.show(uf);
  paint();updateMapView();
  const zoom=$("t2MapZoom");if(zoom)zoom.textContent="100%";
