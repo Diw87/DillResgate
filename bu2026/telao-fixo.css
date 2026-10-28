@@ -5,7 +5,7 @@
 #segundo-turno #turno2Progress{font-size:14px;color:#ae4b0e}
 #segundo-turno .t2-summary{grid-template-columns:repeat(7,minmax(0,1fr));margin-bottom:0}
 @media(min-width:1100px){
- #segundo-turno .t2-broadcast-board{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.45fr) minmax(0,1fr);gap:14px;align-items:stretch}
+ #segundo-turno .t2-broadcast-board{display:grid;grid-template-columns:minmax(0,.6fr) minmax(0,2.25fr) minmax(0,.6fr);gap:14px;align-items:stretch}
  #segundo-turno #turno2Candidates{display:contents}
  #segundo-turno #turno2Candidates>.t2-candidate{grid-row:1;grid-column:1}
  #segundo-turno #turno2Candidates>.t2-candidate:nth-child(2){grid-column:3}
@@ -23,7 +23,7 @@
 @media(min-width:1000px) and (min-aspect-ratio:4/3){
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback){padding:1.2vh 1.2vw;overflow:hidden}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-wrap{height:100%;max-width:none;display:grid;grid-template-rows:8vh minmax(0,1fr) 3vh;gap:1vh}
- #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-wrap>:is(.t2-countdown,.t2-refresh-info,.t2-live-strip,.t2-note,.t2-regional-details,.t2-data-quality,.t2-report-card){display:none!important}
+ #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-wrap>:is(.t2-countdown,.t2-refresh-info,.t2-live-strip,.t2-note,.t2-regional-details,.t2-data-quality,.t2-report-card,.t2-elected-banner){display:none!important}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-hero{padding:1vh 1vw;border-radius:8px;flex-wrap:nowrap}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-hero h2{font-size:2.2vh;margin:3px 0}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-hero p{display:none}
@@ -36,7 +36,7 @@
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-broadcast-tools{gap:.7vw;flex-wrap:nowrap}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-broadcast-tools select{font-size:1.7vh;max-width:23vw;padding:.7vh}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) #turno2Progress{font-size:1.7vh;white-space:nowrap}
- #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-broadcast-board{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.45fr) minmax(0,1fr);gap:1vw;min-height:0}
+ #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-broadcast-board{display:grid;grid-template-columns:minmax(0,.6fr) minmax(0,2.25fr) minmax(0,.6fr);gap:1vw;min-height:0}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) #turno2Candidates{display:contents}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) #turno2Candidates>.t2-candidate{grid-column:1;grid-row:1;padding:1.5vh 1vw;min-height:0;background:linear-gradient(150deg,#18212e,#101721);border-color:#334155;border-top-color:var(--candidate-accent)}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) #turno2Candidates>.t2-candidate:nth-child(2){grid-column:3}
@@ -56,7 +56,7 @@
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-card{grid-row:1;grid-column:2;display:grid;grid-template-rows:4vh minmax(0,1fr);padding:1vh .7vw;background:#101a27;border-color:#334155;min-height:0}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-card .t2-central-head{margin:0}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-card h3{font-size:1.9vh;color:#fff}
- #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-card :is(.t2-central-head p,.t2-map-eyebrow,.t2-central-tools,.t2-map-context,.t2-map-controls,.t2-map-scope,.t2-map-aside,.t2-muted,.t2-municipal-legend){display:none!important}
+ #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-card :is(.t2-central-head p,.t2-map-eyebrow,.t2-central-tools,.t2-map-context,.t2-map-controls,.t2-map-scope,.t2-map-aside,.t2-muted,.t2-municipal-legend,.t2-map-label-tools){display:none!important}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-layout{display:block;min-height:0}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-layout>div{height:100%;display:grid;grid-template-rows:minmax(0,1fr) 4vh}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map{height:100%;min-height:0;max-height:none;background:radial-gradient(ellipse,#25374b,#101a27);border:0;pointer-events:none;padding:0}
@@ -71,3 +71,8 @@
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-foot{font-size:1.2vh;color:#bdcada;align-items:center;line-height:1.1;padding:0}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-foot a{color:#ffad77}
 }
+
+/* Municipio selecionado continua em destaque no telão, com nomes fixos sobre o SVG. */
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-muni-svg{display:block;width:100%;height:100%;max-height:100%;object-fit:contain}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-city-name{font-size:11px;stroke-width:3.6px}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-election-mark.is-elected{background:#167749;color:#fff}
