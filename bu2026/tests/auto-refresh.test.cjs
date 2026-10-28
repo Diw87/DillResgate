@@ -223,16 +223,40 @@ test('mostra ELEITO somente com totalização nacional oficial concluída',async
  assert.doesNotMatch(h.nodes.get('turno2Candidates').innerHTML,/✓ ELEITO/,'Vencer em uma UF não significa ser eleito presidente');
  assert.equal(h.nodes.get('turno2ElectedStatus').hidden,true);
 });
-test('mapa ampliado exibe controle de nomes fixos e zoom atualiza rótulos municipais',()=>{
+test('tela fixa usa mapa interativo sem nomes de cidade, com zoom e cores por margem',()=>{
+ const h=harness(['segundo-turno']);
+ h.run('mapa-municipios.js');
+ assert.equal(typeof h.context.BUMunicipios.setZoom,'function');
+ assert.equal(typeof h.context.BUMunicipios.toggleLabels,'undefined','rótulos fixos retirados');
  const map=fs.readFileSync(path.join(root,'mapa-municipios.js'),'utf8');
  const central=fs.readFileSync(path.join(root,'central-apuracao.js'),'utf8');
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
  const tv=fs.readFileSync(path.join(root,'telao-fixo.css'),'utf8');
- assert.match(map,/t2-city-name-layer/);
- assert.match(map,/setLabelZoom/);
- assert.match(map,/toggleLabels/);
- assert.match(central,/BUMunicipios\?\.setLabelZoom\(mapZoom\)/);
- assert.match(html,/t2CityLabelsBtn/);
- assert.match(html,/t2MapLabelsInfo/);
- assert.match(tv,/2\.25fr/);
+ const css=fs.readFileSync(path.join(root,'central-apuracao.css'),'utf8');
+ assert.doesNotMatch(map,/createElementNS\(NS,"text"\)/);
+ assert.match(map,/municipalZoom/);
+ assert.match(map,/pointermove/);
+ assert.match(map,/previewMapPlace/);
+ assert.match(map,/winner\.margin<5/);
+ assert.match(css,/margin-close/);
+ assert.match(css,/margin-wide/);
+ assert.match(central,/BUMunicipios\.setZoom\?\.\(mapZoom\)/);
+ assert.match(central,/previewMapPlace/);
+ assert.match(html,/t2TVMapSelection/);
+ assert.doesNotMatch(html,/t2CityLabelsBtn/);
+ assert.match(tv,/pointer-events:auto/);
+ assert.match(tv,/t2-map-controls/);
+ assert.doesNotMatch(tv,/pointer-events:none;padding:0/);
+});
+test('zoom do mapa municipal funciona dentro do telão sem sair do modo de TV',()=>{
+ const h=harness(['segundo-turno','t2MapZoom']);
+ const levels=[];
+ h.context.BUMunicipios={isOpen:()=>true,setZoom:value=>levels.push(value)};
+ h.run('central-apuracao.js');
+ h.context.BUCentral.zoomMap(1.3);
+ assert.equal(levels.at(-1),1.3);
+ assert.equal(h.nodes.get('t2MapZoom').textContent,'130%');
+ h.context.BUCentral.resetMapZoom();
+ assert.equal(levels.at(-1),1);
+ assert.equal(h.nodes.get('t2MapZoom').textContent,'100%');
 });
