@@ -106,7 +106,7 @@ function normalize(key,doc,url){
  const s=doc.s||{},v=doc.v||{},e=doc.e||{};
  return {key,cargo:"Presidente",abrangencia:area.name,fase:doc.f,divulgacao:doc.dv,andamento:doc.and,totalizacaoFinal:doc.tf,
   geradoEm:{data:doc.dg||"",hora:doc.hg||""},secoes:{total:n(s.ts),totalizadas:n(s.st),percentual:decimal(s.pst)},
-  eleitores:{total:n(e.te),comparecimento:n(e.c),abstencao:n(e.a)},
+  eleitores:{total:n(e.te),comparecimento:e.c==null||e.c===""?null:n(e.c),abstencao:e.a==null||e.a===""?null:n(e.a)},
   votos:{validos:n(v.vv),brancos:n(v.vb),nulos:n(v.tvn)},candidatos:candidates,sourceUrl:url};
 }
 // Ordenação apenas visual: a classificação real continua determinada pelos votos.
@@ -210,12 +210,24 @@ function render(){
   ["Votos válidos",ready?fmt(r.votos.validos):dash],
   ["Brancos",ready?fmt(r.votos.brancos):dash],
   ["Nulos",ready?fmt(r.votos.nulos):dash],
-  ["Comparecimento",ready?fmt(r.eleitores.comparecimento):dash]
+  ["Comparecimento",ready&&r.eleitores?.comparecimento!=null?fmt(r.eleitores.comparecimento):dash],
+  ["Abstenção",ready&&r.eleitores?.abstencao!=null?fmt(r.eleitores.abstencao):dash]
  ].map(([label,value])=>'<div class="t2-stat"><span>'+label+'</span><strong>'+value+'</strong></div>').join("");
  const listed=pickCandidates(r);
  const ranked=ready?(r.candidatos||[]).slice().sort((a,b)=>n(b.votos)-n(a.votos)):[];
  candidates.innerHTML=listed.length?listed.map((c,i)=>cardForCandidate(c,i,ready,ranked.findIndex(x=>String(x.numero)===String(c.numero))+1)).join(""):
   '<div class="t2-empty">Os dois candidatos classificados aparecem aqui após a leitura da base oficial. A votação do 2º turno permanece separada do 1º turno.</div>';
+ const picker=$("turno2AreaPicker");if(picker)picker.value=selected;
+ const progress=$("turno2Progress");
+ if(progress)progress.textContent=ready?decimal(r.secoes.percentual).toFixed(2).replace(".",",")+"% apurado • "+statusText(r):"Aguardando apuração";
+ const gap=$("turno2Gap");
+ if(gap){
+  if(ready&&ranked.length>=2){
+   const difference=Math.abs(n(ranked[0].votos)-n(ranked[1].votos));
+   const points=Math.abs(decimal(ranked[0].percentual)-decimal(ranked[1].percentual));
+   gap.textContent=(difference===0?"Empate":String(ranked[0].nome||"Candidato")+" à frente")+" • "+fmt(difference)+" votos • "+points.toFixed(2).replace(".",",")+" pontos percentuais";
+  }else gap.textContent="Aguardando votos oficiais • diferença indisponível";
+ }
  decorateNationalLead();
  const timestamp=ready?[r.geradoEm?.data,r.geradoEm?.hora].filter(Boolean).join(" "):"—";
  if(time)time.textContent="Fonte: Tribunal Superior Eleitoral • eleição 6258 • Atualização TSE: "+timestamp;
@@ -362,6 +374,9 @@ async function toggleFullscreen(){
   updateFullscreenButton();
   return;
  }
+ // No telão o mapa nacional fica no segundo turno, independente das consultas anteriores.
+ window.BUCentral?.selectMapMode("second");
+ window.BUCentral?.selectUF("");
  if(typeof host.requestFullscreen==="function"){
   try{
    await host.requestFullscreen({navigationUI:"hide"});

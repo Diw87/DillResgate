@@ -44,7 +44,7 @@ function result(votes=60){
    {numero:'22',nome:'FLAVIO BOLSONARO',partido:'PL',votos:40,percentual:40}]};
 }
 function secondRound(){
- const h=harness(['segundo-turno','turno2Status','turno2Summary','turno2Candidates','turno2Areas','turno2Headline','turno2Updated','turno2LastCheck']);
+ const h=harness(['segundo-turno','turno2Status','turno2Summary','turno2Candidates','turno2Areas','turno2Headline','turno2Updated','turno2LastCheck','turno2Gap','turno2Progress','turno2AreaPicker']);
  let snapshot=result(),requests=0,offline=false;
  h.context.fetch=async url=>{
   if(offline)throw Error('offline');
@@ -155,4 +155,51 @@ test('nova versão e troca do service worker mantêm a página aberta; recarga e
  workerEvents.controllerchange?.();
  assert.deepEqual(navigations,[],'Atualização em segundo plano não pode navegar ou sair da tela cheia');
  await h.context.applyPwaUpdate();assert.deepEqual(navigations,['reload']);
+});
+
+
+test('telão mostra diferença real, progresso e abstenção da localidade fixa',async()=>{
+ const h=secondRound();h.events.DOMContentLoaded();await flush();
+ const r=result(85);r.candidatos[0].percentual=68;r.candidatos[1].percentual=32;r.eleitores.abstencao=12;
+ h.setResult(r);await h.advance(5000);h.context.BUSecondRound.select('ma');
+ assert.match(h.nodes.get('turno2Gap').textContent,/45 votos/);
+ assert.match(h.nodes.get('turno2Gap').textContent,/36,00/);
+ assert.match(h.nodes.get('turno2Progress').textContent,/20,00%/);
+ assert.match(h.nodes.get('turno2Summary').innerHTML,/Abstenção.*12/);
+ assert.equal(h.nodes.get('turno2AreaPicker').value,'ma');
+ await h.advance(15000);assert.equal(h.nodes.get('turno2AreaPicker').value,'ma');
+});
+test('telão distingue ausência de dados, empate e zero oficial',async()=>{
+ const h=secondRound();h.context.BUSecondRound.select('vf');
+ assert.match(h.nodes.get('turno2Gap').textContent,/Aguardando/);
+ h.events.DOMContentLoaded();await flush();
+ const r=result(40);r.candidatos.forEach(c=>c.percentual=50);r.eleitores.abstencao=0;
+ h.setResult(r);await h.advance(5000);h.context.BUSecondRound.select('br');
+ assert.match(h.nodes.get('turno2Gap').textContent,/Empate.*0 votos.*0,00/);
+ assert.match(h.nodes.get('turno2Summary').innerHTML,/Abstenção.*0/);
+});
+
+test('atalho legado de TV abre telão fixo sem alternar abrangência',async()=>{
+ const h=harness(['segundo-turno']);let fullscreen=0,selections=0;
+ h.context.BUSecondRound={toggleFullscreen:async()=>fullscreen++,select:()=>selections++};
+ h.run('central-apuracao.js');await h.context.BUCentral.toggleTV();
+ await h.advance(24000);assert.equal(fullscreen,1);assert.equal(selections,0);
+});
+test('entrar no telão restaura mapa nacional do segundo turno sem trocar candidatos',async()=>{
+ const h=secondRound();const map=[];
+ h.events.DOMContentLoaded();await flush();h.context.BUSecondRound.select('ma');
+ h.context.document.fullscreenElement=null;
+ h.context.BUCentral={selectMapMode:mode=>map.push(mode),selectUF:uf=>map.push(uf)};
+ await h.context.BUSecondRound.toggleFullscreen();
+ assert.deepEqual(map,['second','']);
+ assert.equal(h.nodes.get('segundo-turno').classList.contains('t2-fullscreen-fallback'),true);
+ assert.equal(h.nodes.get('turno2AreaPicker').value,'ma');
+});
+
+test('campos de eleitores ausentes no arquivo TSE aparecem sem dados, nunca como zero',async()=>{
+ const h=secondRound();
+ h.context.fetch=async url=>url.startsWith('https://resultados.tse.jus.br/')?{ok:true,json:async()=>({f:'o',dv:'s',s:{ts:'100',st:'20',pst:'20,00'},v:{vv:'100'},carg:[{agr:[{par:[{sg:'PT',cand:[{n:'13',nmu:'LULA',vap:'60',pvap:'60'}]},{sg:'PL',cand:[{n:'22',nmu:'FLAVIO',vap:'40',pvap:'40'}]}]}]}]})}:{ok:false,status:404};
+ h.events.DOMContentLoaded();await flush();
+ assert.match(h.nodes.get('turno2Summary').innerHTML,/Abstenção<\/span><strong>—/);
+ assert.match(h.nodes.get('turno2Summary').innerHTML,/Comparecimento<\/span><strong>—/);
 });
