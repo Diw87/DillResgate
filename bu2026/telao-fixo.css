@@ -56,10 +56,10 @@
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-card{grid-row:1;grid-column:2;display:grid;grid-template-rows:4vh minmax(0,1fr);padding:1vh .7vw;background:#101a27;border-color:#334155;min-height:0}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-card .t2-central-head{margin:0}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-card h3{font-size:1.9vh;color:#fff}
- #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-card :is(.t2-central-head p,.t2-map-eyebrow,.t2-central-tools,.t2-map-context,.t2-map-controls,.t2-map-scope,.t2-map-aside,.t2-muted,.t2-municipal-legend,.t2-map-label-tools){display:none!important}
+ #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-card :is(.t2-central-head p,.t2-map-eyebrow,.t2-central-tools,.t2-map-context,.t2-map-scope,.t2-map-aside,.t2-muted,.t2-municipal-legend,.t2-map-label-tools){display:none!important}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-layout{display:block;min-height:0}
- #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-layout>div{height:100%;display:grid;grid-template-rows:minmax(0,1fr) 4vh}
- #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map{height:100%;min-height:0;max-height:none;background:radial-gradient(ellipse,#25374b,#101a27);border:0;pointer-events:none;padding:0}
+ #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-layout>div{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;position:relative;min-height:0}
+ #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map{height:100%;min-height:0;max-height:none;background:radial-gradient(ellipse,#25374b,#101a27);border:0;pointer-events:auto;padding:0;cursor:crosshair}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .br-map-svg{height:100%;max-height:100%;width:100%;aspect-ratio:auto}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-legend{font-size:1.4vh;color:#d5deea;gap:.4vw;justify-content:center;margin:0;line-height:1.2}
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-key{width:1.4vh;height:1.4vh}
@@ -72,7 +72,73 @@
  #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-foot a{color:#ffad77}
 }
 
-/* Municipio selecionado continua em destaque no telão, com nomes fixos sobre o SVG. */
+/* Mapa interativo, sem rótulos sobre o desenho, com detalhes flutuantes. */
 #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-muni-svg{display:block;width:100%;height:100%;max-height:100%;object-fit:contain}
-#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-city-name{font-size:11px;stroke-width:3.6px}
 #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-election-mark.is-elected{background:#167749;color:#fff}
+
+/* Navegação no mapa mesmo em tela fixa de TV: toque, arraste e zoom. */
+#segundo-turno .t2-city-name-layer,#segundo-turno .t2-city-name{display:none!important}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-card{
+ position:relative;grid-template-rows:auto minmax(0,1fr);overflow:hidden;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-controls{
+ display:flex!important;position:relative;z-index:10;justify-content:center;
+ background:#15263af0;border:1px solid #455a70;border-radius:8px;
+ padding:.3vh .4vw;margin:0 0 .4vh;gap:.4vw;align-items:center;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) #t2StatePicker{
+ min-width:0;max-width:18vw;flex:1;color:#182331;background:white;
+ height:3.2vh;min-height:26px;padding:.2vh .4vw;font-size:1.25vh;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-back{
+ display:inline-flex;min-height:26px;padding:.3vh .5vw;font-size:1.3vh;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-back[hidden]{display:none!important}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-zoom-controls{
+ display:flex;gap:.25vw;align-items:center;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-zoom-controls button{
+ min-width:2.9vh;height:2.9vh;min-height:25px;border-radius:5px;padding:0;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) #t2MapZoom{
+ font-size:1.3vh;color:#dceaff;min-width:3.2vw;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-layout{min-height:0;height:100%}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-layout>div{
+ display:flex;flex-direction:column;min-height:0;height:100%;position:relative;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) #t2Map{
+ flex:1;min-height:0;max-height:none;height:auto;cursor:grab;overflow:hidden;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) #t2Map:active{cursor:grabbing}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) #t2Map svg{
+ max-width:100%;max-height:100%;height:100%;width:100%;touch-action:pan-y;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-legend{
+ padding:.25vh 0;flex:none;font-size:1.25vh;
+}
+#segundo-turno .t2-tv-map-selection[hidden]{display:none!important}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-tv-map-selection{
+ position:absolute;left:.4vw;bottom:3.5vh;z-index:9;
+ display:flex;flex-direction:column;gap:.25vh;max-width:96%;
+ background:#0e1a2be8;border:1px solid #6682a1;border-left:4px solid #ff650d;
+ color:#fff;border-radius:8px;padding:.7vh .8vw;
+ box-shadow:0 8px 20px #0008;pointer-events:none;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-tv-map-selection small{
+ color:#bacce4;font-size:1.2vh;font-weight:800;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-tv-map-selection strong{
+ font-size:1.8vh;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-tv-map-selection span{
+ font-size:1.3vh;
+}
+@media(max-width:999px){
+ #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map-controls{
+  display:flex!important;justify-content:center;background:#e8f1fa;border-radius:9px;
+ }
+ #segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-map{
+  pointer-events:auto!important;cursor:pointer;
+ }
+}
