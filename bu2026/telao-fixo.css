@@ -142,3 +142,19 @@
   pointer-events:auto!important;cursor:pointer;
  }
 }
+
+/* Busca de município integrada à barra do mapa no telão. */
+#segundo-turno .t2-tv-search{display:none}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-tv-search{
+ display:flex;align-items:center;min-width:0;flex:1;max-width:18vw;gap:.2vw;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-tv-search input{
+ width:100%;min-width:0;background:white;color:#203248;border:1px solid #9bb2ca;
+ border-radius:5px;height:3.2vh;min-height:26px;padding:.25vh .5vw;font-size:1.25vh;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-tv-search button{
+ display:grid;place-items:center;min-width:2.9vh;height:3.2vh;min-height:26px;
+ border:1px solid #9bb2ca;border-radius:5px;background:#e9f4ff;color:#133e65;
+ font-size:2.5vh;font-weight:bold;cursor:pointer;
+}
+#segundo-turno:is(:fullscreen,.t2-fullscreen-fallback) .t2-margin-explainer{display:none}
