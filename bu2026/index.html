@@ -593,13 +593,14 @@ tbody tr:hover{background:#fff4ec}
     <div class="t2-refresh-info"><span id="turno2RefreshFeedback" class="t2-refresh-feedback" data-state="idle" role="status" aria-live="polite" aria-atomic="true">Toque em Atualizar TSE para consultar os dados.</span><span id="turno2LastCheck" class="t2-last-check">Última consulta: ainda não realizada</span></div>
     <div id="t2NationalPulse" class="t2-live-strip" aria-live="polite"></div>
     <div id="turno2Status" class="t2-note" role="status" aria-live="polite">Aguardando divulgação oficial do segundo turno.</div>
+     <div id="turno2ElectedStatus" class="t2-elected-banner" role="status" aria-live="polite" hidden></div>
     <details class="t2-regional-details"><summary>Consultar outras abrangências do 2º turno <span>Brasil, estados e municípios</span></summary><div id="turno2Areas" class="t2-areas" aria-label="Selecione a abrangência da apuração"></div></details>
     <div class="t2-detail">
       <div class="t2-heading"><h3 id="turno2Headline">Apuração para presidente • Brasil + exterior</h3><div class="t2-broadcast-tools"><select id="turno2AreaPicker" aria-label="Localidade fixa dos candidatos" onchange="BUSecondRound.select(this.value)"><option value="br">Brasil + exterior</option><option value="ma">Maranhão</option><option value="odc">Olho d’Água das Cunhãs</option><option value="vf">Vitorino Freire</option></select><strong id="turno2Progress">Aguardando apuração</strong></div></div>
       <div class="t2-broadcast-board">
       <div id="turno2Candidates" class="t2-candidates"></div>
     <div class="t2-map-card">
-      <div class="t2-central-head"><div><div class="t2-map-eyebrow">PAINEL ELEITORAL • DW TECH</div><h3>Mapa nacional • resultado por UF</h3><p>Mapa interativo com resultados oficiais. Escolha um estado para consultar seus municípios.</p></div><div class="t2-central-tools"><div class="t2-map-period" role="group" aria-label="Turno exibido somente no mapa"><button id="t2MapFirstBtn" type="button" aria-pressed="false" onclick="BUCentral.selectMapMode('first')">1º turno • teste</button><button id="t2MapSecondBtn" class="active" type="button" aria-pressed="true" onclick="BUCentral.selectMapMode('second')">2º turno</button></div><button id="t2StateRefresh" type="button" onclick="BUCentral.refresh()">↻ Atualizar mapa</button></div></div>
+      <div class="t2-central-head"><div><div class="t2-map-eyebrow">PAINEL ELEITORAL • DW TECH</div><h3>Mapa ampliado • estados e cidades</h3><p>Selecione um estado: os municípios e seus nomes ficam visíveis no mapa, com cores somente quando houver resultado oficial.</p></div><div class="t2-central-tools"><div class="t2-map-period" role="group" aria-label="Turno exibido somente no mapa"><button id="t2MapFirstBtn" type="button" aria-pressed="false" onclick="BUCentral.selectMapMode('first')">1º turno • teste</button><button id="t2MapSecondBtn" class="active" type="button" aria-pressed="true" onclick="BUCentral.selectMapMode('second')">2º turno</button></div><button id="t2StateRefresh" type="button" onclick="BUCentral.refresh()">↻ Atualizar mapa</button></div></div>
       <div id="t2MapContext" class="t2-map-context" role="status">2º turno de 2026 • consultando a apuração oficial do TSE...</div>
       <div class="t2-map-layout">
         <div>
@@ -614,6 +615,7 @@ tbody tr:hover{background:#fff4ec}
             </div>
           </div>
           <div id="t2MapScope" class="t2-map-scope" role="status" aria-live="polite">Selecione um estado para abrir o mapa de todos os seus municípios.</div>
+           <div class="t2-map-label-tools"><button id="t2CityLabelsBtn" type="button" hidden aria-pressed="true" onclick="BUMunicipios.toggleLabels()">◉ Nomes fixos</button><span id="t2MapLabelsInfo" aria-live="polite">Os nomes das cidades aparecem ao abrir um estado.</span></div>
           <div id="t2Map" class="t2-map" role="group" aria-label="Mapa geográfico interativo do Brasil e dos municípios por estado"></div>
           <div id="t2MunicipalLegend" class="t2-municipal-legend" hidden aria-label="Legenda das cores por município">
             <span class="t2-muni-key"><i class="t2-muni-swatch red"></i>Lula • 13</span>
