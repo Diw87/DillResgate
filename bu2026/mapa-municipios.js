@@ -6,21 +6,20 @@ const $=id=>document.getElementById(id),NS="http://www.w3.org/2000/svg";
 const UF_ID={AC:12,AL:27,AP:16,AM:13,BA:29,CE:23,DF:53,ES:32,GO:52,MA:21,MT:51,MS:50,MG:31,PA:15,PB:25,PR:41,PE:26,PI:22,RJ:33,RN:24,RS:43,RO:11,RR:14,SC:42,SP:35,SE:28,TO:17};
 const cache=new Map();
 let country=null,openUF="",sequence=0,colorSequence=0,svgCity=null,cityID="";
-let labelEntries=[],labelsVisible=true,labelZoom=1;
+let municipalZoom=1,centerX=410,centerY=292.5;
 const WINNER_CACHE_PREFIX="dwtech-bu2026-city-winners-v2-";
 const maps=new Map();
 const RELEASE=Date.UTC(2026,9,25,20,0,0);
 const isOpen=()=>!!openUF;
 function status(s){const n=$("t2MapScope");if(n)n.textContent=s;}
 function controls(){
- const b=$("t2MapBack"),l=$("t2MunicipalLegend"),names=$("t2CityLabelsBtn");
+ const b=$("t2MapBack"),l=$("t2MunicipalLegend");
  if(b)b.hidden=!openUF;
  if(l)l.hidden=!openUF;
- if(names){names.hidden=!openUF;names.setAttribute("aria-pressed",String(labelsVisible));names.textContent=labelsVisible?"◉ Nomes fixos":"◎ Mostrar nomes";}
 }
 function setCountryNode(node){country=node;}
 function goBrazil(){
- openUF="";sequence++;colorSequence++;cityID="";svgCity=null;labelEntries=[];labelZoom=1;
+ openUF="";sequence++;colorSequence++;cityID="";svgCity=null;municipalZoom=1;centerX=410;centerY=292.5;
  const target=$("t2Map");if(target){delete target.dataset.scope;if(country)target.replaceChildren(country);}
  controls();status("Brasil inteiro • toque em um estado para visualizar todas as suas cidades.");
 }
@@ -32,35 +31,26 @@ function walk(polys,callback){
  for(const poly of polys)for(const ring of poly)for(const p of ring)
   if(Array.isArray(p)&&Number.isFinite(p[0])&&Number.isFinite(p[1]))callback(p);
 }
-function renderLabels(){
+function updateMunicipalView(){
  if(!svgCity)return;
- const layer=svgCity.querySelector(".t2-city-name-layer");
- if(!layer)return;
- layer.replaceChildren();
- const note=$("t2MapLabelsInfo");
- if(!labelsVisible){if(note)note.textContent="Nomes ocultos • ative para identificar as cidades no mapa.";return;}
- const max=labelZoom>=2.8?155:labelZoom>=1.8?105:65;
- const slots=[],entries=labelEntries.slice().sort((a,b)=>(b.id===cityID)-(a.id===cityID)||b.area-a.area);
- let displayed=0;
- for(const item of entries){
-  const selected=item.id===cityID;
-  if(!selected&&displayed>=max)continue;
-  const w=Math.min(112,Math.max(25,item.name.length*5.3+9)),h=14;
-  const x=Math.max(w/2+2,Math.min(818-w/2,item.x)),y=Math.max(12,Math.min(574,item.y));
-  const box=[x-w/2-2,y-h/2-2,x+w/2+2,y+h/2+2];
-  if(!selected&&slots.some(a=>a[0]<box[2]&&a[2]>box[0]&&a[1]<box[3]&&a[3]>box[1]))continue;
-  slots.push(box);
-  const label=document.createElementNS(NS,"text");
-  label.setAttribute("x",x.toFixed(1));label.setAttribute("y",y.toFixed(1));
-  label.setAttribute("class","t2-city-name"+(selected?" is-selected":""));
-  label.setAttribute("text-anchor","middle");
-  label.textContent=item.name;
-  layer.appendChild(label);displayed++;
- }
- if(note)note.textContent=displayed+" nomes fixos no mapa • "+labelEntries.length+" cidades no estado. Amplie o mapa para ver mais.";
+ const W=820,H=585,w=W/municipalZoom,h=H/municipalZoom;
+ centerX=Math.max(w/2,Math.min(W-w/2,centerX));
+ centerY=Math.max(h/2,Math.min(H-h/2,centerY));
+ svgCity.setAttribute("viewBox",[(centerX-w/2).toFixed(2),(centerY-h/2).toFixed(2),w.toFixed(2),h.toFixed(2)].join(" "));
+ svgCity.style.touchAction=municipalZoom>1?"none":"auto";
 }
-function setLabelZoom(value){labelZoom=Number(value)||1;renderLabels();}
-function toggleLabels(){labelsVisible=!labelsVisible;controls();renderLabels();}
+function setZoom(zoom){
+ municipalZoom=Math.max(1,Math.min(4,Number(zoom)||1));
+ updateMunicipalView();
+}
+function panPixels(dx,dy){
+ if(!svgCity||municipalZoom<=1)return;
+ const rect=svgCity.getBoundingClientRect();
+ if(!rect.width||!rect.height)return;
+ centerX-=dx*(820/municipalZoom)/rect.width;
+ centerY-=dy*(585/municipalZoom)/rect.height;
+ updateMunicipalView();
+}
 function createMap(json,uf){
  const features=json.features.filter(f=>/^\d{7}$/.test(String(f?.properties?.id||""))&&polygons(f).length);
  if(!features.length)throw Error("Malha municipal sem polígonos");
@@ -80,17 +70,13 @@ function createMap(json,uf){
  svg.setAttribute("role","group");
  svg.setAttribute("aria-label","Mapa municipal interativo de "+uf);
  svg.dataset.baseViewBox="0 0 "+W+" "+H;
- const group=document.createElementNS(NS,"g"),frag=document.createDocumentFragment(),labels=[];
+ const group=document.createElementNS(NS,"g"),frag=document.createDocumentFragment();
  for(const f of features){
-  let d="",lx=Infinity,ly=Infinity,rx=-Infinity,by=-Infinity;
+  let d="";
   for(const poly of polygons(f))for(const ring of poly){
    const points=ring.filter(p=>Array.isArray(p)&&Number.isFinite(p[0])&&Number.isFinite(p[1]));
    if(points.length<3)continue;
-   d+=points.map((p,i)=>{
-    const xy=projected(p),x=Number(xy[0]),y=Number(xy[1]);
-    lx=Math.min(lx,x);rx=Math.max(rx,x);ly=Math.min(ly,y);by=Math.max(by,y);
-    return (i?"L":"M")+xy.join(",");
-   }).join("")+"Z";
+   d+=points.map((p,i)=>(i?"L":"M")+projected(p).join(",")).join("")+"Z";
   }
   if(!d)continue;
   const p=document.createElementNS(NS,"path");
@@ -100,15 +86,11 @@ function createMap(json,uf){
   p.setAttribute("aria-label",p.dataset.city);
   const title=document.createElementNS(NS,"title");title.textContent=p.dataset.city+" • selecionar cidade";p.appendChild(title);
   frag.appendChild(p);
-  if(Number.isFinite(lx))labels.push({id:p.dataset.ibge,name:p.dataset.city,x:(lx+rx)/2,y:(ly+by)/2,area:(rx-lx)*(by-ly)});
  }
  group.appendChild(frag);svg.appendChild(group);
- const layer=document.createElementNS(NS,"g");
- layer.setAttribute("class","t2-city-name-layer");
- layer.setAttribute("aria-hidden","true");
- svg.appendChild(layer);
- labelEntries=labels;
+ let drag=null,suppressClick=false;
  function pick(event){
+  if(suppressClick){suppressClick=false;return;}
   const el=event.target.closest?.("path[data-ibge]");
   if(!el)return;
   highlight(el.dataset.ibge);
@@ -119,6 +101,30 @@ function createMap(json,uf){
  }
  svg.addEventListener("click",pick);
  svg.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(e);}});
+ svg.addEventListener("wheel",e=>{
+  if(!openUF)return;
+  e.preventDefault();
+  window.BUCentral?.zoomMap(e.deltaY<0?1.18:1/1.18);
+ },{passive:false});
+ svg.addEventListener("pointerdown",e=>{
+  if(municipalZoom<=1||e.button!==0)return;
+  drag={id:e.pointerId,x:e.clientX,y:e.clientY,moved:false};
+  svg.setPointerCapture?.(e.pointerId);
+ });
+ svg.addEventListener("pointermove",e=>{
+  if(!drag||drag.id!==e.pointerId)return;
+  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(Math.abs(dx)+Math.abs(dy)>3){drag.moved=true;panPixels(dx,dy);}
+  drag.x=e.clientX;drag.y=e.clientY;
+ });
+ function endDrag(e){
+  if(!drag||drag.id!==e.pointerId)return;
+  suppressClick=drag.moved;
+  drag=null;
+  if(svg.hasPointerCapture?.(e.pointerId))svg.releasePointerCapture(e.pointerId);
+ }
+ svg.addEventListener("pointerup",endDrag);
+ svg.addEventListener("pointercancel",endDrag);
  svg.addEventListener("pointerover",e=>{
   const p=e.target.closest?.("path[data-ibge]");
   if(p){
@@ -307,8 +313,8 @@ async function show(uf){
   const json=await geometry(uf);
   if(request!==sequence||openUF!==uf)return;
   const {svg,count}=createMap(json,uf);
-  svgCity=svg;target.dataset.scope="municipios";target.replaceChildren(svg);
-  renderLabels();
+  svgCity=svg;municipalZoom=1;centerX=410;centerY=292.5;target.dataset.scope="municipios";target.replaceChildren(svg);
+  updateMunicipalView();
   status(count+" municípios no mapa de "+uf+" • conferindo vencedores oficiais...");
   refreshColors();
   const zoom=$("t2MapZoom");if(zoom)zoom.textContent="100%";
@@ -323,7 +329,7 @@ function highlight(ibge,winner){
  cityID=String(ibge||"");
  if(!svgCity)return;
  for(const el of svgCity.querySelectorAll(".is-selected"))el.classList.remove("is-selected");
- if(!cityID){renderLabels();return;}
+ if(!cityID)return;
  const path=svgCity.querySelector('[data-ibge="'+cityID+'"]');
  if(!path)return;
  path.classList.add("is-selected");
@@ -333,9 +339,8 @@ function highlight(ibge,winner){
   path.classList.remove("has-first","has-second","has-other");
   path.classList.add(String(winner)==="13"?"has-second":String(winner)==="22"?"has-first":"has-other");
  }else if(record)setWinner(path,record);
- renderLabels();
 }
-window.BUMunicipios={show,goBrazil,isOpen,setCountryNode,highlight,refreshColors,setLabelZoom,toggleLabels,
+window.BUMunicipios={show,goBrazil,isOpen,setCountryNode,highlight,refreshColors,setZoom,
  get count(){return svgCity?.querySelectorAll("[data-ibge]").length||0;},
  get uf(){return openUF;}
 };
