@@ -285,6 +285,7 @@ function updateMapView(){
  if(mapZoom>1&&focus){const b=focus.getBBox();cx=b.x+b.width/2;cy=b.y+b.height/2;}
  const x=Math.max(ox,Math.min(ox+ow-w,cx-w/2)),y=Math.max(oy,Math.min(oy+oh-h,cy-h/2));
  svg.setAttribute("viewBox",[x,y,w,h].map(v=>v.toFixed(2)).join(" "));
+ window.BUMunicipios?.setLabelZoom(mapZoom);
  const label=$("t2MapZoom");if(label)label.textContent=Math.round(mapZoom*100)+"%";
 }
 function zoomMap(factor){mapZoom=Math.max(1,Math.min(4,Math.round(mapZoom*factor*100)/100));updateMapView();}
