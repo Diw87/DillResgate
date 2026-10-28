@@ -100,7 +100,7 @@ function normalize(key,doc,url){
  const area=AREAS.find(a=>a.key===key);if(!area)return null;
  const candidates=[];
  for(const cargo of doc.carg||[])for(const agr of cargo.agr||[])for(const par of agr.par||[])for(const c of par.cand||[]){
-  candidates.push({numero:String(c.n??""),nome:c.nmu||c.nm||"",partido:par.sg||"",votos:n(c.vap),percentual:decimal(c.pvap),situacao:c.st||""});
+  candidates.push({numero:String(c.n??""),nome:c.nmu||c.nm||"",partido:par.sg||"",votos:n(c.vap),percentual:decimal(c.pvap),situacao:c.st||"",eleito:c.e==="s"});
  }
  candidates.sort((a,b)=>b.votos-a.votos);
  const s=doc.s||{},v=doc.v||{},e=doc.e||{};
@@ -161,7 +161,7 @@ function decorateNationalLead(){
  note.textContent="↗ VIRADA NACIONAL • LULA ASSUME A LIDERANÇA";
  card.querySelector(".t2-candidate-top")?.insertAdjacentElement("afterend",note);
 }
-function cardForCandidate(c,i,hasVotes,rank){
+function cardForCandidate(c,i,hasVotes,rank,electionMark=""){
  const number=String(c.numero||"");
  const palette=number==="22"?"blue":number==="13"?"red":"neutral";
  const photo=TSE_URNA_PHOTOS[number]||"";
@@ -171,9 +171,11 @@ function cardForCandidate(c,i,hasVotes,rank){
  const label=hasVotes&&rank?rank+"º na apuração":"Candidatura oficial";
  const name=String(c.nome||"Candidato a presidente");
  const votes=hasVotes?fmt(c.votos)+" votos válidos":"Aguardando votos oficiais do segundo turno";
+ const badge=electionMark==="elected"?"✓ ELEITO":electionMark==="leading"?"NA FRENTE":"";
+ const badgeHtml=badge?'<span class="t2-election-mark '+(electionMark==="elected"?"is-elected":"is-leading")+'">'+badge+'</span>':"";
  const photoHtml=photo?'<img src="'+esc(photo)+'" alt="Foto cadastrada na urna eletrônica: '+esc(name)+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">':"";
  return '<article class="t2-candidate" data-candidate-number="'+esc(number)+'" data-palette="'+palette+'" aria-label="'+esc(name)+', '+esc(c.partido||"")+'">'+
-  '<div class="t2-candidate-top"><span class="t2-number">'+esc(number||"—")+'</span><span class="t2-position">'+esc(label)+'</span></div>'+
+  '<div class="t2-candidate-top"><span class="t2-number">'+esc(number||"—")+'</span><span class="t2-position">'+esc(label)+'</span>'+badgeHtml+'</div>'+
   '<div class="t2-candidate-profile">'+
    '<div class="t2-portrait" aria-label="Retrato de '+esc(name)+'"><span aria-hidden="true">'+esc(number||"•")+'</span>'+photoHtml+'</div>'+
    '<div class="t2-candidate-info"><span class="t2-office">Presidente da República</span><h3>'+esc(name)+'</h3><p>'+esc(c.partido||"")+'</p></div>'+
@@ -185,6 +187,15 @@ function cardForCandidate(c,i,hasVotes,rank){
    '<span class="t2-photo-source">Foto: '+(credit?'<a href="'+esc(credit.page)+'" target="_blank" rel="noopener noreferrer">'+esc(credit.by)+'</a> · '+esc(credit.license):'arquivo')+' • Apuração: TSE</span>'+
   '</div>'+
  '</article>';
+}
+function nationalElected(r){
+ if(!officialReady(r)||r.fase!=="o"||String(r.codigoAbrangencia||"br").toLowerCase()!=="br")return "";
+ const ranked=(r.candidatos||[]).slice().sort((a,b)=>n(b.votos)-n(a.votos));
+ if(ranked.length<2||n(ranked[0].votos)<=n(ranked[1].votos))return "";
+ const final=r.totalizacaoFinal==="s"||r.andamento==="f";
+ const allSections=n(r.secoes?.total)>0&&n(r.secoes?.totalizadas)>=n(r.secoes.total);
+ if(final&&(allSections||ranked[0].eleito===true))return String(ranked[0].numero);
+ return "";
 }
 function render(){
  const area=AREAS.find(a=>a.id===selected)||AREAS[0];
@@ -214,8 +225,15 @@ function render(){
   ["Abstenção",ready&&r.eleitores?.abstencao!=null?fmt(r.eleitores.abstencao):dash]
  ].map(([label,value])=>'<div class="t2-stat"><span>'+label+'</span><strong>'+value+'</strong></div>').join("");
  const listed=pickCandidates(r);
+ const electedNumber=selected==="br"?nationalElected(r):"";
+ const electionStatus=$("turno2ElectedStatus");
+ if(electionStatus){
+  const winner=(r?.candidatos||[]).find(c=>String(c.numero)===electedNumber);
+  electionStatus.hidden=!winner;
+  electionStatus.textContent=winner?"✓ ELEITO • "+winner.nome+" ("+winner.numero+") • resultado oficial nacional do TSE":"";
+ }
  const ranked=ready?(r.candidatos||[]).slice().sort((a,b)=>n(b.votos)-n(a.votos)):[];
- candidates.innerHTML=listed.length?listed.map((c,i)=>cardForCandidate(c,i,ready,ranked.findIndex(x=>String(x.numero)===String(c.numero))+1)).join(""):
+ candidates.innerHTML=listed.length?listed.map((c,i)=>cardForCandidate(c,i,ready,ranked.findIndex(x=>String(x.numero)===String(c.numero))+1,electedNumber===String(c.numero)?"elected":selected==="br"&&ready&&ranked.length>1&&n(ranked[0].votos)>n(ranked[1].votos)&&String(ranked[0].numero)===String(c.numero)?"leading":"")).join(""):
   '<div class="t2-empty">Os dois candidatos classificados aparecem aqui após a leitura da base oficial. A votação do 2º turno permanece separada do 1º turno.</div>';
  const picker=$("turno2AreaPicker");if(picker)picker.value=selected;
  const progress=$("turno2Progress");
