@@ -298,8 +298,12 @@ function paintMapStates(){
   const uf=element.getAttribute("data-uf");
   const r=getMapData(uf),winner=hasMapVotes(r)?orderedCandidates(r)[0]:null;
   const kind=winner?candidateClass(winner):"pending";
-  element.classList.remove("first","second","pending","active");
+  element.classList.remove("first","second","pending","active","margin-close","margin-medium","margin-wide");
   element.classList.add(kind);
+  if(winner){
+   const ranked=orderedCandidates(r),margin=ranked.length>1?Math.abs(pct(ranked[0].percentual)-pct(ranked[1].percentual)):null;
+   if(Number.isFinite(margin))element.classList.add(margin<5?"margin-close":margin<20?"margin-medium":"margin-wide");
+  }
   if(uf===selectedUF)element.classList.add("active");
   element.setAttribute("aria-pressed",String(uf===selectedUF));
   const title=element.querySelector("title"),name=UF.find(v=>v[0]===uf)?.[1]||uf;
